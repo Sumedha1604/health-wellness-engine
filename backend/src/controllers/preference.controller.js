@@ -1,20 +1,23 @@
 const preferenceService = require("../services/preference.service");
+const asyncHandler = require("../utils/asyncHandler");
+const { success } = require("../utils/response");
 
-async function createPreferences(req, res) {
-  try {
+const savePreferences = asyncHandler(async (req, res) => {
+
     const result = await preferenceService.savePreferences(
-      req.user.user_id,
-      req.body
+        req.user.user_id,
+        req.body
     );
 
-    res.status(201).json(result);
-  } catch (err) {
-    res.status(500).json({
-      error: err.message,
-    });
-  }
-}
+    success(
+        res,
+        result,
+        "Preferences saved successfully",
+        201
+    );
+
+});
 
 module.exports = {
-  createPreferences,
+    savePreferences,
 };

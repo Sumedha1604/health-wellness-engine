@@ -1,51 +1,50 @@
 const favoriteService = require("../services/favorite.service");
+const asyncHandler = require("../utils/asyncHandler");
+const { success } = require("../utils/response");
 
-async function addFavorite(req, res) {
-  try {
-    const result = await favoriteService.addFavorite(
-      req.user.user_id,
-      req.body
+const addFavorite = asyncHandler(async (req, res) => {
+
+    const favorite = await favoriteService.addFavorite(
+        req.user.user_id,
+        req.body
     );
 
-    res.status(201).json(result);
-  } catch (err) {
-    res.status(500).json({
-      error: err.message,
-    });
-  }
-}
+    success(
+        res,
+        favorite,
+        "Favorite added successfully",
+        201
+    );
 
-async function getFavorites(req, res) {
-  try {
+});
+
+const getFavorites = asyncHandler(async (req, res) => {
+
     const favorites = await favoriteService.getFavorites(
-      req.user.user_id
+        req.user.user_id
     );
 
-    res.json(favorites);
-  } catch (err) {
-    res.status(500).json({
-      error: err.message,
-    });
-  }
-}
+    success(res, favorites);
 
-async function deleteFavorite(req, res) {
-  try {
+});
+
+const deleteFavorite = asyncHandler(async (req, res) => {
+
     const result = await favoriteService.deleteFavorite(
-      req.user.user_id,
-      req.params.favorite_id
+        req.params.favorite_id,
+        req.user.user_id
     );
 
-    res.json(result);
-  } catch (err) {
-    res.status(500).json({
-      error: err.message,
-    });
-  }
-}
+    success(
+        res,
+        result,
+        "Favorite deleted successfully"
+    );
+
+});
 
 module.exports = {
-  addFavorite,
-  getFavorites,
-  deleteFavorite,
+    addFavorite,
+    getFavorites,
+    deleteFavorite,
 };

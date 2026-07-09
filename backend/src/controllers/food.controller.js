@@ -1,51 +1,40 @@
+const { success } = require("../utils/response");
+const NotFoundError = require("../errors/NotFoundError");
 const foodService = require("../services/food.service");
+const asyncHandler = require("../utils/asyncHandler");
 
-async function getFoods(req, res) {
-    try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 20;
+const getFoods = asyncHandler(async (req, res) => {
 
-        const foods = await foodService.getFoods(page, limit);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
 
-        res.json(foods);
-    } catch (err) {
-        res.status(500).json({
-            error: err.message,
-        });
+    const foods = await foodService.getFoods(page, limit);
+
+    success(res, foods);
+
+});
+
+const getFoodById = asyncHandler(async (req, res) => {
+
+    const food = await foodService.getFoodById(req.params.id);
+
+    if (!food) {
+        throw new NotFoundError("Food not found.");
     }
-}
 
-async function getFoodById(req, res) {
-    try {
-        const food = await foodService.getFoodById(req.params.id);
+    success(res, food);
 
-        if (!food) {
-            return res.status(404).json({
-                error: "Food not found."
-            });
-        }
+});
 
-        res.json(food);
-    } catch (err) {
-        res.status(500).json({
-            error: err.message
-        });
-    }
-}
+const searchFoods = asyncHandler(async (req, res) => {
 
-async function searchFoods(req, res) {
-    try {
-        const { name } = req.query;
+    const { name } = req.query;
 
-        const foods = await foodService.searchFoods(name);
+    const foods = await foodService.searchFoods(name);
 
-        res.json(foods);
-    } catch (err) {
-        res.status(500).json({
-            error: err.message,
-        });
-    }
-}
+    success(res, foods);
+
+});
 
 module.exports = {
     getFoods,

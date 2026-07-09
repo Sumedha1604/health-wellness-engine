@@ -10,6 +10,10 @@ const preferenceRoutes = require("./routes/preference.routes");
 const recommendationRoutes = require("./routes/recommendation.routes");
 const favoriteRoutes = require("./routes/favorite.routes");
 const foodRoutes = require("./routes/food.routes");
+const mealPlanRoutes = require("./routes/mealPlan.routes");
+const dashboardRoutes = require("./routes/dashboard.routes");
+const errorMiddleware = require("./middleware/error.middleware");
+
 
 const app = express();
 
@@ -34,5 +38,9 @@ app.use("/api/preferences", preferenceRoutes);
 app.use("/api/recommendations", recommendationRoutes);
 app.use("/api/favorites", favoriteRoutes);
 app.use("/api/foods", foodRoutes);
+app.use("/api/meal-plans", mealPlanRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+
+app.use(errorMiddleware);
 
 module.exports = app;

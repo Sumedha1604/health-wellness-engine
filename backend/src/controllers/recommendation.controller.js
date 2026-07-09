@@ -1,21 +1,18 @@
 const recommendationService = require("../services/recommendation.service");
+const asyncHandler = require("../utils/asyncHandler");
+const { success } = require("../utils/response");
 
-async function getRecommendations(req, res) {
-  
-  try {
+const getRecommendations = asyncHandler(async (req, res) => {
+
     const recommendations =
-      await recommendationService.generateRecommendations(
-        req.user.user_id
-      );
+        await recommendationService.generateRecommendations(
+            req.user.user_id
+        );
 
-    res.json(recommendations);
-  } catch (err) {
-    res.status(500).json({
-      error: err.message,
-    });
-  }
-}
+    success(res, recommendations);
+
+});
 
 module.exports = {
-  getRecommendations,
+    getRecommendations,
 };
