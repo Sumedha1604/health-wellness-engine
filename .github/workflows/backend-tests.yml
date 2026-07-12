@@ -45,7 +45,11 @@ jobs:
           JWT_SECRET=${{ secrets.JWT_SECRET }}
           NODE_ENV=test
           EOF
-
+      - name: Verify environment variables
+        run: |
+          echo "DB_USER=$DB_USER"
+          echo "DB_NAME=$DB_NAME"
+          cat .env
       - name: Start MySQL
         run: docker compose up -d
 
