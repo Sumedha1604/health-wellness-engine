@@ -13,6 +13,8 @@ const foodRoutes = require("./routes/food.routes");
 const mealPlanRoutes = require("./routes/mealPlan.routes");
 const dashboardRoutes = require("./routes/dashboard.routes");
 const errorMiddleware = require("./middleware/error.middleware");
+const swaggerUi = require("swagger-ui-express");
+const swaggerSpec = require("./config/swagger");
 
 
 const app = express();
@@ -41,6 +43,11 @@ app.use("/api/foods", foodRoutes);
 app.use("/api/meal-plans", mealPlanRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec)
+);
 app.use(errorMiddleware);
 
 module.exports = app;

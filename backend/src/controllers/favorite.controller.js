@@ -31,8 +31,8 @@ const getFavorites = asyncHandler(async (req, res) => {
 const deleteFavorite = asyncHandler(async (req, res) => {
 
     const result = await favoriteService.deleteFavorite(
-        req.params.favorite_id,
-        req.user.user_id
+        req.user.user_id,
+        req.params.favorite_id
     );
 
     success(

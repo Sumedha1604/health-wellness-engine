@@ -59,19 +59,30 @@ async function deleteFavorite(userId, favoriteId) {
     const [result] = await db.execute(
         `
         DELETE FROM favorites
-        WHERE favorite_id = ?
-        AND user_id = ?
+        WHERE
+            favorite_id = ?
+            AND user_id = ?
         `,
-        [favoriteId, userId]
+        [
+            favoriteId,
+            userId,
+        ]
     );
 
     if (result.affectedRows === 0) {
-        throw new Error("Favorite not found.");
+
+        const error = new Error("Favorite not found");
+
+        error.statusCode = 404;
+
+        throw error;
+
     }
 
     return {
-        message: "Favorite deleted successfully."
+        message: "Favorite deleted successfully.",
     };
+
 }
 
 module.exports = {

@@ -5,14 +5,14 @@ const { success } = require("../utils/response");
 
 const createMealPlan = asyncHandler(async (req, res) => {
 
-    await mealPlanService.createMealPlan(
+    const mealPlan = await mealPlanService.createMealPlan(
         req.user.user_id,
         req.body
     );
-
+    
     success(
         res,
-        null,
+        mealPlan,
         "Meal added successfully",
         201
     );

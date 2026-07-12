@@ -8,7 +8,7 @@ async function createMealPlan(userId, meal) {
         quantity,
     } = meal;
 
-    await db.execute(
+    const [result] = await db.execute(
         `
         INSERT INTO meal_plans (
             user_id,
@@ -27,6 +27,9 @@ async function createMealPlan(userId, meal) {
             quantity,
         ]
     );
+    return {
+        meal_plan_id: result.insertId,
+    };
 }
 
 async function getMealPlans(userId) {
