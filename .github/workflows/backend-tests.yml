@@ -28,8 +28,7 @@ jobs:
         working-directory: backend
         run: npm ci
 
-      - name: Create backend .env
-        working-directory: backend
+      - name: Create root .env
         run: |
           cat <<EOF > .env
           MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
@@ -47,10 +46,9 @@ jobs:
           NODE_ENV=test
           EOF
 
-      - name: Verify backend .env
-        working-directory: backend
+      - name: Verify .env
         run: |
-          echo "===== backend/.env ====="
+          echo "===== Root .env ====="
           cat .env
 
       - name: Start MySQL
@@ -66,6 +64,28 @@ jobs:
             echo "Waiting for MySQL..."
             sleep 2
           done
+
+      - name: Create database schema
+        run: |
+          docker compose exec -T mysql mysql \
+            -uroot \
+            -p${{ secrets.MYSQL_ROOT_PASSWORD }} \
+            ${{ secrets.MYSQL_DATABASE }} \
+            < database/schema.sql
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Data Pipeline Dependencies
+        working-directory: data_pipeline
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Import Food Data
+        run: python -m data_pipeline.importers.import_foods
 
       - name: Run Tests
         working-directory: backend
