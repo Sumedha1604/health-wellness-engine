@@ -47,12 +47,14 @@ jobs:
           EOF
 
       - name: Verify .env
-        run: cat .env
+        run: |
+          echo "===== Root .env ====="
+          cat .env
 
       - name: Start MySQL
         run: docker compose up -d
 
-      - name: Wait for MySQL
+      - name: Wait for MySQL initialization
         run: |
           until docker compose exec -T mysql mysqladmin ping \
             -h localhost \
@@ -60,6 +62,17 @@ jobs:
             --silent
           do
             echo "Waiting for MySQL..."
+            sleep 2
+          done
+
+          echo "Waiting for schema initialization..."
+          until docker compose exec -T mysql mysql \
+            -uroot \
+            -p${{ secrets.MYSQL_ROOT_PASSWORD }} \
+            -e "USE ${{ secrets.MYSQL_DATABASE }}; SHOW TABLES;" \
+            | grep users
+          do
+            echo "Schema not ready..."
             sleep 2
           done
 
