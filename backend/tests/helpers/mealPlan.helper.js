@@ -23,8 +23,13 @@ async function createMealPlan(token, overrides = {}) {
         .set("Authorization", `Bearer ${token}`)
         .send(mealPlan);
 
-    return response.body.data.meal_plan_id;
+    expect(response.statusCode).toBe(201);
 
+    const mealPlansResponse = await request(app)
+        .get("/api/meal-plans")
+        .set("Authorization", `Bearer ${token}`);
+
+    return mealPlansResponse.body.data[0].meal_plan_id;
 }
 
 module.exports = {

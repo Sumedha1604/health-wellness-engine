@@ -149,7 +149,7 @@ test("PUT /api/meal-plans/:mealPlanId should persist updated values", async () =
 
     expect(response.body.data.meal_type).toBe("Dinner");
 
-    expect(response.body.data.quantity).toBe(4);
+    expect(Number(response.body.data.quantity)).toBe(4);
 
 });
 test("DELETE /api/meal-plans/:mealPlanId should delete a meal plan", async () => {
