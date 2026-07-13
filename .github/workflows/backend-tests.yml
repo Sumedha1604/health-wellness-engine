@@ -28,7 +28,8 @@ jobs:
         working-directory: backend
         run: npm ci
 
-      - name: Create .env
+      - name: Create backend .env
+        working-directory: backend
         run: |
           cat <<EOF > .env
           MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
@@ -45,11 +46,13 @@ jobs:
           JWT_SECRET=${{ secrets.JWT_SECRET }}
           NODE_ENV=test
           EOF
-      - name: Verify environment variables
+
+      - name: Verify backend .env
+        working-directory: backend
         run: |
-          echo "DB_USER=$DB_USER"
-          echo "DB_NAME=$DB_NAME"
+          echo "===== backend/.env ====="
           cat .env
+
       - name: Start MySQL
         run: docker compose up -d
 
