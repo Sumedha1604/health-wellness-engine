@@ -2,7 +2,7 @@
 
 A production-quality full-stack AI-powered recommendation system that provides personalized health and wellness recommendations using Machine Learning.
 
-## Tech Stack
+## Tech Stack:
 
 ### Frontend
 - React
