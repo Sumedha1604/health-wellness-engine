@@ -28,4 +28,5 @@ A production-quality full-stack AI-powered recommendation system that provides p
 ### DevOps
 - Docker
 - Docker Compose
-- GitHub Actions
+- GitHub Actions.
+
