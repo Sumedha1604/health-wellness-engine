@@ -47,9 +47,7 @@ jobs:
           EOF
 
       - name: Verify .env
-        run: |
-          echo "===== Root .env ====="
-          cat .env
+        run: cat .env
 
       - name: Start MySQL
         run: docker compose up -d
@@ -65,16 +63,6 @@ jobs:
             sleep 2
           done
 
-      - name: Create database schema
-        run: |
-          docker compose exec -T mysql mysql \
-            -uroot \
-            -p${{ secrets.MYSQL_ROOT_PASSWORD }} \
-            ${{ secrets.MYSQL_DATABASE }} \
-            < database/schema.sql
-            - name: Show MySQL logs
-            if: failure()
-            run: docker compose logs mysql
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
