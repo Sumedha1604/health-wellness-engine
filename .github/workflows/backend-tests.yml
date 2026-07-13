@@ -35,6 +35,8 @@ jobs:
           MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}
           MYSQL_USER=${{ secrets.MYSQL_USER }}
           MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+          MYSQL_HOST=127.0.0.1
+          MYSQL_PORT=3306
 
           DB_HOST=127.0.0.1
           DB_PORT=3306
@@ -47,32 +49,20 @@ jobs:
           EOF
 
       - name: Verify .env
-        run: |
-          echo "===== Root .env ====="
-          cat .env
+        run: cat .env
 
       - name: Start MySQL
         run: docker compose up -d
 
-      - name: Wait for MySQL initialization
+      - name: Wait for MySQL
         run: |
           until docker compose exec -T mysql mysqladmin ping \
             -h localhost \
+            -uroot \
             -p${{ secrets.MYSQL_ROOT_PASSWORD }} \
             --silent
           do
             echo "Waiting for MySQL..."
-            sleep 2
-          done
-
-          echo "Waiting for schema initialization..."
-          until docker compose exec -T mysql mysql \
-            -uroot \
-            -p${{ secrets.MYSQL_ROOT_PASSWORD }} \
-            -e "USE ${{ secrets.MYSQL_DATABASE }}; SHOW TABLES;" \
-            | grep users
-          do
-            echo "Schema not ready..."
             sleep 2
           done
 
