@@ -17,37 +17,52 @@ html{
 }
 
 body{
-
   font-family:"Inter",sans-serif;
-
   background:#F8FAF9;
-
   color:#1F2937;
-
-  transition:
-  background .25s,
-  color .25s;
-
+  transition:background .25s,color .25s;
 }
 
 body.dark{
-
   background:#111827;
   color:white;
-
 }
 
 button{
-
   font-family:inherit;
-
 }
 
 a{
+  text-decoration:none;
+  color:inherit;
+}
 
-text-decoration:none;
-color:inherit;
+}
 
+@layer components {
+
+.container-page{
+  @apply max-w-7xl mx-auto px-8;
+}
+
+.card{
+  @apply bg-white rounded-3xl shadow-card transition-all duration-300;
+}
+
+.card:hover{
+  @apply shadow-hover;
+}
+
+.text-muted{
+  @apply text-gray-500;
+}
+
+.bg-background{
+  background:#F8FAF9;
+}
+
+.bg-primary{
+  background:#A1E8CC;
 }
 
 }
