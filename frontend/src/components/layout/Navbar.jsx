@@ -1,7 +1,10 @@
+import { useEffect, useRef, useState } from "react";
 import {
   Bell,
   Moon,
   LogOut,
+  User,
+  ChevronDown,
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
@@ -13,12 +16,33 @@ export default function Navbar() {
 
   const { user, logout } = useAuth();
 
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   function handleLogout() {
 
     logout();
 
     navigate("/login");
 
+  }
+
+  function handleGoToProfile() {
+    setIsMenuOpen(false);
+    navigate("/profile");
   }
 
   return (
@@ -43,27 +67,83 @@ export default function Navbar() {
           <Bell size={20} />
         </button>
 
-        <div className="flex items-center gap-3">
+        <div className="relative" ref={menuRef}>
 
-          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center font-semibold">
-            {user?.first_name?.charAt(0)}
-          </div>
+          <button
+            type="button"
+            onClick={() => setIsMenuOpen((prev) => !prev)}
+            className="
+              flex items-center gap-3
+              rounded-xl
+              px-2 py-1.5
+              transition-colors duration-200
+              hover:bg-green-50
+            "
+          >
+            <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-green-100 text-lg font-bold text-green-700">
+              {user?.first_name?.charAt(0)}
+            </span>
 
-          <div>
+            <div className="text-left">
+              <p className="font-semibold text-gray-900">
+                {user?.first_name} {user?.last_name}
+              </p>
+              <p className="text-sm text-gray-500">
+                {user?.email}
+              </p>
+            </div>
 
-            <p className="font-medium">
-              {user?.first_name} {user?.last_name}
-            </p>
+            <ChevronDown
+              size={16}
+              className={`text-gray-400 transition-transform duration-200 ${
+                isMenuOpen ? "rotate-180" : ""
+              }`}
+            />
+          </button>
 
-            <button
-              onClick={handleLogout}
-              className="text-sm text-gray-500 hover:text-red-500 transition flex items-center gap-1"
+          {isMenuOpen && (
+            <div
+              className="
+                absolute right-0 top-full mt-2 w-56
+                bg-white
+                rounded-2xl
+                shadow-card
+                border border-gray-100
+                p-2
+                z-50
+              "
             >
-              <LogOut size={14} />
-              Logout
-            </button>
+              <button
+                onClick={handleGoToProfile}
+                className="
+                  flex w-full items-center gap-3
+                  rounded-xl
+                  px-3 py-2.5
+                  text-sm font-medium text-gray-700
+                  transition-colors duration-200
+                  hover:bg-green-50
+                "
+              >
+                <User className="h-4 w-4 text-green-600" strokeWidth={2} />
+                Go to Profile
+              </button>
 
-          </div>
+              <button
+                onClick={handleLogout}
+                className="
+                  flex w-full items-center gap-3
+                  rounded-xl
+                  px-3 py-2.5
+                  text-sm font-medium text-gray-700
+                  transition-colors duration-200
+                  hover:bg-red-50 hover:text-red-500
+                "
+              >
+                <LogOut className="h-4 w-4" strokeWidth={2} />
+                Logout
+              </button>
+            </div>
+          )}
 
         </div>
 

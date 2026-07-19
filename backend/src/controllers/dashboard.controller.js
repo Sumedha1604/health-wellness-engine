@@ -22,7 +22,29 @@ const getTodaySummary = asyncHandler(async (req, res) => {
 
 });
 
+const getRecentMeals = asyncHandler(async (req, res) => {
+
+    const meals = await dashboardService.getRecentMeals(
+        req.user.user_id
+    );
+
+    success(res, meals);
+
+});
+
+const getWeeklyCalories = asyncHandler(async (req, res) => {
+
+    const weeklyCalories = await dashboardService.getWeeklyCalories(
+        req.user.user_id
+    );
+
+    success(res, weeklyCalories);
+
+});
+
 module.exports = {
     getDashboard,
     getTodaySummary,
+    getRecentMeals,
+    getWeeklyCalories,
 };

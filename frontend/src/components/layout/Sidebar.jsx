@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-
 import {
   ChevronLeft,
   ChevronRight,
@@ -9,22 +8,16 @@ import {
   Sparkles,
   Heart,
   SlidersHorizontal,
-  User,
 } from "lucide-react";
-
 const menu = [
   { name: "Dashboard", path: "/", icon: LayoutDashboard },
   { name: "Meal Plans", path: "/meal-plans", icon: UtensilsCrossed },
   { name: "Recommendations", path: "/recommendations", icon: Sparkles },
   { name: "Favorites", path: "/favorites", icon: Heart },
   { name: "Preferences", path: "/preferences", icon: SlidersHorizontal },
-  { name: "Profile", path: "/profile", icon: User },
 ];
-
 export default function Sidebar() {
-
   const [collapsed, setCollapsed] = useState(false);
-
   return (
     <aside
       className={`
@@ -39,21 +32,17 @@ export default function Sidebar() {
       ${collapsed ? "w-24" : "w-72"}
       `}
     >
-
       <div className="flex items-center justify-between p-6">
-
         {!collapsed && (
           <div>
             <h1 className="text-2xl font-bold">
               Nourish
             </h1>
-
             <p className="text-sm text-muted">
               Wellness Engine
             </p>
           </div>
         )}
-
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="w-10 h-10 rounded-xl hover:bg-gray-100 flex items-center justify-center transition-all"
@@ -64,17 +53,11 @@ export default function Sidebar() {
             <ChevronLeft size={18} />
           )}
         </button>
-
       </div>
-
       <nav className="flex-1 px-4">
-
         {menu.map((item) => {
-
           const Icon = item.icon;
-
           return (
-
             <NavLink
               key={item.path}
               to={item.path}
@@ -98,21 +81,14 @@ export default function Sidebar() {
                 `
               }
             >
-
               <Icon size={20} />
-
               {!collapsed && (
                 <span>{item.name}</span>
               )}
-
             </NavLink>
-
           );
-
         })}
-
       </nav>
-
     </aside>
   );
 }

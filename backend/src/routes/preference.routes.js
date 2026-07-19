@@ -18,6 +18,12 @@ const validationMiddleware = require("../middleware/validation.middleware");
  *     description: User preference management
  */
 
+router.get(
+    "/",
+    authenticateToken,
+    preferenceController.getPreferences
+);
+
 /**
  * @swagger
  * /api/preferences:
@@ -37,31 +43,10 @@ const validationMiddleware = require("../middleware/validation.middleware");
  *     responses:
  *       201:
  *         description: Preferences saved successfully.
- *         content:
- *           application/json:
- *             example:
- *               success: true
- *               message: Preferences saved successfully
- *               data:
- *                 message: Preferences saved successfully
  *       400:
  *         description: Validation failed.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *             example:
- *               success: false
- *               message: Validation failed
  *       401:
- *         description: Unauthorized. JWT token is missing or invalid.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *             example:
- *               success: false
- *               message: Unauthorized
+ *         description: Unauthorized.
  */
 router.post(
     "/",

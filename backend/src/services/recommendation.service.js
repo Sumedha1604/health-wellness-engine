@@ -1,7 +1,8 @@
 const db = require("../config/db");
 
 async function generateRecommendations(userId) {
-  const [rows] = await db.execute(
+
+  const [[preferences]] = await db.execute(
     `
     SELECT
       fitness_goal,
@@ -13,70 +14,121 @@ async function generateRecommendations(userId) {
     [userId]
   );
 
-  if (rows.length === 0) {
+  if (!preferences) {
     throw new Error("Preferences not found");
   }
 
-  const preferences = rows[0];
+  const [meals] = await db.execute(
+    `
+    SELECT
+      f.food_name,
+      f.caloric_value,
+      f.protein,
+      f.carbohydrates,
+      f.fat,
+      mp.quantity
+    FROM meal_plans mp
+    INNER JOIN foods f
+      ON mp.food_id = f.food_id
+    WHERE
+      mp.user_id = ?
+      AND mp.meal_date = CURDATE()
+    `,
+    [userId]
+  );
 
-  let daily_calories = 2200;
-  let recommended_workouts = [];
-  let recommended_foods = [];
+  let totalCalories = 0;
+  let totalProtein = 0;
+  let totalCarbs = 0;
+  let totalFat = 0;
+
+  meals.forEach((meal) => {
+    totalCalories += Number(meal.caloric_value) * meal.quantity;
+    totalProtein += Number(meal.protein) * meal.quantity;
+    totalCarbs += Number(meal.carbohydrates) * meal.quantity;
+    totalFat += Number(meal.fat) * meal.quantity;
+  });
+
+  let calorieTarget = 2200;
 
   switch (preferences.fitness_goal) {
     case "Muscle Gain":
-      daily_calories = 2800;
-      recommended_workouts = [
-        "Bench Press",
-        "Squats",
-        "Deadlifts",
-        "Pull Ups"
-      ];
-      recommended_foods = [
-        "Chicken Breast",
-        "Eggs",
-        "Brown Rice",
-        "Greek Yogurt"
-      ];
+      calorieTarget = 2800;
       break;
 
     case "Weight Loss":
-      daily_calories = 1800;
-      recommended_workouts = [
-        "Running",
-        "Cycling",
-        "HIIT",
-        "Jump Rope"
-      ];
-      recommended_foods = [
-        "Oats",
-        "Salad",
-        "Grilled Fish",
-        "Apple"
-      ];
+      calorieTarget = 1800;
       break;
 
     default:
-      daily_calories = 2200;
-      recommended_workouts = [
-        "Walking",
-        "Swimming",
-        "Yoga"
-      ];
-      recommended_foods = [
-        "Vegetables",
-        "Whole Grains",
-        "Fruits"
-      ];
+      calorieTarget = 2200;
+  }
+
+  let nutritionScore = 100;
+
+  if (totalCalories < calorieTarget * 0.7) {
+    nutritionScore -= 20;
+  }
+
+  if (totalProtein < 80) {
+    nutritionScore -= 20;
+  }
+
+  if (totalFat > 80) {
+    nutritionScore -= 10;
+  }
+
+  if (nutritionScore < 0) {
+    nutritionScore = 0;
+  }
+
+  let aiTip = "Great job! Keep maintaining a balanced diet.";
+  let topRecommendation = "Balanced Nutrition";
+  let recommendedFoods = [
+    "Chicken Breast",
+    "Greek Yogurt",
+    "Broccoli",
+    "Brown Rice"
+  ];
+
+  if (totalProtein < 80) {
+    topRecommendation = "Increase Protein Intake";
+    aiTip = "Your protein intake is low today. Include lean protein in your next meal.";
+    recommendedFoods = [
+      "Chicken Breast",
+      "Eggs",
+      "Greek Yogurt",
+      "Salmon"
+    ];
+  } else if (totalCalories < calorieTarget) {
+    topRecommendation = "Increase Daily Calories";
+    aiTip = "You are below your calorie target. Add a healthy snack or balanced meal.";
+    recommendedFoods = [
+      "Brown Rice",
+      "Oats",
+      "Banana",
+      "Peanut Butter"
+    ];
   }
 
   return {
     fitness_goal: preferences.fitness_goal,
     activity_level: preferences.activity_level,
     diet_type: preferences.diet_type,
-    daily_calories,
-    recommended_workouts,
-    recommended_foods,
+
+    nutrition_score: nutritionScore,
+
+    summary: {
+      calories: totalCalories,
+      protein: totalProtein,
+      carbohydrates: totalCarbs,
+      fat: totalFat,
+      calorie_target: calorieTarget,
+    },
+
+    top_recommendation: topRecommendation,
+    ai_tip: aiTip,
+    recommended_foods: recommendedFoods,
   };
 }
 

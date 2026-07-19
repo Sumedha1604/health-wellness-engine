@@ -80,7 +80,80 @@ async function getTodaySummary(userId) {
     };
 }
 
+async function getRecentMeals(userId) {
+
+    const [rows] = await db.execute(
+        `
+        SELECT
+            mp.meal_plan_id,
+            mp.meal_type,
+            mp.quantity,
+            mp.meal_date,
+            f.food_name,
+            f.caloric_value
+        FROM meal_plans mp
+        INNER JOIN foods f
+            ON mp.food_id = f.food_id
+        WHERE mp.user_id = ?
+        ORDER BY mp.meal_date DESC, mp.meal_plan_id DESC
+        LIMIT 5
+        `,
+        [userId]
+    );
+
+    return rows;
+
+}
+
+async function getWeeklyCalories(userId) {
+
+    const [rows] = await db.execute(
+        `
+        SELECT
+            DATE(mp.meal_date) AS meal_date,
+            SUM(f.caloric_value * mp.quantity) AS calories
+        FROM meal_plans mp
+        INNER JOIN foods f
+            ON mp.food_id = f.food_id
+        WHERE
+            mp.user_id = ?
+            AND mp.meal_date >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+        GROUP BY DATE(mp.meal_date)
+        ORDER BY meal_date
+        `,
+        [userId]
+    );
+
+    const caloriesMap = {};
+
+    rows.forEach((row) => {
+        const date = new Date(row.meal_date).toISOString().split("T")[0];
+        caloriesMap[date] = Number(row.calories);
+    });
+
+    const weeklyData = [];
+
+    for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+
+        const dateString = date.toISOString().split("T")[0];
+
+        weeklyData.push({
+            day: date.toLocaleDateString("en-US", {
+                weekday: "short",
+            }),
+            calories: caloriesMap[dateString] || 0,
+        });
+    }
+
+    return weeklyData;
+
+}
+
 module.exports = {
     getDashboard,
     getTodaySummary,
+    getRecentMeals,
+    getWeeklyCalories,
 };

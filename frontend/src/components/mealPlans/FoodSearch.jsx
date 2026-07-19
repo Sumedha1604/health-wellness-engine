@@ -18,6 +18,10 @@ export default function FoodSearch({
 
       setQuery(value.food_name);
 
+    } else {
+
+      setQuery("");
+
     }
 
   }, [value]);

@@ -39,12 +39,12 @@ const preferenceValidator = [
         })
         .withMessage("Sleep hours must be between 0 and 24"),
 
-    body("stress_level")
+        body("stress_level")
         .isInt({
             min: 1,
-            max: 5,
+            max: 10,
         })
-        .withMessage("Stress level must be between 1 and 5"),
+        .withMessage("Stress level must be between 1 and 10"),
 ];
 
 module.exports = {

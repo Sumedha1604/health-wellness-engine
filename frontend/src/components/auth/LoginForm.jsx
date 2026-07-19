@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -9,7 +9,6 @@ import { login } from "../../services/auth.service";
 import { useAuth } from "../../context/AuthContext";
 
 export default function LoginForm() {
-
   const navigate = useNavigate();
 
   const { login: loginUser } = useAuth();
@@ -20,12 +19,19 @@ export default function LoginForm() {
 
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e) {
+  useEffect(() => {
+    const message = localStorage.getItem("authMessage");
 
+    if (message) {
+      toast.error(message);
+      localStorage.removeItem("authMessage");
+    }
+  }, []);
+
+  async function handleSubmit(e) {
     e.preventDefault();
 
     try {
-
       setLoading(true);
 
       const response = await login({
@@ -45,7 +51,6 @@ export default function LoginForm() {
       navigate("/");
 
     } catch (error) {
-
       console.log(error);
 
       toast.error(
@@ -54,20 +59,15 @@ export default function LoginForm() {
       );
 
     } finally {
-
       setLoading(false);
-
     }
-
   }
 
   return (
-
     <form
       onSubmit={handleSubmit}
       className="space-y-4"
     >
-
       <h1 className="text-3xl font-bold">
         Welcome Back
       </h1>
@@ -100,9 +100,6 @@ export default function LoginForm() {
       >
         {loading ? "Signing In..." : "Login"}
       </Button>
-
     </form>
-
   );
-
 }

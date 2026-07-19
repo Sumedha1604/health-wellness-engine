@@ -1,14 +1,27 @@
 const db = require("../config/db");
 
 async function addFavorite(userId, data) {
-    const { food_id, exercise_id } = data;
+    const {
+        food_id,
+        exercise_id,
+        meal_plan_id,
+    } = data;
 
-    if (!food_id && !exercise_id) {
-        throw new Error("food_id or exercise_id is required.");
+    const count =
+        Boolean(food_id) +
+        Boolean(exercise_id) +
+        Boolean(meal_plan_id);
+
+    if (count === 0) {
+        throw new Error(
+            "food_id, exercise_id, or meal_plan_id is required."
+        );
     }
 
-    if (food_id && exercise_id) {
-        throw new Error("Provide either food_id or exercise_id, not both.");
+    if (count > 1) {
+        throw new Error(
+            "Provide only one of food_id, exercise_id, or meal_plan_id."
+        );
     }
 
     const [result] = await db.execute(
@@ -17,20 +30,22 @@ async function addFavorite(userId, data) {
         (
             user_id,
             exercise_id,
-            food_id
+            food_id,
+            meal_plan_id
         )
-        VALUES (?, ?, ?)
+        VALUES (?, ?, ?, ?)
         `,
         [
             userId,
             exercise_id || null,
-            food_id || null
+            food_id || null,
+            meal_plan_id || null,
         ]
     );
 
     return {
         message: "Favorite added successfully.",
-        favorite_id: result.insertId
+        favorite_id: result.insertId,
     };
 }
 
@@ -40,12 +55,24 @@ async function getFavorites(userId) {
         `
         SELECT
             f.favorite_id,
+
             fd.food_id,
             fd.food_name,
-            fd.caloric_value
+            fd.caloric_value,
+
+            mp.meal_plan_id,
+            mp.meal_type,
+            mp.meal_date,
+            mp.quantity
+
         FROM favorites f
+
         LEFT JOIN foods fd
             ON f.food_id = fd.food_id
+
+        LEFT JOIN meal_plans mp
+            ON f.meal_plan_id = mp.meal_plan_id
+
         WHERE f.user_id = ?
         `,
         [userId]

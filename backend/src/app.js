@@ -16,14 +16,8 @@ const errorMiddleware = require("./middleware/error.middleware");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./config/swagger");
 
-
 const app = express();
 
-app.use((req, res, next) => {
-    console.log("GLOBAL:", req.method, req.originalUrl);
-    next();
-  });
-  
 // Middleware
 app.use(helmet());
 app.use(cors());
@@ -44,10 +38,11 @@ app.use("/api/meal-plans", mealPlanRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
 app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerSpec)
+    "/api-docs",
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerSpec)
 );
+
 app.use(errorMiddleware);
 
 module.exports = app;

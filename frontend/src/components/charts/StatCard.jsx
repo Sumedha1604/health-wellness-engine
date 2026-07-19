@@ -4,6 +4,13 @@ export default function StatCard({
   unit,
   icon,
 }) {
+  const formattedValue =
+    typeof value === "number"
+      ? Number.isInteger(value)
+        ? value
+        : Number(value.toFixed(1))
+      : value;
+
   return (
     <div
       className="
@@ -18,25 +25,20 @@ export default function StatCard({
       "
     >
       <div className="flex items-center justify-between">
-
         <div>
-
           <p className="text-gray-500 text-sm font-medium">
             {title}
           </p>
 
           <div className="flex items-end gap-2 mt-4">
-
             <h2 className="text-4xl font-bold">
-              {value}
+              {formattedValue}
             </h2>
 
             <span className="text-gray-400 mb-1">
               {unit}
             </span>
-
           </div>
-
         </div>
 
         <div
@@ -53,7 +55,6 @@ export default function StatCard({
         >
           {icon}
         </div>
-
       </div>
     </div>
   );
