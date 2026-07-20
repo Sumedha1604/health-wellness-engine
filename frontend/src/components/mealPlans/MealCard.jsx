@@ -1,9 +1,11 @@
-import { Pencil, Trash2, Flame, Beef, Wheat, Droplet } from "lucide-react";
+import { Pencil, Trash2, Flame, Beef, Wheat, Droplet, Heart } from "lucide-react";
 import toast from "react-hot-toast";
 import { deleteMealPlan } from "../../services/mealPlan.service";
+import { addFavorite } from "../../services/favorite.service";
 
 export default function MealCard({
   meal,
+  isFavorite,
   onRefresh,
   onEdit,
 }) {
@@ -48,6 +50,24 @@ export default function MealCard({
       toast.error(
         error.response?.data?.message ||
         "Failed to delete meal."
+      );
+    }
+  }
+
+  async function handleFavorite() {
+    try {
+      await addFavorite({
+        meal_plan_id: meal.meal_plan_id
+      });
+      toast.success(
+        "Added to favorites!"
+      );
+      onRefresh();
+    } catch (error) {
+      console.error(error);
+      toast.error(
+        error.response?.data?.message ||
+        "Failed to add favorite."
       );
     }
   }
@@ -137,6 +157,27 @@ export default function MealCard({
 
       {/* Actions */}
       <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
+        <button
+          onClick={handleFavorite}
+          disabled={isFavorite}
+          className="
+            flex items-center gap-2
+            px-4 py-2
+            rounded-xl
+            bg-green-50
+            text-green-600
+            font-medium text-sm
+            transition-colors duration-200
+            hover:bg-green-100
+            disabled:cursor-default
+          "
+        >
+          <Heart
+            size={16}
+            className={isFavorite ? "fill-green-600" : ""}
+          />
+          {isFavorite ? "Favorited" : "Favorite"}
+        </button>
         <button
           onClick={() => onEdit(meal)}
           className="

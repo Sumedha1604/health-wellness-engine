@@ -48,6 +48,23 @@ export default function Favorites() {
     return `${Math.round(calories)} kcal`;
   }
 
+  function formatQuantity(quantity) {
+    return Number(quantity) === 1
+      ? "1 serving"
+      : `${quantity} servings`;
+  }
+
+  function formatDate(date) {
+    return new Date(date).toLocaleDateString(
+      "en-US",
+      {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }
+    );
+  }
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -111,25 +128,60 @@ export default function Favorites() {
             <div
               key={favorite.favorite_id}
               className="
-                bg-white rounded-3xl shadow-card p-6
+                bg-white
+                border border-gray-100
+                rounded-3xl
+                shadow-card
+                p-6
                 transition-all duration-200
-                hover:shadow-lg hover:-translate-y-0.5
+                hover:shadow-lg
+                hover:-translate-y-0.5
               "
             >
+              {/* Top row */}
               <div className="flex items-start justify-between">
                 <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-green-50">
                   <Heart className="h-5 w-5 text-green-600 fill-green-600" strokeWidth={2} />
                 </span>
-                <span className="flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-sm font-semibold text-green-700">
+                <span className="flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1.5 text-sm font-semibold text-green-700">
                   <Flame className="h-4 w-4" strokeWidth={2} />
                   {formatCalories(favorite.caloric_value)}
                 </span>
               </div>
 
-              <h3 className="mt-5 text-lg font-semibold text-gray-900 truncate">
+              {/* Content */}
+              <h3 className="mt-5 text-xl font-bold text-gray-900 tracking-tight truncate">
                 {favorite.food_name}
               </h3>
 
+              <div className="flex flex-wrap items-center gap-3 mt-2">
+                {favorite.meal_type && (
+                  <span
+                    className="
+                      px-3 py-1
+                      rounded-full
+                      bg-green-100
+                      text-green-700
+                      text-sm font-medium
+                    "
+                  >
+                    {favorite.meal_type}
+                  </span>
+                )}
+                {favorite.quantity != null && (
+                  <span className="text-sm text-gray-500">
+                    {formatQuantity(favorite.quantity)}
+                  </span>
+                )}
+              </div>
+
+              {favorite.meal_date && (
+                <p className="mt-2 text-sm text-gray-400">
+                  {formatDate(favorite.meal_date)}
+                </p>
+              )}
+
+              {/* Bottom */}
               <button
                 onClick={() => handleRemove(favorite)}
                 className="

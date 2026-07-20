@@ -56,22 +56,22 @@ async function getFavorites(userId) {
         SELECT
             f.favorite_id,
 
-            fd.food_id,
-            fd.food_name,
-            fd.caloric_value,
-
             mp.meal_plan_id,
             mp.meal_type,
             mp.meal_date,
-            mp.quantity
+            mp.quantity,
+
+            fd.food_id,
+            fd.food_name,
+            fd.caloric_value
 
         FROM favorites f
 
-        LEFT JOIN foods fd
-            ON f.food_id = fd.food_id
-
-        LEFT JOIN meal_plans mp
+        JOIN meal_plans mp
             ON f.meal_plan_id = mp.meal_plan_id
+
+        JOIN foods fd
+            ON mp.food_id = fd.food_id
 
         WHERE f.user_id = ?
         `,

@@ -4,9 +4,11 @@ import Button from "../components/ui/Button";
 import MealModal from "../components/mealPlans/MealModal";
 import MealCard from "../components/mealPlans/MealCard";
 import { getMealPlans } from "../services/mealPlan.service";
+import { getFavorites } from "../services/favorite.service";
 
 export default function MealPlans() {
   const [meals, setMeals] = useState([]);
+  const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState(null);
@@ -14,8 +16,12 @@ export default function MealPlans() {
   async function loadMeals() {
     try {
       setLoading(true);
-      const data = await getMealPlans();
-      setMeals(data);
+      const [mealsData, favoritesData] = await Promise.all([
+        getMealPlans(),
+        getFavorites(),
+      ]);
+      setMeals(mealsData);
+      setFavorites(favoritesData);
     } catch (error) {
       console.error(error);
     } finally {
@@ -136,6 +142,10 @@ export default function MealPlans() {
               <MealCard
                 key={meal.meal_plan_id}
                 meal={meal}
+                isFavorite={favorites.some(
+                  (favorite) =>
+                    favorite.meal_plan_id === meal.meal_plan_id
+                )}
                 onRefresh={loadMeals}
                 onEdit={handleEditMeal}
               />
