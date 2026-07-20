@@ -66,6 +66,12 @@ jobs:
             sleep 2
           done
 
+      - name: Initialize Database Schema
+        run: |
+          docker compose exec -T mysql \
+          mysql -uroot -p${{ secrets.MYSQL_ROOT_PASSWORD }} \
+          ${{ secrets.MYSQL_DATABASE }} < database/schema.sql
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
