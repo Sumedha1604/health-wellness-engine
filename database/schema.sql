@@ -217,6 +217,8 @@ CREATE TABLE favorites (
 
     food_id INT NULL,
 
+    meal_plan_id INT NULL,
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_favorite_user
@@ -232,7 +234,12 @@ CREATE TABLE favorites (
     CONSTRAINT fk_favorite_food
         FOREIGN KEY (food_id)
         REFERENCES foods(food_id)
-        ON DELETE CASCADE
+        ON DELETE CASCADE,
+    
+    CONSTRAINT fk_favorite_meal_plan
+    FOREIGN KEY (meal_plan_id)
+    REFERENCES meal_plans(meal_plan_id)
+    ON DELETE CASCADE
 
 );
 CREATE TABLE recommendations (
