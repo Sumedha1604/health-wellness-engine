@@ -34,17 +34,11 @@ export default function RegisterForm() {
 
       const response = await register(form);
 
-      console.log("Success:", response);
-
       toast.success("Account created successfully!");
 
       navigate("/login");
 
     } catch (error) {
-      console.log("Registration Error:", error);
-      console.log("Response:", error.response);
-      console.log("Data:", error.response?.data);
-
       toast.error(
         error.response?.data?.message ||
         "Registration failed"

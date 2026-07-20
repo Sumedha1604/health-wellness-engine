@@ -39,8 +39,6 @@ export default function LoginForm() {
         password,
       });
 
-      console.log(response);
-
       loginUser(
         response.data.token,
         response.data.user
@@ -51,8 +49,6 @@ export default function LoginForm() {
       navigate("/");
 
     } catch (error) {
-      console.log(error);
-
       toast.error(
         error.response?.data?.message ||
         "Login failed"

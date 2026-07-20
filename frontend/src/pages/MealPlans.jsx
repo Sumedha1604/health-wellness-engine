@@ -4,7 +4,8 @@ import Button from "../components/ui/Button";
 import MealModal from "../components/mealPlans/MealModal";
 import MealCard from "../components/mealPlans/MealCard";
 import { getMealPlans } from "../services/mealPlan.service";
-import { getFavorites } from "../services/favorite.service";
+import { getFavorites, addFavorite, deleteFavorite } from "../services/favorite.service";
+import toast from "react-hot-toast";
 
 export default function MealPlans() {
   const [meals, setMeals] = useState([]);
@@ -32,6 +33,47 @@ export default function MealPlans() {
   useEffect(() => {
     loadMeals();
   }, []);
+
+  async function handleToggleFavorite(mealPlanId) {
+    const existingFavorite = favorites.find(
+      (fav) => fav.meal_plan_id === mealPlanId
+    );
+
+    if (existingFavorite) {
+      const favId = existingFavorite.favorite_id || existingFavorite.id;
+      try {
+        await deleteFavorite(favId);
+        setFavorites((prev) =>
+          prev.filter((fav) => fav.meal_plan_id !== mealPlanId)
+        );
+        toast.success("Removed from favorites!");
+      } catch (error) {
+        console.error(error);
+        toast.error(
+          error.response?.data?.message || "Failed to remove favorite."
+        );
+      }
+    } else {
+      try {
+        const newFav = await addFavorite({ meal_plan_id: mealPlanId });
+        const createdFavorite = newFav.data || newFav;
+
+        setFavorites((prev) => [
+          ...prev,
+          {
+            ...createdFavorite,
+            meal_plan_id: mealPlanId,
+          },
+        ]);
+        toast.success("Added to favorites!");
+      } catch (error) {
+        console.error(error);
+        toast.error(
+          error.response?.data?.message || "Failed to add favorite."
+        );
+      }
+    }
+  }
 
   function handleAddMeal() {
     setSelectedMeal(null);
@@ -147,6 +189,7 @@ export default function MealPlans() {
                     favorite.meal_plan_id === meal.meal_plan_id
                 )}
                 onRefresh={loadMeals}
+                onToggleFavorite={() => handleToggleFavorite(meal.meal_plan_id)}
                 onEdit={handleEditMeal}
               />
             ))}
