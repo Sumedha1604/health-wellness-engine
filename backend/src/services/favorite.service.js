@@ -56,22 +56,38 @@ async function getFavorites(userId) {
         SELECT
             f.favorite_id,
 
-            mp.meal_plan_id,
+            COALESCE(f.food_id, mp.food_id) AS food_id,
+            COALESCE(fd.food_name, mpf.food_name) AS food_name,
+            COALESCE(fd.caloric_value, mpf.caloric_value) AS caloric_value,
+
+            f.meal_plan_id,
             mp.meal_type,
             mp.meal_date,
             mp.quantity,
 
-            fd.food_id,
-            fd.food_name,
-            fd.caloric_value
+            f.exercise_id,
+            ex.title,
+            ex.description,
+            ex.exercise_type,
+            ex.body_part,
+            ex.equipment,
+            ex.difficulty_level,
+            ex.rating,
+            ex.rating_description
 
         FROM favorites f
 
-        JOIN meal_plans mp
+        LEFT JOIN foods fd
+            ON f.food_id = fd.food_id
+
+        LEFT JOIN meal_plans mp
             ON f.meal_plan_id = mp.meal_plan_id
 
-        JOIN foods fd
-            ON mp.food_id = fd.food_id
+        LEFT JOIN foods mpf
+            ON mp.food_id = mpf.food_id
+
+        LEFT JOIN exercises ex
+            ON f.exercise_id = ex.exercise_id
 
         WHERE f.user_id = ?
         `,
