@@ -207,6 +207,41 @@ CREATE TABLE workouts (
         ON DELETE CASCADE
 
 );
+CREATE TABLE meal_plans (
+
+    meal_plan_id INT AUTO_INCREMENT PRIMARY KEY,
+
+    user_id INT NOT NULL,
+
+    food_id INT NOT NULL,
+
+    meal_type ENUM(
+        'Breakfast',
+        'Lunch',
+        'Dinner',
+        'Snack'
+    ) NOT NULL,
+
+    meal_date DATE NOT NULL,
+
+    quantity DECIMAL(10,2) NOT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_mealplans_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_mealplans_food
+        FOREIGN KEY (food_id)
+        REFERENCES foods(food_id)
+        ON DELETE CASCADE
+
+);
 CREATE TABLE favorites (
 
     favorite_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -300,41 +335,6 @@ CREATE TABLE recommendation_logs (
     CONSTRAINT fk_log_recommendation
         FOREIGN KEY (recommendation_id)
         REFERENCES recommendations(recommendation_id)
-        ON DELETE CASCADE
-
-);
-CREATE TABLE meal_plans (
-
-    meal_plan_id INT AUTO_INCREMENT PRIMARY KEY,
-
-    user_id INT NOT NULL,
-
-    food_id INT NOT NULL,
-
-    meal_type ENUM(
-        'Breakfast',
-        'Lunch',
-        'Dinner',
-        'Snack'
-    ) NOT NULL,
-
-    meal_date DATE NOT NULL,
-
-    quantity DECIMAL(10,2) NOT NULL,
-
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ON UPDATE CURRENT_TIMESTAMP,
-
-    CONSTRAINT fk_mealplans_user
-        FOREIGN KEY (user_id)
-        REFERENCES users(user_id)
-        ON DELETE CASCADE,
-
-    CONSTRAINT fk_mealplans_food
-        FOREIGN KEY (food_id)
-        REFERENCES foods(food_id)
         ON DELETE CASCADE
 
 );
