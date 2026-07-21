@@ -1,60 +1,124 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart, ArrowRight, Trash2, Flame, Loader2 } from "lucide-react";
+import {
+  Heart,
+  ArrowRight,
+  Trash2,
+  Flame,
+  Loader2,
+  Dumbbell,
+  Utensils,
+} from "lucide-react";
 import toast from "react-hot-toast";
-import { getFavorites, deleteFavorite } from "../services/favorite.service";
+
+import {
+  getFavorites,
+  deleteFavorite,
+} from "../services/favorite.service";
+
+import ExerciseCard from "../components/exercises/ExerciseCard";
+
 
 export default function Favorites() {
+
   const navigate = useNavigate();
 
   const [favorites, setFavorites] = useState([]);
+  const [activeTab, setActiveTab] = useState("meals");
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+
 
   useEffect(() => {
     loadFavorites();
   }, []);
 
+
+
   async function loadFavorites() {
+
     try {
+
       setLoading(true);
       setError(null);
+
       const data = await getFavorites();
+
       setFavorites(data);
+
     } catch (err) {
+
       console.error(err);
-      setError("Unable to load your favorite meals.");
+      setError("Unable to load favorites.");
+
     } finally {
+
       setLoading(false);
+
     }
+
   }
+
+
 
   async function handleRemove(favorite) {
+
     try {
-      await deleteFavorite(favorite.favorite_id);
-      toast.success("Removed from favorites.");
+
+      await deleteFavorite(
+        favorite.favorite_id
+      );
+
+      toast.success(
+        "Removed from favorites."
+      );
+
+
       setFavorites((prev) =>
-        prev.filter((item) => item.favorite_id !== favorite.favorite_id)
+        prev.filter(
+          (item) =>
+            item.favorite_id !==
+            favorite.favorite_id
+        )
       );
+
+
     } catch (err) {
+
       console.error(err);
+
       toast.error(
-        err.response?.data?.message || "Failed to remove favorite."
+        "Failed to remove favorite."
       );
+
     }
+
   }
+
+
 
   function formatCalories(calories) {
+
     return `${Math.round(calories)} kcal`;
+
   }
 
+
+
   function formatQuantity(quantity) {
+
     return Number(quantity) === 1
       ? "1 serving"
       : `${quantity} servings`;
+
   }
 
+
+
   function formatDate(date) {
+
     return new Date(date).toLocaleDateString(
       "en-US",
       {
@@ -63,146 +127,367 @@ export default function Favorites() {
         year: "numeric",
       }
     );
+
   }
 
+
+
+  const mealFavorites =
+    favorites.filter(
+      (favorite) =>
+        favorite.food_id
+    );
+
+
+  const exerciseFavorites =
+    favorites.filter(
+      (favorite) =>
+        favorite.exercise_id
+    );
+
+
+
   return (
+
     <div className="space-y-8">
-      {/* Header */}
+
+
       <div>
+
         <h1 className="text-4xl font-bold tracking-tight text-gray-900">
-          Favorite Meals
+          Favorites
         </h1>
-        <p className="mt-2 text-gray-500 text-lg">
-          Your saved meals for quick access.
+
+        <p className="mt-2 text-lg text-gray-500">
+          Your saved meals and exercises.
         </p>
+
       </div>
 
+
+
+      <div className="
+        flex
+        w-fit
+        rounded-2xl
+        bg-gray-100
+        p-1
+      ">
+
+
+        <button
+          onClick={() =>
+            setActiveTab("meals")
+          }
+          className={`
+            flex
+            items-center
+            gap-2
+            rounded-xl
+            px-5
+            py-2.5
+            text-sm
+            font-medium
+            transition-all
+            ${
+              activeTab === "meals"
+              ? "bg-white text-green-600 shadow"
+              : "text-gray-500"
+            }
+          `}
+        >
+
+          <Utensils size={16}/>
+
+          Meals
+
+        </button>
+
+
+
+        <button
+          onClick={() =>
+            setActiveTab("exercises")
+          }
+          className={`
+            flex
+            items-center
+            gap-2
+            rounded-xl
+            px-5
+            py-2.5
+            text-sm
+            font-medium
+            transition-all
+            ${
+              activeTab === "exercises"
+              ? "bg-white text-green-600 shadow"
+              : "text-gray-500"
+            }
+          `}
+        >
+
+          <Dumbbell size={16}/>
+
+          Exercises
+
+        </button>
+
+
+      </div>
+
+
+
       {loading ? (
-        <div className="flex min-h-[520px] items-center justify-center rounded-3xl bg-white shadow-card">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-8 w-8 text-green-600 animate-spin" strokeWidth={2} />
-            <p className="text-base font-semibold text-gray-800">
-              Loading favorites...
-            </p>
-          </div>
+
+        <div className="
+          flex
+          min-h-[520px]
+          items-center
+          justify-center
+          rounded-3xl
+          bg-white
+          shadow-card
+        ">
+
+          <Loader2
+            className="h-8 w-8 animate-spin text-green-600"
+          />
+
         </div>
+
+
       ) : error ? (
-        <div className="flex min-h-[520px] items-center justify-center rounded-3xl bg-white shadow-card">
-          <div className="max-w-md px-8 text-center">
-            <p className="text-sm font-medium text-red-500">{error}</p>
-            <button
-              type="button"
-              onClick={loadFavorites}
-              className="mt-4 text-sm font-medium text-green-600 hover:text-green-700 transition-colors"
-            >
-              Try again
-            </button>
-          </div>
-        </div>
-      ) : favorites.length === 0 ? (
-        /* Empty State */
-        <div className="flex min-h-[520px] items-center justify-center rounded-3xl bg-white shadow-card">
-          <div className="max-w-md px-8 text-center">
-            <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-green-100">
-              <Heart className="h-12 w-12 text-green-600" />
-            </div>
-            <h2 className="mt-8 text-3xl font-semibold text-gray-900">
-              No favorites yet
+
+        <p className="text-red-500">
+          {error}
+        </p>
+
+
+      ) : activeTab === "exercises" ? (
+
+        exerciseFavorites.length === 0 ? (
+
+          <div className="
+            rounded-3xl
+            bg-white
+            p-10
+            text-center
+            shadow-card
+          ">
+
+            <Heart className="mx-auto h-12 w-12 text-green-600"/>
+
+            <h2 className="mt-4 text-2xl font-semibold">
+              No favorite exercises yet
             </h2>
-            <p className="mt-3 text-gray-500">
-              Save your favorite meals to find them here.
-            </p>
-            <button
-              onClick={() => navigate("/meal-plans")}
-              className="mt-8 inline-flex items-center gap-2 rounded-xl bg-green-600 px-6 py-3 font-medium text-white transition-all duration-200 hover:bg-green-700 hover:shadow-lg"
-            >
-              Browse Meal Plans
-              <ArrowRight className="h-4 w-4" />
-            </button>
+
           </div>
-        </div>
+
+        ) : (
+
+          <div className="
+            grid
+            grid-cols-1
+            sm:grid-cols-2
+            lg:grid-cols-3
+            gap-6
+          ">
+
+            {exerciseFavorites.map(
+              (exercise) => (
+
+                <ExerciseCard
+                  key={
+                    exercise.favorite_id
+                  }
+                  exercise={{
+                    exercise_id:
+                      exercise.exercise_id,
+                    title:
+                      exercise.title,
+                    description:
+                      exercise.description,
+                    exercise_type:
+                      exercise.exercise_type,
+                    body_part:
+                      exercise.body_part,
+                    equipment:
+                      exercise.equipment,
+                    difficulty_level:
+                      exercise.difficulty_level,
+                    rating:
+                      exercise.rating,
+                  }}
+                  isFavorite={true}
+                />
+
+              )
+            )}
+
+          </div>
+
+        )
+
       ) : (
-        /* Favorites Grid */
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {favorites.map((favorite) => (
-            <div
-              key={favorite.favorite_id}
+
+
+        mealFavorites.length === 0 ? (
+
+          <div className="
+            rounded-3xl
+            bg-white
+            p-10
+            text-center
+            shadow-card
+          ">
+
+            <Heart className="mx-auto h-12 w-12 text-green-600"/>
+
+            <h2 className="mt-4 text-2xl font-semibold">
+              No favorite meals yet
+            </h2>
+
+            <button
+              onClick={() =>
+                navigate("/meal-plans")
+              }
               className="
-                bg-white
-                border border-gray-100
-                rounded-3xl
-                shadow-card
-                p-6
-                transition-all duration-200
-                hover:shadow-lg
-                hover:-translate-y-0.5
+                mt-6
+                inline-flex
+                items-center
+                gap-2
+                rounded-xl
+                bg-green-600
+                px-6
+                py-3
+                text-white
               "
             >
-              {/* Top row */}
-              <div className="flex items-start justify-between">
-                <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-green-50">
-                  <Heart className="h-5 w-5 text-green-600 fill-green-600" strokeWidth={2} />
-                </span>
-                <span className="flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1.5 text-sm font-semibold text-green-700">
-                  <Flame className="h-4 w-4" strokeWidth={2} />
-                  {formatCalories(favorite.caloric_value)}
-                </span>
-              </div>
 
-              {/* Content */}
-              <h3 className="mt-5 text-xl font-bold text-gray-900 tracking-tight truncate">
-                {favorite.food_name}
-              </h3>
+              Browse Meals
 
-              <div className="flex flex-wrap items-center gap-3 mt-2">
-                {favorite.meal_type && (
-                  <span
-                    className="
-                      px-3 py-1
+              <ArrowRight size={16}/>
+
+            </button>
+
+          </div>
+
+
+        ) : (
+
+
+          <div className="
+            grid
+            grid-cols-1
+            sm:grid-cols-2
+            lg:grid-cols-3
+            gap-6
+          ">
+
+            {mealFavorites.map(
+              (favorite) => (
+
+                <div
+                  key={
+                    favorite.favorite_id
+                  }
+                  className="
+                    rounded-3xl
+                    bg-white
+                    p-6
+                    shadow-card
+                  "
+                >
+
+                  <div className="flex justify-between">
+
+                    <Heart
+                      className="
+                        fill-green-600
+                        text-green-600
+                      "
+                    />
+
+                    <span className="
                       rounded-full
                       bg-green-100
+                      px-3
+                      py-1
+                      text-sm
                       text-green-700
-                      text-sm font-medium
+                    ">
+                      <Flame size={14} className="inline"/>
+                      {" "}
+                      {formatCalories(
+                        favorite.caloric_value
+                      )}
+                    </span>
+
+                  </div>
+
+
+                  <h3 className="
+                    mt-5
+                    text-xl
+                    font-bold
+                  ">
+                    {favorite.food_name}
+                  </h3>
+
+
+                  <p className="mt-2 text-gray-500">
+                    {favorite.meal_type}
+                  </p>
+
+
+                  <p className="mt-2 text-sm text-gray-400">
+                    {formatDate(
+                      favorite.meal_date
+                    )}
+                  </p>
+
+
+                  <button
+                    onClick={() =>
+                      handleRemove(
+                        favorite
+                      )
+                    }
+                    className="
+                      mt-5
+                      flex
+                      w-full
+                      items-center
+                      justify-center
+                      gap-2
+                      rounded-xl
+                      bg-red-50
+                      py-2
+                      text-red-600
                     "
                   >
-                    {favorite.meal_type}
-                  </span>
-                )}
-                {favorite.quantity != null && (
-                  <span className="text-sm text-gray-500">
-                    {formatQuantity(favorite.quantity)}
-                  </span>
-                )}
-              </div>
 
-              {favorite.meal_date && (
-                <p className="mt-2 text-sm text-gray-400">
-                  {formatDate(favorite.meal_date)}
-                </p>
-              )}
+                    <Trash2 size={16}/>
 
-              {/* Bottom */}
-              <button
-                onClick={() => handleRemove(favorite)}
-                className="
-                  mt-6 w-full
-                  flex items-center justify-center gap-2
-                  rounded-xl
-                  bg-red-50
-                  text-red-600
-                  font-medium text-sm
-                  py-2.5
-                  transition-colors duration-200
-                  hover:bg-red-100
-                "
-              >
-                <Trash2 size={16} />
-                Remove
-              </button>
-            </div>
-          ))}
-        </div>
+                    Remove
+
+                  </button>
+
+
+                </div>
+
+              )
+            )}
+
+          </div>
+
+        )
+
       )}
+
+
     </div>
+
   );
 }
