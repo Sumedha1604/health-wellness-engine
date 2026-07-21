@@ -10,6 +10,7 @@ const preferenceRoutes = require("./routes/preference.routes");
 const recommendationRoutes = require("./routes/recommendation.routes");
 const favoriteRoutes = require("./routes/favorite.routes");
 const foodRoutes = require("./routes/food.routes");
+const exerciseRoutes = require("./routes/exercise.routes");
 const mealPlanRoutes = require("./routes/mealPlan.routes");
 const dashboardRoutes = require("./routes/dashboard.routes");
 const errorMiddleware = require("./middleware/error.middleware");
@@ -34,6 +35,7 @@ app.use("/api/preferences", preferenceRoutes);
 app.use("/api/recommendations", recommendationRoutes);
 app.use("/api/favorites", favoriteRoutes);
 app.use("/api/foods", foodRoutes);
+app.use("/api/exercises", exerciseRoutes);
 app.use("/api/meal-plans", mealPlanRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
