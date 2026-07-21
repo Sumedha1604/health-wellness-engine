@@ -1,11 +1,12 @@
 import api from "./api";
 
-export async function getExercises() {
+export async function getExercises(params = {}) {
 
   const response = await api.get(
-    "/exercises"
+    "/exercises",
+    { params }
   );
 
-  return response.data.data.data;
+  return response.data.data;
 
 }

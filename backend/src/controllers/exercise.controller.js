@@ -9,9 +9,22 @@ const getExercises = asyncHandler(async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
 
+    const {
+        search,
+        body_part,
+        equipment,
+        difficulty,
+    } = req.query;
+
     const exercises = await exerciseService.getExercises(
         page,
-        limit
+        limit,
+        {
+            search,
+            body_part,
+            equipment,
+            difficulty,
+        }
     );
 
     success(res, exercises);
