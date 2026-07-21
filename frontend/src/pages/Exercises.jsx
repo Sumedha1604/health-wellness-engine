@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { getExercises } from "../services/exercise.service";
+import ExerciseCard from "../components/exercises/ExerciseCard";
 
 export default function Exercises() {
 
@@ -90,64 +91,11 @@ export default function Exercises() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
           {exercises.map((exercise) => (
-
-            <div
-              key={exercise.exercise_id}
-              className="
-                bg-white
-                rounded-3xl
-                shadow-card
-                p-6
-                transition-all duration-200
-                hover:shadow-lg
-                hover:-translate-y-0.5
-              "
-            >
-
-              <h3 className="text-xl font-bold text-gray-900">
-                {exercise.title}
-              </h3>
-
-
-              <div className="mt-4 space-y-2 text-sm text-gray-600">
-
-                <p>
-                  <span className="font-medium text-gray-700">
-                    Type:
-                  </span>{" "}
-                  {exercise.exercise_type}
-                </p>
-
-
-                <p>
-                  <span className="font-medium text-gray-700">
-                    Body part:
-                  </span>{" "}
-                  {exercise.body_part}
-                </p>
-
-
-                <p>
-                  <span className="font-medium text-gray-700">
-                    Equipment:
-                  </span>{" "}
-                  {exercise.equipment}
-                </p>
-
-
-                <p>
-                  <span className="font-medium text-gray-700">
-                    Difficulty:
-                  </span>{" "}
-                  {exercise.difficulty_level}
-                </p>
-
-              </div>
-
-            </div>
-
+           <ExerciseCard
+            key={exercise.exercise_id}
+            exercise={exercise}
+            />
           ))}
-
         </div>
 
       )}
