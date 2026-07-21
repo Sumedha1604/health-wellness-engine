@@ -100,7 +100,10 @@ export default function ExerciseCard({
 
           <button
             type="button"
-            onClick={() => onToggleFavorite?.(exercise)}
+            onClick={(event) => {
+              event.stopPropagation();
+              onToggleFavorite?.(exercise);
+            }}
             className="
               flex
               h-10

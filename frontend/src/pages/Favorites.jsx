@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import {
   Heart,
   ArrowRight,
-  Trash2,
   Flame,
   Loader2,
   Dumbbell,
@@ -302,6 +301,8 @@ export default function Favorites() {
                     exercise.favorite_id
                   }
                   exercise={{
+                    favorite_id:
+                      exercise.favorite_id,
                     exercise_id:
                       exercise.exercise_id,
                     title:
@@ -320,6 +321,7 @@ export default function Favorites() {
                       exercise.rating,
                   }}
                   isFavorite={true}
+                  onToggleFavorite={handleRemove}
                 />
 
               )
@@ -402,12 +404,24 @@ export default function Favorites() {
 
                   <div className="flex justify-between">
 
-                    <Heart
-                      className="
-                        fill-green-600
-                        text-green-600
-                      "
-                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleRemove(
+                          favorite
+                        )
+                      }
+                      aria-label="Remove from favorites"
+                    >
+
+                      <Heart
+                        className="
+                          fill-green-600
+                          text-green-600
+                        "
+                      />
+
+                    </button>
 
                     <span className="
                       rounded-full
@@ -446,33 +460,6 @@ export default function Favorites() {
                       favorite.meal_date
                     )}
                   </p>
-
-
-                  <button
-                    onClick={() =>
-                      handleRemove(
-                        favorite
-                      )
-                    }
-                    className="
-                      mt-5
-                      flex
-                      w-full
-                      items-center
-                      justify-center
-                      gap-2
-                      rounded-xl
-                      bg-red-50
-                      py-2
-                      text-red-600
-                    "
-                  >
-
-                    <Trash2 size={16}/>
-
-                    Remove
-
-                  </button>
 
 
                 </div>

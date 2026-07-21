@@ -211,22 +211,48 @@ export default function Exercises() {
           {exercises.map((exercise) => (
 
             <ExerciseCard
+  key={
+    exercise.favorite_id
+  }
 
-              key={exercise.exercise_id}
+  exercise={{
+    favorite_id:
+      exercise.favorite_id,
 
-              exercise={exercise}
+    exercise_id:
+      exercise.exercise_id,
 
-              isFavorite={
-                isFavorite(
-                  exercise.exercise_id
-                )
-              }
+    title:
+      exercise.title,
 
-              onToggleFavorite={
-                handleToggleFavorite
-              }
+    description:
+      exercise.description,
 
-            />
+    exercise_type:
+      exercise.exercise_type,
+
+    body_part:
+      exercise.body_part,
+
+    equipment:
+      exercise.equipment,
+
+    difficulty_level:
+      exercise.difficulty_level,
+
+    rating:
+      exercise.rating,
+  }}
+
+  isFavorite={true}
+
+  onToggleFavorite={() =>
+    handleRemove({
+      favorite_id:
+        exercise.favorite_id,
+    })
+  }
+/>
 
           ))}
 
