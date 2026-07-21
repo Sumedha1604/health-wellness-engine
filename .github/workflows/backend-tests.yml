@@ -94,6 +94,9 @@ jobs:
       - name: Import Food Data
         run: python -m data_pipeline.importers.import_foods
 
+      - name: Import Exercise Data
+        run: python -m data_pipeline.importers.import_exercises
+
       - name: Run Tests
         working-directory: backend
         run: npm test
