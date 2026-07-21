@@ -5,6 +5,7 @@ import {
   ChevronRight,
   LayoutDashboard,
   UtensilsCrossed,
+  Dumbbell,
   Sparkles,
   Heart,
   SlidersHorizontal,
@@ -12,6 +13,7 @@ import {
 const menu = [
   { name: "Dashboard", path: "/", icon: LayoutDashboard },
   { name: "Meal Plans", path: "/meal-plans", icon: UtensilsCrossed },
+  { name: "Exercises", path: "/exercises", icon: Dumbbell },
   { name: "Recommendations", path: "/recommendations", icon: Sparkles },
   { name: "Favorites", path: "/favorites", icon: Heart },
   { name: "Preferences", path: "/preferences", icon: SlidersHorizontal },
