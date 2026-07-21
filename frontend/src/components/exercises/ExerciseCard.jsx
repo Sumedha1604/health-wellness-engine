@@ -106,12 +106,12 @@ export default function ExerciseCard({
             }}
             className="
               flex
-              h-10
-              w-10
               items-center
-              justify-center
+              gap-2
+              h-10
               rounded-full
               bg-green-50
+              px-3
               transition-colors
               hover:bg-green-100
             "
@@ -130,6 +130,16 @@ export default function ExerciseCard({
               }
               strokeWidth={2}
             />
+
+            <span
+              className={
+                isFavorite
+                  ? "text-sm font-medium text-green-600"
+                  : "text-sm font-medium text-gray-500"
+              }
+            >
+              {isFavorite ? "Favorited" : "Favorite"}
+            </span>
 
           </button>
 

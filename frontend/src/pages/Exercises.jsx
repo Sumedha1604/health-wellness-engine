@@ -7,6 +7,7 @@ import {
   deleteFavorite,
 } from "../services/favorite.service";
 import ExerciseCard from "../components/exercises/ExerciseCard";
+import toast from "react-hot-toast";
 
 export default function Exercises() {
 
@@ -79,9 +80,9 @@ export default function Exercises() {
     );
 
 
-    try {
+    if (existingFavorite) {
 
-      if (existingFavorite) {
+      try {
 
         await deleteFavorite(
           existingFavorite.favorite_id
@@ -96,30 +97,51 @@ export default function Exercises() {
           )
         );
 
+        toast.success("Removed from favorites!");
 
-      } else {
+      } catch (err) {
+
+        console.error(err);
+
+        toast.error(
+          err.response?.data?.message || "Failed to remove favorite."
+        );
+
+      }
+
+
+    } else {
+
+      try {
 
         const response = await addFavorite({
           exercise_id: exercise.exercise_id,
         });
+
+        const createdFavorite = response.data || response;
 
 
         setFavorites((prev) => [
           ...prev,
           {
             favorite_id:
-              response.data.favorite_id,
+              createdFavorite.favorite_id,
             exercise_id:
               exercise.exercise_id,
           },
         ]);
 
+        toast.success("Added to favorites!");
+
+      } catch (err) {
+
+        console.error(err);
+
+        toast.error(
+          err.response?.data?.message || "Failed to add favorite."
+        );
+
       }
-
-
-    } catch (err) {
-
-      console.error(err);
 
     }
 
@@ -211,48 +233,48 @@ export default function Exercises() {
           {exercises.map((exercise) => (
 
             <ExerciseCard
-  key={
-    exercise.favorite_id
-  }
+              key={
+                exercise.exercise_id
+              }
 
-  exercise={{
-    favorite_id:
-      exercise.favorite_id,
+              exercise={{
+                exercise_id:
+                  exercise.exercise_id,
 
-    exercise_id:
-      exercise.exercise_id,
+                title:
+                  exercise.title,
 
-    title:
-      exercise.title,
+                description:
+                  exercise.description,
 
-    description:
-      exercise.description,
+                exercise_type:
+                  exercise.exercise_type,
 
-    exercise_type:
-      exercise.exercise_type,
+                body_part:
+                  exercise.body_part,
 
-    body_part:
-      exercise.body_part,
+                equipment:
+                  exercise.equipment,
 
-    equipment:
-      exercise.equipment,
+                difficulty_level:
+                  exercise.difficulty_level,
 
-    difficulty_level:
-      exercise.difficulty_level,
+                rating:
+                  exercise.rating,
+              }}
 
-    rating:
-      exercise.rating,
-  }}
+              isFavorite={
+                isFavorite(
+                  exercise.exercise_id
+                )
+              }
 
-  isFavorite={true}
-
-  onToggleFavorite={() =>
-    handleRemove({
-      favorite_id:
-        exercise.favorite_id,
-    })
-  }
-/>
+              onToggleFavorite={() =>
+                handleToggleFavorite(
+                  exercise
+                )
+              }
+            />
 
           ))}
 
