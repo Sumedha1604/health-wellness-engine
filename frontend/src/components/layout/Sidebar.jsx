@@ -8,7 +8,6 @@ import {
   Dumbbell,
   Sparkles,
   Heart,
-  SlidersHorizontal,
 } from "lucide-react";
 const menu = [
   { name: "Dashboard", path: "/", icon: LayoutDashboard },
@@ -16,7 +15,6 @@ const menu = [
   { name: "Exercises", path: "/exercises", icon: Dumbbell },
   { name: "Recommendations", path: "/recommendations", icon: Sparkles },
   { name: "Favorites", path: "/favorites", icon: Heart },
-  { name: "Preferences", path: "/preferences", icon: SlidersHorizontal },
 ];
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);

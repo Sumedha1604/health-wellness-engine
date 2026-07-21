@@ -9,7 +9,6 @@ import Dashboard from "../pages/Dashboard";
 import MealPlans from "../pages/MealPlans";
 import Recommendations from "../pages/Recommendations";
 import Favorites from "../pages/Favorites";
-import Preferences from "../pages/Preferences";
 import Profile from "../pages/Profile";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
@@ -62,15 +61,6 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute>
             <Favorites />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/preferences"
-        element={
-          <ProtectedRoute>
-            <Preferences />
           </ProtectedRoute>
         }
       />
