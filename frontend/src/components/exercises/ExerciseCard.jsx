@@ -27,123 +27,125 @@ export default function ExerciseCard({
       "
     >
 
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-center gap-3">
 
-        <div className="flex items-center gap-3">
+        <div
+          className="
+            flex
+            h-12
+            w-12
+            shrink-0
+            items-center
+            justify-center
+            rounded-2xl
+            bg-green-50
+          "
+        >
+          <Dumbbell
+            className="h-6 w-6 text-green-600"
+            strokeWidth={2}
+          />
+        </div>
 
-          <div
+
+        <div className="min-w-0 flex-1">
+
+          <h3
             className="
-              flex
-              h-12
-              w-12
-              items-center
-              justify-center
-              rounded-2xl
-              bg-green-50
+              text-xl
+              font-bold
+              text-gray-900
+              tracking-tight
+              line-clamp-2
+              break-words
             "
           >
-            <Dumbbell
-              className="h-6 w-6 text-green-600"
-              strokeWidth={2}
-            />
-          </div>
+            {exercise.title}
+          </h3>
+
+          <p className="mt-1 text-sm text-gray-500 truncate">
+            {exercise.exercise_type}
+          </p>
+
+        </div>
+
+      </div>
 
 
-          <div className="min-w-0">
+      <div className="mt-4 flex items-center justify-between gap-2 flex-wrap">
 
-            <h3
-              className="
-                text-xl
-                font-bold
-                text-gray-900
-                tracking-tight
-                line-clamp-2
-              "
-            >
-              {exercise.title}
-            </h3>
+        <div
+          className="
+            flex
+            items-center
+            gap-1
+            rounded-full
+            bg-green-100
+            px-3
+            py-1.5
+            text-sm
+            font-semibold
+            text-green-700
+            shrink-0
+            whitespace-nowrap
+          "
+        >
+          <Star
+            className="h-4 w-4 fill-green-600 text-green-600"
+            strokeWidth={2}
+          />
 
-            <p className="mt-1 text-sm text-gray-500">
-              {exercise.exercise_type}
-            </p>
-
-          </div>
+          {exercise.rating ?? "N/A"}
 
         </div>
 
 
-        <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            onToggleFavorite?.(exercise);
+          }}
+          className="
+            flex
+            items-center
+            gap-1.5
+            shrink-0
+            whitespace-nowrap
+            rounded-full
+            bg-green-50
+            px-3
+            py-2
+            transition-colors
+            hover:bg-green-100
+          "
+          aria-label={
+            isFavorite
+              ? "Remove from favorites"
+              : "Add to favorites"
+          }
+        >
 
-          <div
-            className="
-              flex
-              items-center
-              gap-1
-              rounded-full
-              bg-green-100
-              px-3
-              py-1.5
-              text-sm
-              font-semibold
-              text-green-700
-            "
-          >
-            <Star
-              className="h-4 w-4 fill-green-600 text-green-600"
-              strokeWidth={2}
-            />
-
-            {exercise.rating ?? "N/A"}
-
-          </div>
-
-
-          <button
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation();
-              onToggleFavorite?.(exercise);
-            }}
-            className="
-              flex
-              items-center
-              gap-2
-              h-10
-              rounded-full
-              bg-green-50
-              px-3
-              transition-colors
-              hover:bg-green-100
-            "
-            aria-label={
+          <Heart
+            className={
               isFavorite
-                ? "Remove from favorites"
-                : "Add to favorites"
+                ? "h-5 w-5 fill-green-600 text-green-600 shrink-0"
+                : "h-5 w-5 text-gray-400 shrink-0"
+            }
+            strokeWidth={2}
+          />
+
+          <span
+            className={
+              isFavorite
+                ? "text-sm font-medium text-green-600"
+                : "text-sm font-medium text-gray-500"
             }
           >
+            {isFavorite ? "Favorited" : "Favorite"}
+          </span>
 
-            <Heart
-              className={
-                isFavorite
-                  ? "h-5 w-5 fill-green-600 text-green-600"
-                  : "h-5 w-5 text-gray-400"
-              }
-              strokeWidth={2}
-            />
-
-            <span
-              className={
-                isFavorite
-                  ? "text-sm font-medium text-green-600"
-                  : "text-sm font-medium text-gray-500"
-              }
-            >
-              {isFavorite ? "Favorited" : "Favorite"}
-            </span>
-
-          </button>
-
-        </div>
+        </button>
 
       </div>
 
@@ -160,10 +162,10 @@ export default function ExerciseCard({
         <p className="flex items-center gap-3">
 
           <Activity
-            className="h-4 w-4 text-green-600"
+            className="h-4 w-4 text-green-600 shrink-0"
           />
 
-          <span>
+          <span className="min-w-0 truncate">
             <span className="font-medium text-gray-700">
               Type:
             </span>{" "}
@@ -176,10 +178,10 @@ export default function ExerciseCard({
         <p className="flex items-center gap-3">
 
           <Target
-            className="h-4 w-4 text-green-600"
+            className="h-4 w-4 text-green-600 shrink-0"
           />
 
-          <span>
+          <span className="min-w-0 truncate">
             <span className="font-medium text-gray-700">
               Body part:
             </span>{" "}
@@ -192,10 +194,10 @@ export default function ExerciseCard({
         <p className="flex items-center gap-3">
 
           <Wrench
-            className="h-4 w-4 text-green-600"
+            className="h-4 w-4 text-green-600 shrink-0"
           />
 
-          <span>
+          <span className="min-w-0 truncate">
             <span className="font-medium text-gray-700">
               Equipment:
             </span>{" "}
@@ -208,10 +210,10 @@ export default function ExerciseCard({
         <p className="flex items-center gap-3">
 
           <Gauge
-            className="h-4 w-4 text-green-600"
+            className="h-4 w-4 text-green-600 shrink-0"
           />
 
-          <span>
+          <span className="min-w-0 truncate">
             <span className="font-medium text-gray-700">
               Difficulty:
             </span>{" "}
