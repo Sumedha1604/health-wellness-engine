@@ -5,9 +5,14 @@ import {
   Wrench,
   Gauge,
   Star,
+  Heart,
 } from "lucide-react";
 
-export default function ExerciseCard({ exercise }) {
+export default function ExerciseCard({
+  exercise,
+  isFavorite,
+  onToggleFavorite,
+}) {
 
   return (
     <div
@@ -26,15 +31,17 @@ export default function ExerciseCard({ exercise }) {
 
         <div className="flex items-center gap-3">
 
-          <div className="
-            flex
-            h-12
-            w-12
-            items-center
-            justify-center
-            rounded-2xl
-            bg-green-50
-          ">
+          <div
+            className="
+              flex
+              h-12
+              w-12
+              items-center
+              justify-center
+              rounded-2xl
+              bg-green-50
+            "
+          >
             <Dumbbell
               className="h-6 w-6 text-green-600"
               strokeWidth={2}
@@ -42,15 +49,17 @@ export default function ExerciseCard({ exercise }) {
           </div>
 
 
-          <div>
+          <div className="min-w-0">
 
-            <h3 className="
-              text-xl
-              font-bold
-              text-gray-900
-              tracking-tight
-              line-clamp-2
-            ">
+            <h3
+              className="
+                text-xl
+                font-bold
+                text-gray-900
+                tracking-tight
+                line-clamp-2
+              "
+            >
               {exercise.title}
             </h3>
 
@@ -63,40 +72,83 @@ export default function ExerciseCard({ exercise }) {
         </div>
 
 
-        <div className="
-          flex
-          items-center
-          gap-1
-          rounded-full
-          bg-green-100
-          px-3
-          py-1.5
-          text-sm
-          font-semibold
-          text-green-700
-        ">
-          <Star
-            className="h-4 w-4 fill-green-600 text-green-600"
-            strokeWidth={2}
-          />
+        <div className="flex items-center gap-2">
 
-          {exercise.rating ?? "N/A"}
+          <div
+            className="
+              flex
+              items-center
+              gap-1
+              rounded-full
+              bg-green-100
+              px-3
+              py-1.5
+              text-sm
+              font-semibold
+              text-green-700
+            "
+          >
+            <Star
+              className="h-4 w-4 fill-green-600 text-green-600"
+              strokeWidth={2}
+            />
+
+            {exercise.rating ?? "N/A"}
+
+          </div>
+
+
+          <button
+            type="button"
+            onClick={() => onToggleFavorite?.(exercise)}
+            className="
+              flex
+              h-10
+              w-10
+              items-center
+              justify-center
+              rounded-full
+              bg-green-50
+              transition-colors
+              hover:bg-green-100
+            "
+            aria-label={
+              isFavorite
+                ? "Remove from favorites"
+                : "Add to favorites"
+            }
+          >
+
+            <Heart
+              className={
+                isFavorite
+                  ? "h-5 w-5 fill-green-600 text-green-600"
+                  : "h-5 w-5 text-gray-400"
+              }
+              strokeWidth={2}
+            />
+
+          </button>
 
         </div>
 
       </div>
 
 
-      <div className="
-        mt-6
-        space-y-3
-        text-sm
-        text-gray-600
-      ">
+      <div
+        className="
+          mt-6
+          space-y-3
+          text-sm
+          text-gray-600
+        "
+      >
 
         <p className="flex items-center gap-3">
 
-          <Activity className="h-4 w-4 text-green-600" />
+          <Activity
+            className="h-4 w-4 text-green-600"
+          />
 
           <span>
             <span className="font-medium text-gray-700">
@@ -110,7 +162,9 @@ export default function ExerciseCard({ exercise }) {
 
         <p className="flex items-center gap-3">
 
-          <Target className="h-4 w-4 text-green-600" />
+          <Target
+            className="h-4 w-4 text-green-600"
+          />
 
           <span>
             <span className="font-medium text-gray-700">
@@ -124,7 +178,9 @@ export default function ExerciseCard({ exercise }) {
 
         <p className="flex items-center gap-3">
 
-          <Wrench className="h-4 w-4 text-green-600" />
+          <Wrench
+            className="h-4 w-4 text-green-600"
+          />
 
           <span>
             <span className="font-medium text-gray-700">
@@ -138,7 +194,9 @@ export default function ExerciseCard({ exercise }) {
 
         <p className="flex items-center gap-3">
 
-          <Gauge className="h-4 w-4 text-green-600" />
+          <Gauge
+            className="h-4 w-4 text-green-600"
+          />
 
           <span>
             <span className="font-medium text-gray-700">
@@ -148,6 +206,7 @@ export default function ExerciseCard({ exercise }) {
           </span>
 
         </p>
+
 
       </div>
 
