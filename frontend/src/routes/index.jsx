@@ -14,6 +14,7 @@ import Profile from "../pages/Profile";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import NotFound from "../pages/NotFound";
+import Exercises from "../pages/Exercises";
 
 export default function AppRoutes() {
   return (
@@ -82,7 +83,14 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
-
+      <Route
+        path="/exercises"
+        element={
+          <ProtectedRoute>
+            <Exercises />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="*"
         element={<NotFound />}
