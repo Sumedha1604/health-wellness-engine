@@ -119,7 +119,7 @@ def import_foods(df):
 
             records.append({
 
-                "food_name": clean_value(row["food"]),
+                "food_name": clean_value(row["food_name"]),
                 "caloric_value": clean_value(row["caloric_value"]),
                 "fat": clean_value(row["fat"]),
                 "saturated_fats": clean_value(row["saturated_fats"]),
