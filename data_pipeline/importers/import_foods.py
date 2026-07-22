@@ -8,12 +8,11 @@ from data_pipeline.config.database import create_db_engine
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-CSV_PATH = (
+FOOD_DIR = (
     PROJECT_ROOT
-    / "ml-service"
     / "datasets"
-    / "processed"
-    / "foods.csv"
+    / "raw"
+    / "FINAL FOOD DATASET"
 )
 
 
@@ -23,8 +22,22 @@ def clean_value(value):
 
 
 def load_data():
-    df = pd.read_csv(CSV_PATH)
+
+    files = list(FOOD_DIR.glob("FOOD-DATA-GROUP*.csv"))
+
+    frames = []
+
+    for file in files:
+        df = pd.read_csv(file)
+        frames.append(df)
+
+    df = pd.concat(
+        frames,
+        ignore_index=True
+    )
+
     print(f"Loaded {len(df)} food records.")
+
     return df
 
 
