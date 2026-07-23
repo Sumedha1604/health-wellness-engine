@@ -1,4 +1,10 @@
+const axios = require("axios");
 const db = require("../config/db");
+
+
+const ML_SERVICE_URL =
+  process.env.ML_SERVICE_URL || "http://localhost:8000";
+
 
 async function generateRecommendations(userId) {
 
@@ -14,9 +20,11 @@ async function generateRecommendations(userId) {
     [userId]
   );
 
+
   if (!preferences) {
     throw new Error("Preferences not found");
   }
+
 
   const [meals] = await db.execute(
     `
@@ -37,21 +45,28 @@ async function generateRecommendations(userId) {
     [userId]
   );
 
+
   let totalCalories = 0;
   let totalProtein = 0;
   let totalCarbs = 0;
   let totalFat = 0;
 
+
   meals.forEach((meal) => {
+
     totalCalories += Number(meal.caloric_value) * meal.quantity;
     totalProtein += Number(meal.protein) * meal.quantity;
     totalCarbs += Number(meal.carbohydrates) * meal.quantity;
     totalFat += Number(meal.fat) * meal.quantity;
+
   });
+
 
   let calorieTarget = 2200;
 
+
   switch (preferences.fitness_goal) {
+
     case "Muscle Gain":
       calorieTarget = 2800;
       break;
@@ -62,28 +77,42 @@ async function generateRecommendations(userId) {
 
     default:
       calorieTarget = 2200;
+
   }
 
+
   let nutritionScore = 100;
+
 
   if (totalCalories < calorieTarget * 0.7) {
     nutritionScore -= 20;
   }
 
+
   if (totalProtein < 80) {
     nutritionScore -= 20;
   }
+
 
   if (totalFat > 80) {
     nutritionScore -= 10;
   }
 
+
   if (nutritionScore < 0) {
     nutritionScore = 0;
   }
 
-  let aiTip = "Great job! Keep maintaining a balanced diet.";
-  let topRecommendation = "Balanced Nutrition";
+
+
+  let aiTip =
+    "Great job! Keep maintaining a balanced diet.";
+
+
+  let topRecommendation =
+    "Balanced Nutrition";
+
+
   let recommendedFoods = [
     "Chicken Breast",
     "Greek Yogurt",
@@ -91,46 +120,135 @@ async function generateRecommendations(userId) {
     "Brown Rice"
   ];
 
+
+
   if (totalProtein < 80) {
-    topRecommendation = "Increase Protein Intake";
-    aiTip = "Your protein intake is low today. Include lean protein in your next meal.";
+
+    topRecommendation =
+      "Increase Protein Intake";
+
+
+    aiTip =
+      "Your protein intake is low today. Include lean protein in your next meal.";
+
+
     recommendedFoods = [
       "Chicken Breast",
       "Eggs",
       "Greek Yogurt",
       "Salmon"
     ];
+
   } else if (totalCalories < calorieTarget) {
-    topRecommendation = "Increase Daily Calories";
-    aiTip = "You are below your calorie target. Add a healthy snack or balanced meal.";
+
+
+    topRecommendation =
+      "Increase Daily Calories";
+
+
+    aiTip =
+      "You are below your calorie target. Add a healthy snack or balanced meal.";
+
+
     recommendedFoods = [
       "Brown Rice",
       "Oats",
       "Banana",
       "Peanut Butter"
     ];
+
   }
 
-  return {
-    fitness_goal: preferences.fitness_goal,
-    activity_level: preferences.activity_level,
-    diet_type: preferences.diet_type,
 
-    nutrition_score: nutritionScore,
+
+  let mlRecommendations = [];
+
+
+  try {
+
+    const response = await axios.get(
+      `${ML_SERVICE_URL}/recommendations/collaborative/${userId}`
+    );
+
+
+    mlRecommendations = response.data;
+
+
+    if (mlRecommendations.length > 0) {
+
+      recommendedFoods =
+        mlRecommendations;
+
+    }
+
+
+  } catch (error) {
+
+    console.log(
+      "ML recommendation service unavailable"
+    );
+
+  }
+
+
+
+  return {
+
+    fitness_goal:
+      preferences.fitness_goal,
+
+
+    activity_level:
+      preferences.activity_level,
+
+
+    diet_type:
+      preferences.diet_type,
+
+
+    nutrition_score:
+      nutritionScore,
+
 
     summary: {
-      calories: totalCalories,
-      protein: totalProtein,
-      carbohydrates: totalCarbs,
-      fat: totalFat,
-      calorie_target: calorieTarget,
+
+      calories:
+        totalCalories,
+
+      protein:
+        totalProtein,
+
+      carbohydrates:
+        totalCarbs,
+
+      fat:
+        totalFat,
+
+      calorie_target:
+        calorieTarget,
+
     },
 
-    top_recommendation: topRecommendation,
-    ai_tip: aiTip,
-    recommended_foods: recommendedFoods,
+
+    top_recommendation:
+      topRecommendation,
+
+
+    ai_tip:
+      aiTip,
+
+
+    recommended_foods:
+      recommendedFoods,
+
+
+    ml_recommendations:
+      mlRecommendations,
+
   };
+
 }
+
 
 module.exports = {
   generateRecommendations,
