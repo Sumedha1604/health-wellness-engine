@@ -96,6 +96,18 @@ export default function LoginForm() {
       >
         {loading ? "Signing In..." : "Login"}
       </Button>
+
+      <p className="text-sm text-muted text-center">
+        Don't have an account?{" "}
+        <button
+          type="button"
+          onClick={() => navigate("/register")}
+          className="underline"
+        >
+          Create Account
+        </button>
+      </p>
+
     </form>
   );
 }

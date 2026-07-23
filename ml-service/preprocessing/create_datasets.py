@@ -146,29 +146,28 @@ interactions = []
 
 for _, row in favorites_df.iterrows():
 
-    if row["food_id"]:
+    if pd.notna(row["food_id"]):
 
         interactions.append(
             {
-                "user_id": row["user_id"],
-                "item_id": row["food_id"],
+                "user_id": int(row["user_id"]),
+                "item_id": int(row["food_id"]),
                 "item_type": "food",
                 "interaction": 1
             }
         )
 
 
-    if row["exercise_id"]:
+    if pd.notna(row["exercise_id"]):
 
         interactions.append(
             {
-                "user_id": row["user_id"],
-                "item_id": row["exercise_id"],
+                "user_id": int(row["user_id"]),
+                "item_id": int(row["exercise_id"]),
                 "item_type": "exercise",
                 "interaction": 1
             }
         )
-
 
 interactions_df = pd.DataFrame(
     interactions
