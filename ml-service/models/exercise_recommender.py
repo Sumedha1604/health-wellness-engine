@@ -86,11 +86,14 @@ def recommend_exercises(
 
     df, similarity_matrix = build_exercise_model()
 
-
-    index = df.index[
+    matches = df.index[
         df["exercise_id"] == exercise_id
-    ][0]
+    ]
 
+    if len(matches) == 0:
+        return []
+
+    index = matches[0]
 
     scores = list(
         enumerate(
@@ -98,21 +101,17 @@ def recommend_exercises(
         )
     )
 
-
     scores = sorted(
         scores,
         key=lambda x: x[1],
         reverse=True
     )
 
-
     recommendations = []
-
 
     for idx, score in scores[1:limit+1]:
 
         exercise = df.iloc[idx]
-
 
         recommendations.append(
             {
@@ -130,5 +129,4 @@ def recommend_exercises(
             }
         )
 
-
-    return recommendations	
+    return recommendations

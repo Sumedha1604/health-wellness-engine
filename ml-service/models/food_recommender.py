@@ -87,11 +87,14 @@ def recommend_foods(
 
     df, similarity_matrix = build_food_model()
 
-
-    index = df.index[
+    matches = df.index[
         df["food_id"] == food_id
-    ][0]
+    ]
 
+    if len(matches) == 0:
+        return []
+
+    index = matches[0]
 
     scores = list(
         enumerate(
@@ -99,21 +102,17 @@ def recommend_foods(
         )
     )
 
-
     scores = sorted(
         scores,
         key=lambda x: x[1],
         reverse=True
     )
 
-
     recommendations = []
-
 
     for idx, score in scores[1:limit+1]:
 
         food = df.iloc[idx]
-
 
         recommendations.append(
             {
@@ -130,6 +129,5 @@ def recommend_foods(
                     "Similar food based on nutrition profile"
             }
         )
-
 
     return recommendations
