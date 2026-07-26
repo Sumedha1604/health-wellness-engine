@@ -62,6 +62,7 @@ async function generateRecommendations(userId) {
   });
 
 
+
   let calorieTarget = 2200;
 
 
@@ -79,6 +80,7 @@ async function generateRecommendations(userId) {
       calorieTarget = 2200;
 
   }
+
 
 
   let nutritionScore = 100;
@@ -161,7 +163,7 @@ async function generateRecommendations(userId) {
 
 
 
-  let mlRecommendations = [];
+  let recommendedExercises = [];
 
 
   try {
@@ -171,15 +173,7 @@ async function generateRecommendations(userId) {
     );
 
 
-    mlRecommendations = response.data;
-
-
-    if (mlRecommendations.length > 0) {
-
-      recommendedFoods =
-        mlRecommendations;
-
-    }
+    recommendedExercises = response.data;
 
 
   } catch (error) {
@@ -242,8 +236,8 @@ async function generateRecommendations(userId) {
       recommendedFoods,
 
 
-    ml_recommendations:
-      mlRecommendations,
+    recommended_exercises:
+      recommendedExercises,
 
   };
 

@@ -5,6 +5,7 @@ import api from "../services/api";
 import NutritionScoreCard from "../components/recommendations/NutritionScoreCard";
 import TopRecommendationCard from "../components/recommendations/TopRecommendationCard";
 import RecommendedFoods from "../components/recommendations/RecommendedFoods";
+import RecommendedExercises from "../components/recommendations/RecommendedExercises";
 
 export default function Recommendations() {
   const [recommendations, setRecommendations] = useState(null);
@@ -126,6 +127,10 @@ export default function Recommendations() {
 
           <RecommendedFoods
             foods={recommendations.recommended_foods}
+          />
+
+          <RecommendedExercises
+            exercises={recommendations.recommended_exercises}
           />
         </>
       )}

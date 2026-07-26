@@ -5,6 +5,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
+
   const token = localStorage.getItem("token");
 
   if (token) {
@@ -12,15 +13,22 @@ api.interceptors.request.use((config) => {
   }
 
   return config;
+
 });
 
+
 api.interceptors.response.use(
+
   (response) => response,
+
   (error) => {
+
     if (
       error.response &&
-      (error.response.status === 401 || error.response.status === 403)
+      (error.response.status === 401 ||
+       error.response.status === 403)
     ) {
+
       localStorage.removeItem("token");
       localStorage.removeItem("user");
 
@@ -30,10 +38,14 @@ api.interceptors.response.use(
       );
 
       window.location.href = "/login";
+
     }
 
     return Promise.reject(error);
+
   }
+
 );
+
 
 export default api;

@@ -10,21 +10,36 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DATASET_PATH = (
+INTERACTIONS_PATH = (
     BASE_DIR
     / "datasets"
     / "processed"
     / "interactions.csv"
 )
 
+EXERCISES_PATH = (
+    BASE_DIR
+    / "datasets"
+    / "processed"
+    / "exercises.csv"
+)
+
 
 # ==========================================================
-# Load Interactions
+# Load Data
 # ==========================================================
 
 def load_interactions():
 
-    df = pd.read_csv(DATASET_PATH)
+    df = pd.read_csv(INTERACTIONS_PATH)
+
+    return df
+
+
+
+def load_exercises():
+
+    df = pd.read_csv(EXERCISES_PATH)
 
     return df
 
@@ -80,6 +95,8 @@ def recommend_for_user(
 
     interactions = load_interactions()
 
+    exercises = load_exercises()
+
 
     user_item_matrix, similarity_df = (
         build_user_similarity()
@@ -118,28 +135,51 @@ def recommend_for_user(
 
         for _, row in similar_user_items.iterrows():
 
-            if row["item_id"] not in user_items:
+            item_id = row["item_id"]
 
-                recommendations.append(
-                    {
-                        "item_id":
-                            int(row["item_id"]),
 
-                        "item_type":
-                            row["item_type"],
+            if item_id not in user_items:
 
-                        "score":
-                            round(
-                                float(
-                                    similar_users[similar_user]
+
+                exercise = exercises[
+                    exercises["exercise_id"] == item_id
+                ]
+
+
+                if len(exercise) > 0:
+
+                    exercise = exercise.iloc[0]
+
+
+                    recommendations.append(
+                        {
+                            "exercise_id":
+                                int(exercise["exercise_id"]),
+
+                            "title":
+                                exercise["title"],
+
+                            "body_part":
+                                exercise["body_part"],
+
+                            "equipment":
+                                exercise["equipment"],
+
+                            "difficulty_level":
+                                exercise["difficulty_level"],
+
+                            "score":
+                                round(
+                                    float(
+                                        similar_users[similar_user]
+                                    ),
+                                    2
                                 ),
-                                2
-                            ),
 
-                        "reason":
-                            "Recommended based on similar users"
-                    }
-                )
+                            "reason":
+                                "Recommended based on similar users"
+                        }
+                    )
 
 
             if len(recommendations) >= limit:
