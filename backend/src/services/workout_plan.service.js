@@ -62,7 +62,20 @@ async function getFallbackExercises(goal, limit) {
         exerciseTypes
     );
 
-    return rows;
+    if (rows.length > 0) {
+        return rows;
+    }
+
+    const [genericRows] = await db.execute(
+        `
+        SELECT exercise_id, title, body_part, equipment, difficulty_level
+        FROM exercises
+        ORDER BY exercise_id
+        LIMIT ${Number(limit)}
+        `
+    );
+
+    return genericRows;
 
 }
 
@@ -94,7 +107,17 @@ async function generateWorkoutPlan(userId) {
             `,
             [userId]
         ),
-        recommendationService.generateRecommendations(userId),
+        recommendationService.generateRecommendations(userId).catch(
+            (error) => {
+                console.warn(
+                    "Workout plan recommendation service unavailable. Using fallback exercises."
+                );
+
+                return {
+                    recommended_exercises: [],
+                };
+            }
+        ),
     ]);
     const recentExerciseIds = new Set(
         historyRows[0].map((exercise) => Number(exercise.exercise_id))

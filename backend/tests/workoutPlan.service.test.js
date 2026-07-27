@@ -158,6 +158,37 @@ describe("Workout plan service", () => {
 
     });
 
+    test("generates a plan when the recommendation service is unavailable", async () => {
+
+        const connection = {
+            beginTransaction: jest.fn(),
+            commit: jest.fn(),
+            rollback: jest.fn(),
+            release: jest.fn(),
+            execute: jest.fn()
+                .mockResolvedValueOnce([{ insertId: 47 }])
+                .mockResolvedValue([{}]),
+        };
+
+        db.execute
+            .mockResolvedValueOnce([[
+                { fitness_goal: "Muscle Gain", activity_level: "Beginner" },
+            ]])
+            .mockResolvedValueOnce([[]])
+            .mockResolvedValueOnce([createExercises(6)]);
+        db.getConnection.mockResolvedValue(connection);
+        recommendationService.generateRecommendations.mockRejectedValue(
+            new Error("ML service unavailable")
+        );
+        aiService.generateResponse.mockResolvedValue("A fallback strength plan.");
+
+        const result = await workoutPlanService.generateWorkoutPlan(10);
+
+        expect(result.id).toBe(47);
+        expect(result.exercises).toHaveLength(6);
+
+    });
+
     test("retrieves plans, details, and completion state", async () => {
 
         db.execute
