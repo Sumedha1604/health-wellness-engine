@@ -1,5 +1,6 @@
 const axios = require("axios");
 const db = require("../config/db");
+const feedbackService = require("./recommendation_feedback.service");
 
 
 const ML_SERVICE_URL =
@@ -24,6 +25,11 @@ async function generateRecommendations(userId) {
   if (!preferences) {
     throw new Error("Preferences not found");
   }
+
+  const [exerciseFeedback, foodFeedback] = await Promise.all([
+    feedbackService.getFeedbackInfluence(userId, "exercise"),
+    feedbackService.getFeedbackInfluence(userId, "food"),
+  ]);
 
 
   const [meals] = await db.execute(
@@ -189,7 +195,14 @@ let mlFoodRecommendations = [];
 try {
 
   const exerciseResponse = await axios.get(
-    `${ML_SERVICE_URL}/recommendations/hybrid/${userId}?fitness_goal=${preferences.fitness_goal}&activity_level=${preferences.activity_level}`
+    `${ML_SERVICE_URL}/recommendations/hybrid/${userId}`,
+    {
+      params: {
+        fitness_goal: preferences.fitness_goal,
+        activity_level: preferences.activity_level,
+        feedback: JSON.stringify(exerciseFeedback),
+      },
+    }
   );
 
 
@@ -233,7 +246,12 @@ if (!foodId) {
 
 
 const foodResponse = await axios.get(
-  `${ML_SERVICE_URL}/recommendations/food/${foodId}`
+  `${ML_SERVICE_URL}/recommendations/food/${foodId}`,
+  {
+    params: {
+      feedback: JSON.stringify(foodFeedback),
+    },
+  }
 );
 
 

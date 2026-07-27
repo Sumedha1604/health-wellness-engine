@@ -36,6 +36,8 @@ describe("Recommendation service", () => {
                     },
                 ],
             ])
+            .mockResolvedValueOnce([[]])
+            .mockResolvedValueOnce([[]])
             .mockResolvedValueOnce([
                 [
                     {
@@ -88,6 +90,8 @@ describe("Recommendation service", () => {
                     },
                 ],
             ])
+            .mockResolvedValueOnce([[]])
+            .mockResolvedValueOnce([[]])
             .mockResolvedValueOnce([
                 [
                     {

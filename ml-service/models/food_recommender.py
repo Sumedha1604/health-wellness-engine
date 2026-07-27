@@ -82,7 +82,8 @@ def build_food_model():
 
 def recommend_foods(
     food_id,
-    limit=5
+    limit=5,
+    feedback_scores=None
 ):
 
     df, similarity_matrix = build_food_model()
@@ -108,11 +109,27 @@ def recommend_foods(
         reverse=True
     )
 
+    feedback_scores = feedback_scores or {}
+    food_index = {
+        int(food["food_id"]): index
+        for index, food
+        in df.iterrows()
+    }
     recommendations = []
 
     for idx, score in scores[1:limit+1]:
 
         food = df.iloc[idx]
+        feedback_influence = 0
+
+        for feedback_food_id, feedback_score in feedback_scores.items():
+            feedback_index = food_index.get(int(feedback_food_id))
+
+            if feedback_index is not None:
+                feedback_influence += (
+                    similarity_matrix[idx][feedback_index]
+                    * feedback_score
+                )
 
         recommendations.append(
             {
@@ -135,11 +152,15 @@ def recommend_foods(
                     float(food["fat"]),
 
                 "similarity_score":
-                    round(float(score), 2),
+                    round(float(score + (0.1 * feedback_influence)), 2),
 
                 "reason":
                     "Similar food based on nutrition profile"
             }
         )
 
-    return recommendations
+    return sorted(
+        recommendations,
+        key=lambda recommendation: recommendation["similarity_score"],
+        reverse=True
+    )

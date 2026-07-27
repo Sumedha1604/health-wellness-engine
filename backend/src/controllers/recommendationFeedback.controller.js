@@ -1,5 +1,5 @@
 const recommendationFeedbackService =
-    require("../services/recommendationFeedback.service");
+    require("../services/recommendation_feedback.service");
 const asyncHandler = require("../utils/asyncHandler");
 const { success } = require("../utils/response");
 
@@ -31,7 +31,19 @@ const getRecommendationFeedback = asyncHandler(async (req, res) => {
 
 });
 
+const getRecommendationFeedbackHistory = asyncHandler(async (req, res) => {
+
+    const feedback =
+        await recommendationFeedbackService.getRecommendationFeedback(
+            req.user.user_id
+        );
+
+    success(res, feedback);
+
+});
+
 module.exports = {
     createRecommendationFeedback,
     getRecommendationFeedback,
+    getRecommendationFeedbackHistory,
 };

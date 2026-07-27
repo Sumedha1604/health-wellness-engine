@@ -17,8 +17,9 @@ const createRecommendationFeedbackValidator = [
         .isIn([
             "like",
             "dislike",
+            "viewed",
         ])
-        .withMessage("Feedback must be like or dislike"),
+        .withMessage("Feedback must be like, dislike, or viewed"),
 ];
 
 module.exports = {

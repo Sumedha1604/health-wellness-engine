@@ -422,8 +422,13 @@ CREATE TABLE recommendation_feedback (
 
     feedback ENUM(
         'like',
-        'dislike'
+        'dislike',
+        'viewed'
     ) NOT NULL,
+
+    recommendation_score DECIMAL(5,2) NOT NULL DEFAULT 0,
+
+    viewed BOOLEAN NOT NULL DEFAULT FALSE,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 

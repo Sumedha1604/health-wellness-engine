@@ -53,7 +53,50 @@ describe("Recommendation Feedback API", () => {
             recommendation_type: "food",
             recommendation_id: 42,
             feedback: "dislike",
+            recommendation_score: -1,
+            viewed: true,
         });
+
+    });
+
+    test("POST /api/recommendations/feedback should record a view event", async () => {
+
+        const { token } = await createAuthenticatedUser();
+
+        const response = await request(app)
+            .post("/api/recommendations/feedback")
+            .set("Authorization", `Bearer ${token}`)
+            .send({
+                recommendation_type: "exercise",
+                recommendation_id: 2876,
+                feedback: "viewed",
+            });
+
+        expect(response.statusCode).toBe(201);
+        expect(response.body.success).toBe(true);
+
+    });
+
+    test("GET /api/recommendations/feedback/history should return feedback history", async () => {
+
+        const { token } = await createAuthenticatedUser();
+
+        await request(app)
+            .post("/api/recommendations/feedback")
+            .set("Authorization", `Bearer ${token}`)
+            .send({
+                recommendation_type: "exercise",
+                recommendation_id: 2876,
+                feedback: "like",
+            });
+
+        const response = await request(app)
+            .get("/api/recommendations/feedback/history")
+            .set("Authorization", `Bearer ${token}`);
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.success).toBe(true);
+        expect(response.body.data).toHaveLength(1);
 
     });
 

@@ -79,4 +79,10 @@ router.get(
     recommendationFeedbackController.getRecommendationFeedback
 );
 
+router.get(
+    "/feedback/history",
+    authenticateToken,
+    recommendationFeedbackController.getRecommendationFeedbackHistory
+);
+
 module.exports = router;

@@ -1,3 +1,5 @@
+import json
+
 from fastapi import APIRouter
 
 from models.exercise_recommender import recommend_exercises
@@ -13,6 +15,18 @@ from models.hybrid_recommender import (
 
 
 router = APIRouter()
+
+
+def parse_feedback(feedback: str):
+
+    try:
+        return {
+            int(recommendation_id): float(score)
+            for recommendation_id, score
+            in json.loads(feedback).items()
+        }
+    except (TypeError, ValueError, json.JSONDecodeError):
+        return {}
 
 
 
@@ -32,12 +46,14 @@ def exercise_recommendations(
 @router.get("/food/{food_id}")
 def food_recommendations(
     food_id: int,
-    limit: int = 5
+    limit: int = 5,
+    feedback: str = "{}"
 ):
 
     return recommend_foods(
         food_id,
-        limit
+        limit,
+        parse_feedback(feedback)
     )
 
 
@@ -67,7 +83,8 @@ def hybrid_exercise_recommendations(
     user_id: int,
     fitness_goal: str,
     activity_level: str,
-    limit: int = 5
+    limit: int = 5,
+    feedback: str = "{}"
 ):
 
     preferences = {
@@ -79,5 +96,6 @@ def hybrid_exercise_recommendations(
     return hybrid_recommendations(
         user_id,
         preferences,
-        limit
+        limit,
+        parse_feedback(feedback)
     )

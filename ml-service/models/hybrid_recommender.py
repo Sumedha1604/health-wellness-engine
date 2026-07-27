@@ -345,10 +345,40 @@ def apply_diversity_penalty(
 # Hybrid Recommendation
 # ==========================================================
 
+def calculate_feedback_score(
+    exercise_id,
+    feedback_scores,
+    content_similarity_matrix,
+    exercise_index
+):
+
+    if not feedback_scores:
+        return 0
+
+    candidate_index = exercise_index.get(int(exercise_id))
+
+    if candidate_index is None:
+        return 0
+
+    feedback_score = 0
+
+    for feedback_exercise_id, score in feedback_scores.items():
+        feedback_index = exercise_index.get(int(feedback_exercise_id))
+
+        if feedback_index is not None:
+            feedback_score += (
+                content_similarity_matrix[candidate_index][feedback_index]
+                * score
+            )
+
+    return feedback_score
+
+
 def hybrid_recommendations(
     user_id,
     preferences,
-    limit=5
+    limit=5,
+    feedback_scores=None
 ):
 
     interactions = load_interactions()
@@ -379,6 +409,7 @@ def hybrid_recommendations(
 
 
     candidates = {}
+    feedback_scores = feedback_scores or {}
 
 
 
@@ -453,6 +484,13 @@ def hybrid_recommendations(
             exercise_index
         )
 
+        feedback_score = calculate_feedback_score(
+            int(exercise["exercise_id"]),
+            feedback_scores,
+            content_similarity_matrix,
+            exercise_index
+        )
+
 
 
         final_score = (
@@ -465,6 +503,8 @@ def hybrid_recommendations(
         0.20 * body_part_score
         +
         0.05 * content_score
+        +
+        0.10 * feedback_score
     )
 
 
@@ -493,7 +533,7 @@ def hybrid_recommendations(
                     ),
 
                 "reason":
-                    "Hybrid recommendation based on user similarity, fitness goal, difficulty, body part, content similarity and diversity"
+                    "Hybrid recommendation based on user similarity, fitness goal, difficulty, body part, content similarity, feedback and diversity"
             }
         )
 
