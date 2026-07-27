@@ -5,6 +5,9 @@
 DROP TABLE IF EXISTS recommendation_logs;
 DROP TABLE IF EXISTS recommendations;
 DROP TABLE IF EXISTS favorites;
+DROP TABLE IF EXISTS nutrition_logs;
+DROP TABLE IF EXISTS water_logs;
+DROP TABLE IF EXISTS exercise_logs;
 DROP TABLE IF EXISTS workouts;
 DROP TABLE IF EXISTS preferences;
 DROP TABLE IF EXISTS meal_plans;
@@ -204,6 +207,70 @@ CREATE TABLE workouts (
     CONSTRAINT fk_workout_exercise
         FOREIGN KEY (exercise_id)
         REFERENCES exercises(exercise_id)
+        ON DELETE CASCADE
+
+);
+CREATE TABLE exercise_logs (
+
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    user_id INT NOT NULL,
+
+    exercise_id INT NOT NULL,
+
+    duration_minutes INT NOT NULL,
+
+    calories_burned DECIMAL(8,2) NOT NULL,
+
+    completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_exercise_logs_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_exercise_logs_exercise
+        FOREIGN KEY (exercise_id)
+        REFERENCES exercises(exercise_id)
+        ON DELETE CASCADE
+
+);
+CREATE TABLE water_logs (
+
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    user_id INT NOT NULL,
+
+    amount_ml INT NOT NULL,
+
+    logged_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_water_logs_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE
+
+);
+CREATE TABLE nutrition_logs (
+
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    user_id INT NOT NULL,
+
+    food_id INT NOT NULL,
+
+    quantity DECIMAL(10,2) NOT NULL,
+
+    logged_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_nutrition_logs_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_nutrition_logs_food
+        FOREIGN KEY (food_id)
+        REFERENCES foods(food_id)
         ON DELETE CASCADE
 
 );
