@@ -17,6 +17,7 @@ const trackingRoutes = require("./routes/tracking.routes");
 const chatRoutes = require("./routes/chat.routes");
 const wellnessRoutes = require("./routes/wellness.routes");
 const progressRoutes = require("./routes/progress.routes");
+const workoutPlanRoutes = require("./routes/workoutPlan.routes");
 const errorMiddleware = require("./middleware/error.middleware");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./config/swagger");
@@ -46,6 +47,7 @@ app.use("/api/tracking", trackingRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/wellness", wellnessRoutes);
 app.use("/api/progress", progressRoutes);
+app.use("/api/workout-plans", workoutPlanRoutes);
 
 app.use(
     "/api-docs",

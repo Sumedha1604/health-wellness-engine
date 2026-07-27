@@ -10,6 +10,7 @@ import {
   Heart,
   Bot,
   ChartNoAxesCombined,
+  CalendarCheck2,
 } from "lucide-react";
 const menu = [
   { name: "Dashboard", path: "/", icon: LayoutDashboard },
@@ -18,6 +19,7 @@ const menu = [
   { name: "Recommendations", path: "/recommendations", icon: Sparkles },
   { name: "AI Assistant", path: "/ai-assistant", icon: Bot },
   { name: "Progress", path: "/progress", icon: ChartNoAxesCombined },
+  { name: "Workout Plans", path: "/workout-plans", icon: CalendarCheck2 },
   { name: "Favorites", path: "/favorites", icon: Heart },
 ];
 export default function Sidebar() {

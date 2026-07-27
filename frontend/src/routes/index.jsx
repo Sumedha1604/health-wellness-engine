@@ -16,6 +16,7 @@ import NotFound from "../pages/NotFound";
 import Exercises from "../pages/Exercises";
 import AIAssistant from "../pages/AIAssistant";
 import Progress from "../pages/Progress";
+import WorkoutPlans from "../pages/WorkoutPlans";
 
 export default function AppRoutes() {
   return (
@@ -96,6 +97,14 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute>
             <Progress />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/workout-plans"
+        element={
+          <ProtectedRoute>
+            <WorkoutPlans />
           </ProtectedRoute>
         }
       />
