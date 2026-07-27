@@ -14,6 +14,7 @@ import Login from "../pages/Login";
 import Register from "../pages/Register";
 import NotFound from "../pages/NotFound";
 import Exercises from "../pages/Exercises";
+import AIAssistant from "../pages/AIAssistant";
 
 export default function AppRoutes() {
   return (
@@ -78,6 +79,14 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute>
             <Exercises />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/ai-assistant"
+        element={
+          <ProtectedRoute>
+            <AIAssistant />
           </ProtectedRoute>
         }
       />

@@ -8,12 +8,14 @@ import {
   Dumbbell,
   Sparkles,
   Heart,
+  Bot,
 } from "lucide-react";
 const menu = [
   { name: "Dashboard", path: "/", icon: LayoutDashboard },
   { name: "Meal Plans", path: "/meal-plans", icon: UtensilsCrossed },
   { name: "Exercises", path: "/exercises", icon: Dumbbell },
   { name: "Recommendations", path: "/recommendations", icon: Sparkles },
+  { name: "AI Assistant", path: "/ai-assistant", icon: Bot },
   { name: "Favorites", path: "/favorites", icon: Heart },
 ];
 export default function Sidebar() {

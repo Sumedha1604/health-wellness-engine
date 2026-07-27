@@ -4,6 +4,7 @@
 
 DROP TABLE IF EXISTS recommendation_logs;
 DROP TABLE IF EXISTS recommendation_feedback;
+DROP TABLE IF EXISTS chat_history;
 DROP TABLE IF EXISTS recommendations;
 DROP TABLE IF EXISTS favorites;
 DROP TABLE IF EXISTS nutrition_logs;
@@ -427,6 +428,24 @@ CREATE TABLE recommendation_feedback (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_recommendation_feedback_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE
+
+);
+CREATE TABLE chat_history (
+
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    user_id INT NOT NULL,
+
+    message TEXT NOT NULL,
+
+    response TEXT NOT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_chat_history_user
         FOREIGN KEY (user_id)
         REFERENCES users(user_id)
         ON DELETE CASCADE
