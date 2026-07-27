@@ -102,12 +102,13 @@ async function generateWorkoutPlan(userId) {
     const trainingDays = getTrainingDays(preferences.activity_level);
     const exercisesPerDay = preferences.activity_level === "Beginner" ? 2 : 3;
     const neededExercises = trainingDays.length * exercisesPerDay;
-    let recommendedExercises = (
+    const recommendedExercisesFromEngine = (
         recommendations.recommended_exercises || []
     ).map((exercise) => ({
         ...exercise,
         exercise_id: Number(exercise.exercise_id),
     }));
+    let recommendedExercises = recommendedExercisesFromEngine;
 
     recommendedExercises = recommendedExercises.filter(
         (exercise) => !recentExerciseIds.has(exercise.exercise_id)
@@ -122,13 +123,21 @@ async function generateWorkoutPlan(userId) {
             recommendedExercises.map((exercise) => exercise.exercise_id)
         );
 
+        const fallbackCandidates = fallbackExercises.filter((exercise) => (
+            !existingExerciseIds.has(exercise.exercise_id)
+        ));
+        const unseenFallbackExercises = fallbackCandidates.filter((exercise) => (
+            !recentExerciseIds.has(exercise.exercise_id)
+        ));
+
         recommendedExercises = [
             ...recommendedExercises,
-            ...fallbackExercises.filter((exercise) => (
-                !existingExerciseIds.has(exercise.exercise_id) &&
-                !recentExerciseIds.has(exercise.exercise_id)
-            )),
+            ...unseenFallbackExercises,
         ];
+
+        if (recommendedExercises.length === 0) {
+            recommendedExercises = fallbackCandidates;
+        }
     }
 
     if (recommendedExercises.length === 0) {

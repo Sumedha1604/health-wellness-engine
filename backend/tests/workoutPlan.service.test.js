@@ -123,6 +123,41 @@ describe("Workout plan service", () => {
 
     });
 
+    test("reuses fallback exercises when every match appears in recent history", async () => {
+
+        const connection = {
+            beginTransaction: jest.fn(),
+            commit: jest.fn(),
+            rollback: jest.fn(),
+            release: jest.fn(),
+            execute: jest.fn()
+                .mockResolvedValueOnce([{ insertId: 46 }])
+                .mockResolvedValue([{}]),
+        };
+        const fallbackExercises = createExercises(6);
+
+        db.execute
+            .mockResolvedValueOnce([[
+                { fitness_goal: "Weight Loss", activity_level: "Beginner" },
+            ]])
+            .mockResolvedValueOnce([
+                fallbackExercises.map((exercise) => ({
+                    exercise_id: exercise.exercise_id,
+                })),
+            ])
+            .mockResolvedValueOnce([fallbackExercises]);
+        db.getConnection.mockResolvedValue(connection);
+        recommendationService.generateRecommendations.mockResolvedValue({
+            recommended_exercises: [],
+        });
+        aiService.generateResponse.mockResolvedValue("A flexible cardio plan.");
+
+        const result = await workoutPlanService.generateWorkoutPlan(9);
+
+        expect(result.exercises).toHaveLength(6);
+
+    });
+
     test("retrieves plans, details, and completion state", async () => {
 
         db.execute
