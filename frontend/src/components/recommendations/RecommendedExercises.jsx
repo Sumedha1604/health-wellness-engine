@@ -249,7 +249,11 @@ export default function RecommendedExercises({
                     <button
                       type="button"
                       onClick={() =>
-                        onFeedback?.(recommendationId, "like")
+                        onFeedback?.(
+                          "exercise",
+                          exercise.exercise_id,
+                          "like"
+                        )
                       }
                       aria-pressed={
                         feedback[recommendationId] === "like"
@@ -268,7 +272,11 @@ export default function RecommendedExercises({
                     <button
                       type="button"
                       onClick={() =>
-                        onFeedback?.(recommendationId, "dislike")
+                        onFeedback?.(
+                          "exercise",
+                          exercise.exercise_id,
+                          "dislike"
+                        )
                       }
                       aria-pressed={
                         feedback[recommendationId] === "dislike"

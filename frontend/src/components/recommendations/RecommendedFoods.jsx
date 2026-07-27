@@ -85,9 +85,11 @@ export default function RecommendedFoods({
             ? Math.round((food.similarity_score || 0) * 100)
             : null;
 
-          const recommendationId = `food-${
-            isObject ? food.food_id || name : name
-          }`;
+          const foodId = isObject
+            ? food.food_id
+            : null;
+
+          const recommendationId = `food-${foodId}`;
 
 
 
@@ -331,15 +333,20 @@ export default function RecommendedFoods({
                 <button
                   type="button"
                   onClick={() =>
-                    onFeedback?.(recommendationId, "like")
+                    onFeedback?.(
+                      "food",
+                      foodId,
+                      "like"
+                    )
                   }
+                  disabled={!foodId}
                   aria-pressed={
                     feedback[recommendationId] === "like"
                   }
                   className={
                     feedback[recommendationId] === "like"
-                      ? "flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-2 text-sm font-medium text-green-700 transition"
-                      : "flex items-center gap-1.5 rounded-full bg-gray-50 px-3 py-2 text-sm font-medium text-gray-500 transition hover:bg-green-50 hover:text-green-700"
+                      ? "flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-2 text-sm font-medium text-green-700 transition disabled:cursor-not-allowed disabled:opacity-50"
+                      : "flex items-center gap-1.5 rounded-full bg-gray-50 px-3 py-2 text-sm font-medium text-gray-500 transition hover:bg-green-50 hover:text-green-700 disabled:cursor-not-allowed disabled:opacity-50"
                   }
                 >
                   <ThumbsUp size={16}/>
@@ -350,15 +357,20 @@ export default function RecommendedFoods({
                 <button
                   type="button"
                   onClick={() =>
-                    onFeedback?.(recommendationId, "dislike")
+                    onFeedback?.(
+                      "food",
+                      foodId,
+                      "dislike"
+                    )
                   }
+                  disabled={!foodId}
                   aria-pressed={
                     feedback[recommendationId] === "dislike"
                   }
                   className={
                     feedback[recommendationId] === "dislike"
-                      ? "flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-2 text-sm font-medium text-red-600 transition"
-                      : "flex items-center gap-1.5 rounded-full bg-gray-50 px-3 py-2 text-sm font-medium text-gray-500 transition hover:bg-red-50 hover:text-red-600"
+                      ? "flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-2 text-sm font-medium text-red-600 transition disabled:cursor-not-allowed disabled:opacity-50"
+                      : "flex items-center gap-1.5 rounded-full bg-gray-50 px-3 py-2 text-sm font-medium text-gray-500 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
                   }
                 >
                   <ThumbsDown size={16}/>

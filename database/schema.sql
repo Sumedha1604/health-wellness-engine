@@ -3,6 +3,7 @@
 -- =====================================================
 
 DROP TABLE IF EXISTS recommendation_logs;
+DROP TABLE IF EXISTS recommendation_feedback;
 DROP TABLE IF EXISTS recommendations;
 DROP TABLE IF EXISTS favorites;
 DROP TABLE IF EXISTS nutrition_logs;
@@ -402,6 +403,32 @@ CREATE TABLE recommendation_logs (
     CONSTRAINT fk_log_recommendation
         FOREIGN KEY (recommendation_id)
         REFERENCES recommendations(recommendation_id)
+        ON DELETE CASCADE
+
+);
+CREATE TABLE recommendation_feedback (
+
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    user_id INT NOT NULL,
+
+    recommendation_type ENUM(
+        'exercise',
+        'food'
+    ) NOT NULL,
+
+    recommendation_id INT NOT NULL,
+
+    feedback ENUM(
+        'like',
+        'dislike'
+    ) NOT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_recommendation_feedback_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(user_id)
         ON DELETE CASCADE
 
 );

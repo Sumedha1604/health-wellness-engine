@@ -4,6 +4,14 @@ const router = express.Router();
 
 const authenticateToken = require("../middleware/auth.middleware");
 const recommendationController = require("../controllers/recommendation.controller");
+const recommendationFeedbackController =
+    require("../controllers/recommendationFeedback.controller");
+const validationMiddleware =
+    require("../middleware/validation.middleware");
+
+const {
+    createRecommendationFeedbackValidator,
+} = require("../validators/recommendationFeedback.validator");
 
 /**
  * @swagger
@@ -55,6 +63,20 @@ router.get(
     "/",
     authenticateToken,
     recommendationController.getRecommendations
+);
+
+router.post(
+    "/feedback",
+    authenticateToken,
+    createRecommendationFeedbackValidator,
+    validationMiddleware,
+    recommendationFeedbackController.createRecommendationFeedback
+);
+
+router.get(
+    "/feedback",
+    authenticateToken,
+    recommendationFeedbackController.getRecommendationFeedback
 );
 
 module.exports = router;

@@ -4,8 +4,6 @@ import {
   Sparkles,
   Loader2,
   ClipboardList,
-  ThumbsUp,
-  ThumbsDown,
 } from "lucide-react";
 import api from "../services/api";
 import NutritionScoreCard from "../components/recommendations/NutritionScoreCard";
@@ -14,6 +12,10 @@ import RecommendedFoods from "../components/recommendations/RecommendedFoods";
 import RecommendedExercises from "../components/recommendations/RecommendedExercises";
 import MealModal from "../components/mealPlans/MealModal";
 import toast from "react-hot-toast";
+import {
+  getRecommendationFeedback,
+  submitRecommendationFeedback,
+} from "../services/recommendation.service";
 
 export default function Recommendations() {
   const [recommendations, setRecommendations] = useState(null);
@@ -27,6 +29,7 @@ export default function Recommendations() {
 
   useEffect(() => {
     fetchRecommendations();
+    loadFeedback();
   }, []);
 
   async function fetchRecommendations() {
@@ -61,17 +64,68 @@ export default function Recommendations() {
     setSelectedMealFood(null);
   }
 
-  function handleFeedback(recommendationId, response) {
-    setFeedback((prev) => ({
-      ...prev,
-      [recommendationId]: response,
-    }));
+  async function loadFeedback() {
+    try {
 
-    toast.success(
-      response === "like"
-        ? "Thanks! We'll use this feedback to improve recommendations."
-        : "Thanks! We'll show you better matches."
-    );
+      const feedbackData = await getRecommendationFeedback();
+
+      setFeedback(
+        feedbackData.reduce((currentFeedback, item) => {
+
+          const feedbackId = `${item.recommendation_type}-${
+            item.recommendation_id
+          }`;
+
+          if (!currentFeedback[feedbackId]) {
+            currentFeedback[feedbackId] = item.feedback;
+          }
+
+          return currentFeedback;
+
+        }, {})
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+    }
+  }
+
+  async function handleFeedback(
+    recommendationType,
+    recommendationId,
+    response
+  ) {
+    try {
+
+      await submitRecommendationFeedback({
+        recommendation_type: recommendationType,
+        recommendation_id: recommendationId,
+        feedback: response,
+      });
+
+      const feedbackId = `${recommendationType}-${
+        recommendationId
+      }`;
+
+      setFeedback((prev) => ({
+        ...prev,
+        [feedbackId]: response,
+      }));
+
+      toast.success(
+        response === "like"
+          ? "Thanks! We'll use this feedback to improve recommendations."
+          : "Thanks! We'll show you better matches."
+      );
+
+    } catch (error) {
+
+      console.error(error);
+      toast.error("Unable to save feedback. Please try again.");
+
+    }
   }
 
   if (loading) {
@@ -183,8 +237,6 @@ export default function Recommendations() {
             <TopRecommendationCard
               recommendation={recommendations.top_recommendation}
               onAddToMealPlan={handleAddToMealPlan}
-              feedback={feedback}
-              onFeedback={handleFeedback}
             />
 
             <div
@@ -211,35 +263,6 @@ export default function Recommendations() {
                 {recommendations.ai_tip}
               </p>
 
-              <div className="mt-6 flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => handleFeedback("ai-tip", "like")}
-                  aria-pressed={feedback["ai-tip"] === "like"}
-                  className={
-                    feedback["ai-tip"] === "like"
-                      ? "flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-2 text-sm font-medium text-green-700 transition"
-                      : "flex items-center gap-1.5 rounded-full bg-gray-50 px-3 py-2 text-sm font-medium text-gray-500 transition hover:bg-green-50 hover:text-green-700"
-                  }
-                >
-                  <ThumbsUp size={16}/>
-                  Like
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleFeedback("ai-tip", "dislike")}
-                  aria-pressed={feedback["ai-tip"] === "dislike"}
-                  className={
-                    feedback["ai-tip"] === "dislike"
-                      ? "flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-2 text-sm font-medium text-red-600 transition"
-                      : "flex items-center gap-1.5 rounded-full bg-gray-50 px-3 py-2 text-sm font-medium text-gray-500 transition hover:bg-red-50 hover:text-red-600"
-                  }
-                >
-                  <ThumbsDown size={16}/>
-                  Dislike
-                </button>
-              </div>
             </div>
           </div>
 
