@@ -11,6 +11,8 @@ import WeeklyChart from "../components/charts/WeeklyChart";
 import RecentMeals from "../components/charts/RecentMeals";
 import RecommendationCard from "../components/charts/RecommendationCard";
 import QuickAction from "../components/charts/QuickAction";
+import LoadingState from "../components/ui/LoadingState";
+import ErrorState from "../components/ui/ErrorState";
 
 import {
   getDashboard,
@@ -81,7 +83,7 @@ export default function Dashboard() {
 
   if (loading) {
 
-    return <h2>Loading Dashboard...</h2>;
+    return <LoadingState message="Loading your dashboard..." />;
 
   }
 
@@ -91,17 +93,11 @@ export default function Dashboard() {
 
     return (
 
-      <div className="p-8">
-
-        <h2 className="text-2xl font-bold">
-          Unable to load dashboard
-        </h2>
-
-        <p className="mt-2 text-gray-600">
-          You may not be logged in, or the server returned an error.
-        </p>
-
-      </div>
+      <ErrorState
+        title="Unable to load dashboard"
+        message="Please check your connection and try again."
+        onRetry={() => window.location.reload()}
+      />
 
     );
 
@@ -137,7 +133,7 @@ export default function Dashboard() {
       <QuickProgress />
 
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
 
         <WeeklyChart />
 
@@ -149,7 +145,7 @@ export default function Dashboard() {
       </div>
 
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
 
         <RecentMeals />
 

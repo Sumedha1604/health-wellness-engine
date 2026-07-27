@@ -44,7 +44,7 @@ export default function QuickProgress() {
         <Target className="h-5 w-5 text-emerald-500" />
       </div>
 
-      <div className="mt-6 grid grid-cols-3 gap-3">
+      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div className="rounded-2xl bg-purple-50 p-4">
           <Activity className="h-4 w-4 text-purple-600" />
           <p className="mt-3 text-2xl font-bold text-gray-900">

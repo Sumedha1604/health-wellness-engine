@@ -3,6 +3,8 @@ import { Activity, Droplets, Flame, Target, Trophy } from "lucide-react";
 import BarChart from "../components/charts/BarChart";
 import LineChart from "../components/charts/LineChart";
 import { getProgressHistory, getProgressOverview } from "../services/progress.service";
+import LoadingState from "../components/ui/LoadingState";
+import ErrorState from "../components/ui/ErrorState";
 
 function MetricCard({ icon, label, value, detail, tone }) {
   return (
@@ -45,11 +47,15 @@ export default function Progress() {
   }, []);
 
   if (loading) {
-    return <div className="p-8 text-lg text-gray-500">Loading your progress...</div>;
+    return <LoadingState message="Loading your progress..." />;
   }
 
   if (!overview) {
-    return <div className="p-8 text-lg text-gray-500">Unable to load progress right now.</div>;
+    return <ErrorState
+      title="Unable to load progress"
+      message="Please check your connection and try again."
+      onRetry={() => window.location.reload()}
+    />;
   }
 
   return (

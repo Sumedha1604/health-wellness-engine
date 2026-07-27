@@ -130,9 +130,9 @@ export default function MealModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-3xl p-8 w-full max-w-lg">
-        <h2 className="text-3xl font-bold mb-6">
+    <div className="fixed inset-0 z-50 flex items-end bg-black/40 p-0 sm:items-center sm:justify-center sm:p-4">
+      <div className="max-h-[92vh] w-full overflow-y-auto rounded-t-3xl bg-white p-5 sm:max-w-lg sm:rounded-3xl sm:p-8">
+        <h2 className="mb-6 text-2xl font-bold sm:text-3xl">
           {isEditing ? "Edit Meal" : "Add Meal"}
         </h2>
 
@@ -207,7 +207,7 @@ export default function MealModal({
           </div>
         </div>
 
-        <div className="flex gap-4 mt-8">
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
           <Button
             variant="secondary"
             onClick={onClose}

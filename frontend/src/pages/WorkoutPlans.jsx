@@ -144,16 +144,16 @@ export default function WorkoutPlans() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col justify-between gap-6 rounded-3xl bg-gradient-to-r from-purple-500 to-violet-600 p-8 text-white shadow-lg md:flex-row md:items-center">
+      <div className="flex flex-col justify-between gap-6 rounded-3xl bg-gradient-to-r from-purple-500 to-violet-600 p-5 text-white shadow-lg sm:p-8 md:flex-row md:items-center">
         <div>
           <p className="text-sm font-medium uppercase tracking-widest text-purple-100">AI Workout Planner</p>
-          <h1 className="mt-2 text-4xl font-bold">Train with a clear plan</h1>
+          <h1 className="mt-2 text-3xl font-bold sm:text-4xl">Train with a clear plan</h1>
           <p className="mt-3 max-w-2xl text-purple-100">Generate a weekly routine using your goal, activity level, and exercise recommendations.</p>
         </div>
         <button
           onClick={handleGenerate}
           disabled={generating}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-purple-700 shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-70"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-purple-700 shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-70 md:w-auto"
         >
           {generating ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
           {generating ? "Generating..." : "Generate Workout Plan"}
@@ -183,7 +183,7 @@ export default function WorkoutPlans() {
           <div className="mx-auto mt-6 max-w-xs"><Button onClick={handleGenerate} disabled={generating}>{generating ? "Generating..." : "Generate Workout Plan"}</Button></div>
         </div>
       ) : (
-        <div className="rounded-3xl bg-white p-8 shadow-card">
+        <div className="rounded-3xl bg-white p-5 shadow-card sm:p-8">
           <div className="flex flex-col justify-between gap-5 border-b border-gray-100 pb-6 md:flex-row md:items-start">
             <div>
               <div className="flex items-center gap-2 text-sm font-medium text-purple-600"><CalendarDays className="h-4 w-4" /> {selectedPlan.duration_weeks} week plan · {selectedPlan.goal}</div>

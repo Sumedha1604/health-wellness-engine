@@ -79,7 +79,7 @@ export default function AIAssistant() {
 
   return (
 
-    <div className="mx-auto flex max-w-4xl flex-col gap-8">
+    <div className="mx-auto flex max-w-4xl flex-col gap-5 sm:gap-8">
 
       <div>
 
@@ -89,7 +89,7 @@ export default function AIAssistant() {
           </span>
 
           <div>
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-4xl">
               AI Wellness Assistant
             </h1>
             <p className="mt-1 text-gray-500">
@@ -104,14 +104,14 @@ export default function AIAssistant() {
 
       <div className="overflow-hidden rounded-3xl bg-white shadow-card">
 
-        <div className="border-b border-gray-100 px-8 py-5">
+        <div className="border-b border-gray-100 px-5 py-4 sm:px-8 sm:py-5">
           <p className="text-sm font-medium text-green-600">
             Personalized wellness guidance
           </p>
         </div>
 
 
-        <div className="min-h-[420px] space-y-5 p-6 sm:p-8">
+        <div className="min-h-[360px] space-y-5 p-4 sm:min-h-[420px] sm:p-8">
 
           {messages.map((chatMessage, index) => {
             const isUser = chatMessage.role === "user";
@@ -130,7 +130,7 @@ export default function AIAssistant() {
                 )}
 
                 <p
-                  className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed sm:text-base ${
+                  className={`max-w-[calc(100%-3.25rem)] break-words rounded-2xl px-4 py-3 text-sm leading-relaxed sm:max-w-[80%] sm:text-base ${
                     isUser
                       ? "rounded-br-md bg-green-500 text-white"
                       : "rounded-bl-md bg-gray-50 text-gray-700"

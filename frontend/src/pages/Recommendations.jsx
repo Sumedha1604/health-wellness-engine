@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Sparkles,
-  Loader2,
   ClipboardList,
 } from "lucide-react";
 import api from "../services/api";
@@ -12,6 +11,8 @@ import RecommendedFoods from "../components/recommendations/RecommendedFoods";
 import RecommendedExercises from "../components/recommendations/RecommendedExercises";
 import MealModal from "../components/mealPlans/MealModal";
 import toast from "react-hot-toast";
+import LoadingState from "../components/ui/LoadingState";
+import ErrorState from "../components/ui/ErrorState";
 import {
   getRecommendationFeedback,
   submitRecommendationFeedback,
@@ -129,50 +130,15 @@ export default function Recommendations() {
   }
 
   if (loading) {
-    return (
-      <div className="space-y-8 animate-pulse">
-        <div>
-          <div className="h-10 w-80 max-w-full rounded-xl bg-gray-200" />
-          <div className="mt-3 h-5 w-2/3 max-w-full rounded-lg bg-gray-100" />
-        </div>
-        <div className="h-56 rounded-3xl bg-white shadow-card" />
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <div className="h-72 rounded-3xl bg-white shadow-card" />
-          <div className="h-72 rounded-3xl bg-white shadow-card" />
-        </div>
-        <div className="flex items-center justify-center gap-3 rounded-3xl bg-white py-6 shadow-card">
-          <Loader2 className="h-5 w-5 animate-spin text-green-600" strokeWidth={2} />
-          <p className="text-sm font-semibold text-gray-700">
-            Preparing your personalized recommendations...
-          </p>
-        </div>
-      </div>
-    );
+    return <LoadingState message="Preparing your personalized recommendations..." />;
   }
 
   if (error) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <div className="flex max-w-md flex-col items-center gap-4 rounded-3xl bg-white px-12 py-10 text-center shadow-card">
-          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-red-50">
-            <Sparkles className="h-8 w-8 text-red-400" strokeWidth={1.5} />
-          </span>
-          <p className="text-lg font-semibold text-gray-900">
-            We couldn't load your recommendations
-          </p>
-          <p className="text-sm text-gray-500">
-            Please check your connection and try again.
-          </p>
-          <button
-            type="button"
-            onClick={fetchRecommendations}
-            className="rounded-xl bg-green-500 px-6 py-3 font-semibold text-white transition hover:bg-green-600"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
+    return <ErrorState
+      title="We couldn't load your recommendations"
+      message={error}
+      onRetry={fetchRecommendations}
+    />;
   }
 
   const hasRecommendations =

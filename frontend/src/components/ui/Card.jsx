@@ -2,7 +2,8 @@ export default function Card({ children }) {
     return (
       <div
         className="
-        w-[420px]
+        w-full
+        max-w-[420px]
         bg-white
         rounded-3xl
         shadow-card

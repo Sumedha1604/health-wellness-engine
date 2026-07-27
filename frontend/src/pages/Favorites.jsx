@@ -4,7 +4,6 @@ import {
   Heart,
   ArrowRight,
   Flame,
-  Loader2,
   Dumbbell,
   Utensils,
 } from "lucide-react";
@@ -16,6 +15,8 @@ import {
 } from "../services/favorite.service";
 
 import ExerciseCard from "../components/exercises/ExerciseCard";
+import LoadingState from "../components/ui/LoadingState";
+import ErrorState from "../components/ui/ErrorState";
 
 
 export default function Favorites() {
@@ -153,7 +154,7 @@ export default function Favorites() {
 
       <div>
 
-        <h1 className="text-4xl font-bold tracking-tight text-gray-900">
+        <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
           Favorites
         </h1>
 
@@ -167,7 +168,8 @@ export default function Favorites() {
 
       <div className="
         flex
-        w-fit
+        w-full
+        sm:w-fit
         rounded-2xl
         bg-gray-100
         p-1
@@ -183,7 +185,9 @@ export default function Favorites() {
             items-center
             gap-2
             rounded-xl
-            px-5
+            flex-1
+            justify-center
+            px-4
             py-2.5
             text-sm
             font-medium
@@ -213,7 +217,9 @@ export default function Favorites() {
             items-center
             gap-2
             rounded-xl
-            px-5
+            flex-1
+            justify-center
+            px-4
             py-2.5
             text-sm
             font-medium
@@ -239,28 +245,16 @@ export default function Favorites() {
 
       {loading ? (
 
-        <div className="
-          flex
-          min-h-[520px]
-          items-center
-          justify-center
-          rounded-3xl
-          bg-white
-          shadow-card
-        ">
-
-          <Loader2
-            className="h-8 w-8 animate-spin text-green-600"
-          />
-
-        </div>
+        <LoadingState message="Loading your favorites..." />
 
 
       ) : error ? (
 
-        <p className="text-red-500">
-          {error}
-        </p>
+        <ErrorState
+          title="Unable to load favorites"
+          message={error}
+          onRetry={loadFavorites}
+        />
 
 
       ) : activeTab === "exercises" ? (
@@ -270,7 +264,8 @@ export default function Favorites() {
           <div className="
             rounded-3xl
             bg-white
-            p-10
+            p-6
+            sm:p-10
             text-center
             shadow-card
           ">
@@ -339,7 +334,8 @@ export default function Favorites() {
           <div className="
             rounded-3xl
             bg-white
-            p-10
+            p-6
+            sm:p-10
             text-center
             shadow-card
           ">
@@ -397,12 +393,13 @@ export default function Favorites() {
                   className="
                     rounded-3xl
                     bg-white
-                    p-6
+                    p-5
+                    sm:p-6
                     shadow-card
                   "
                 >
 
-                  <div className="flex justify-between">
+                  <div className="flex items-start justify-between gap-3">
 
                     <button
                       type="button"
@@ -423,7 +420,7 @@ export default function Favorites() {
 
                     </button>
 
-                    <span className="
+                    <span className="shrink-0
                       rounded-full
                       bg-green-100
                       px-3

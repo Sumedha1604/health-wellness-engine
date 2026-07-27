@@ -16,7 +16,7 @@ export default function DashboardHeader({ user }) {
   });
 
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-green-500 to-emerald-600 p-8 text-white shadow-lg">
+    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-green-500 to-emerald-600 p-5 text-white shadow-lg sm:p-8">
 
       {/* Background decoration */}
       <div className="absolute -top-12 -right-12 h-40 w-40 rounded-full bg-white/10"></div>
@@ -29,7 +29,7 @@ export default function DashboardHeader({ user }) {
             Wellness Dashboard
           </p>
 
-          <h1 className="mt-2 text-4xl font-bold">
+          <h1 className="mt-2 text-3xl font-bold sm:text-4xl">
             {greeting}, {user?.first_name}! 👋
           </h1>
 
@@ -39,7 +39,7 @@ export default function DashboardHeader({ user }) {
           </p>
         </div>
 
-        <div className="rounded-2xl bg-white/10 px-6 py-4 backdrop-blur-sm">
+        <div className="rounded-2xl bg-white/10 px-5 py-4 backdrop-blur-sm sm:px-6">
           <p className="text-sm text-green-100">
             Today
           </p>

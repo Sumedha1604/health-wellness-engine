@@ -38,7 +38,7 @@ export default function WeeklyChart() {
   }, []);
 
   return (
-    <div className="bg-white rounded-3xl shadow-card p-8 h-[380px]">
+    <div className="h-[330px] rounded-3xl bg-white p-5 shadow-card sm:h-[380px] sm:p-8">
       <h2 className="text-xl font-semibold text-gray-900 tracking-tight">
         Weekly Calories
       </h2>
@@ -47,7 +47,7 @@ export default function WeeklyChart() {
       </p>
 
       <ResponsiveContainer width="100%" height="80%" className="mt-2">
-        <AreaChart data={data} margin={{ top: 24, right: 16, left: 16, bottom: 0 }}>
+        <AreaChart data={data} margin={{ top: 24, right: 8, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="calorieFill" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#6EE7B7" stopOpacity={0.35} />

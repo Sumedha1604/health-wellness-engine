@@ -5,12 +5,13 @@ import {
   LogOut,
   User,
   ChevronDown,
+  Menu,
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
-export default function Navbar() {
+export default function Navbar({ onMenuClick }) {
 
   const navigate = useNavigate();
 
@@ -47,23 +48,32 @@ export default function Navbar() {
 
   return (
 
-    <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8">
+    <header className="flex h-16 items-center justify-between border-b border-gray-100 bg-white px-4 sm:h-20 sm:px-8">
 
-      <div>
+      <div className="flex min-w-0 items-center gap-3">
 
-        <h2 className="text-2xl font-semibold">
+        <button
+          type="button"
+          onClick={onMenuClick}
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl hover:bg-gray-100 md:hidden"
+          aria-label="Open navigation"
+        >
+          <Menu size={22} />
+        </button>
+
+        <h2 className="truncate text-lg font-semibold sm:text-2xl">
           Dashboard
         </h2>
 
       </div>
 
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-2 sm:gap-6">
 
-        <button className="hover:opacity-70 transition">
+        <button className="hidden transition hover:opacity-70 sm:block">
           <Moon size={20} />
         </button>
 
-        <button className="hover:opacity-70 transition">
+        <button className="hidden transition hover:opacity-70 sm:block">
           <Bell size={20} />
         </button>
 
@@ -84,7 +94,7 @@ export default function Navbar() {
               {user?.first_name?.charAt(0)}
             </span>
 
-            <div className="text-left">
+            <div className="hidden text-left sm:block">
               <p className="font-semibold text-gray-900">
                 {user?.first_name} {user?.last_name}
               </p>
@@ -95,7 +105,7 @@ export default function Navbar() {
 
             <ChevronDown
               size={16}
-              className={`text-gray-400 transition-transform duration-200 ${
+              className={`hidden text-gray-400 transition-transform duration-200 sm:block ${
                 isMenuOpen ? "rotate-180" : ""
               }`}
             />

@@ -13,8 +13,9 @@ import {
   Weight,
   Moon,
   Gauge,
-  Loader2,
 } from "lucide-react";
+import LoadingState from "../components/ui/LoadingState";
+import ErrorState from "../components/ui/ErrorState";
 
 const EMPTY_FORM = {
   fitness_goal: "",
@@ -206,7 +207,7 @@ export default function Profile() {
   return (
     <div className="space-y-8">
       {/* Profile Header Card */}
-      <div className="bg-white rounded-3xl shadow-card p-8">
+      <div className="rounded-3xl bg-white p-5 shadow-card sm:p-8">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
           <span className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-full bg-green-100 text-2xl font-bold text-green-700">
             {user?.first_name?.charAt(0)}
@@ -215,7 +216,7 @@ export default function Profile() {
             <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
               {user?.first_name} {user?.last_name}
             </h1>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 break-all text-sm text-gray-500 sm:break-normal">
               {user?.email}
             </p>
             <p className="mt-3 text-sm font-medium text-green-600">
@@ -226,7 +227,7 @@ export default function Profile() {
       </div>
 
       {/* Personal Information Section */}
-      <div className="bg-white rounded-3xl shadow-card p-8">
+      <div className="rounded-3xl bg-white p-5 shadow-card sm:p-8">
         <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">
           Personal Information
         </h2>
@@ -239,7 +240,7 @@ export default function Profile() {
             <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-green-50">
               <User className="h-5 w-5 text-green-600" strokeWidth={2} />
             </span>
-            <div>
+            <div className="min-w-0">
               <p className="text-sm text-gray-500">Name</p>
               <p className="font-semibold text-gray-900">
                 {user?.first_name} {user?.last_name}
@@ -252,7 +253,7 @@ export default function Profile() {
             </span>
             <div>
               <p className="text-sm text-gray-500">Email</p>
-              <p className="font-semibold text-gray-900">{user?.email}</p>
+              <p className="truncate font-semibold text-gray-900">{user?.email}</p>
             </div>
           </div>
           <div className="flex items-center gap-4 py-4 last:pb-0">
@@ -268,7 +269,7 @@ export default function Profile() {
       </div>
 
       {/* Health Summary Section */}
-      <div className="bg-white rounded-3xl shadow-card p-8">
+      <div className="rounded-3xl bg-white p-5 shadow-card sm:p-8">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">
@@ -291,23 +292,13 @@ export default function Profile() {
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <div className="flex flex-col items-center gap-3">
-              <Loader2 className="h-6 w-6 text-green-600 animate-spin" strokeWidth={2} />
-              <p className="text-sm text-gray-500">Loading your preferences...</p>
-            </div>
-          </div>
+          <LoadingState message="Loading your preferences..." />
         ) : error ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <p className="text-sm font-medium text-red-500">{error}</p>
-            <button
-              type="button"
-              onClick={loadPreferences}
-              className="mt-3 text-sm font-medium text-green-600 hover:text-green-700 transition-colors"
-            >
-              Try again
-            </button>
-          </div>
+          <ErrorState
+            title="Unable to load your health preferences"
+            message={error}
+            onRetry={loadPreferences}
+          />
         ) : mode === "view" ? (
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
             {healthSummary.map(({ label, value, icon: Icon }) => (
@@ -366,7 +357,7 @@ export default function Profile() {
               options={["Balanced", "High Protein", "Vegetarian", "Vegan", "Keto"]}
             />
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
               <NumberField
                 label="Height (cm)"
                 name="height_cm"
@@ -381,7 +372,7 @@ export default function Profile() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
               <NumberField
                 label="Sleep Hours"
                 name="sleep_hours"

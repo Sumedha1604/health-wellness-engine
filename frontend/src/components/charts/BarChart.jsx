@@ -17,7 +17,7 @@ export default function BarChart({
 }) {
 
   return (
-    <div className="h-[340px] rounded-3xl bg-white p-7 shadow-card">
+    <div className="h-[310px] rounded-3xl bg-white p-5 shadow-card sm:h-[340px] sm:p-7">
       <h2 className="text-xl font-semibold tracking-tight text-gray-900">
         {title}
       </h2>

@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { Plus, UtensilsCrossed, Loader2 } from "lucide-react";
+import { Plus, UtensilsCrossed } from "lucide-react";
 import Button from "../components/ui/Button";
 import MealModal from "../components/mealPlans/MealModal";
 import MealCard from "../components/mealPlans/MealCard";
 import { getMealPlans } from "../services/mealPlan.service";
 import { getFavorites, addFavorite, deleteFavorite } from "../services/favorite.service";
 import toast from "react-hot-toast";
+import LoadingState from "../components/ui/LoadingState";
 
 export default function MealPlans() {
   const [meals, setMeals] = useState([]);
@@ -93,14 +94,7 @@ export default function MealPlans() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-24">
-        <div className="flex flex-col items-center gap-4 bg-white rounded-3xl shadow-card px-12 py-10">
-          <Loader2 className="h-8 w-8 text-green-600 animate-spin" strokeWidth={2} />
-          <p className="text-base font-semibold text-gray-800">
-            Loading meals...
-          </p>
-        </div>
-      </div>
+      <LoadingState message="Loading meals..." />
     );
   }
 
@@ -109,7 +103,7 @@ export default function MealPlans() {
       {/* Hero Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900 tracking-tight">
+          <h1 className="text-3xl font-bold text-gray-900 tracking-tight sm:text-4xl">
             Meal Plans
           </h1>
           <p className="text-gray-500 mt-2">
@@ -118,7 +112,7 @@ export default function MealPlans() {
         </div>
         <Button
           onClick={handleAddMeal}
-          className="
+          className="w-full sm:w-auto
             bg-gradient-to-r from-green-500 to-emerald-500
             hover:from-green-600 hover:to-emerald-600
             text-white

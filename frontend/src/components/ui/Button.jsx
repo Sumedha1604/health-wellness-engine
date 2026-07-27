@@ -4,6 +4,7 @@ export default function Button({
     variant = "primary",
     disabled = false,
     onClick,
+    className = "",
   }) {
     const variants = {
       primary: "bg-primary text-text hover:brightness-95",
@@ -28,7 +29,10 @@ export default function Button({
           shadow-card
           hover:-translate-y-0.5
           active:scale-95
+          disabled:cursor-not-allowed
+          disabled:opacity-60
           ${variants[variant]}
+          ${className}
         `}
       >
         {children}
