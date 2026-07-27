@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Bot, Loader2, Send, Sparkles, User } from "lucide-react";
 import toast from "react-hot-toast";
 import { sendChatMessage } from "../services/chat.service";
@@ -14,6 +14,18 @@ export default function AIAssistant() {
   ]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const latestMessageRef = useRef(null);
+
+
+  useEffect(() => {
+
+    latestMessageRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "end",
+    });
+
+  }, [messages, loading]);
 
 
   async function handleSubmit(event) {
@@ -148,6 +160,9 @@ export default function AIAssistant() {
               </div>
             </div>
           )}
+
+
+          <div ref={latestMessageRef}/>
 
         </div>
 
