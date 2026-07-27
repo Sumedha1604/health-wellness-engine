@@ -6,10 +6,14 @@ import NutritionScoreCard from "../components/recommendations/NutritionScoreCard
 import TopRecommendationCard from "../components/recommendations/TopRecommendationCard";
 import RecommendedFoods from "../components/recommendations/RecommendedFoods";
 import RecommendedExercises from "../components/recommendations/RecommendedExercises";
+import MealModal from "../components/mealPlans/MealModal";
 
 export default function Recommendations() {
   const [recommendations, setRecommendations] = useState(null);
   const navigate = useNavigate();
+
+  const [mealModalOpen, setMealModalOpen] = useState(false);
+  const [selectedMealFood, setSelectedMealFood] = useState(null);
 
   useEffect(() => {
     fetchRecommendations();
@@ -22,6 +26,16 @@ export default function Recommendations() {
     } catch (error) {
       console.error(error);
     }
+  }
+
+  function handleAddToMealPlan(food) {
+    setSelectedMealFood(food);
+    setMealModalOpen(true);
+  }
+
+  function handleCloseMealModal() {
+    setMealModalOpen(false);
+    setSelectedMealFood(null);
   }
 
   if (!recommendations) {
@@ -97,6 +111,7 @@ export default function Recommendations() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <TopRecommendationCard
               recommendation={recommendations.top_recommendation}
+              onAddToMealPlan={handleAddToMealPlan}
             />
 
             <div
@@ -127,6 +142,7 @@ export default function Recommendations() {
 
           <RecommendedFoods
             foods={recommendations.recommended_foods}
+            onAddToMealPlan={handleAddToMealPlan}
           />
 
           <RecommendedExercises
@@ -134,6 +150,12 @@ export default function Recommendations() {
           />
         </>
       )}
+
+      <MealModal
+        open={mealModalOpen}
+        onClose={handleCloseMealModal}
+        meal={selectedMealFood}
+      />
     </div>
   );
 }

@@ -32,7 +32,7 @@ export default function MealModal({
   onClose,
   meal,
 }) {
-  const isEditing = Boolean(meal);
+  const isEditing = Boolean(meal && meal.meal_plan_id);
 
   const [form, setForm] = useState(getDefaultForm());
   const [selectedFood, setSelectedFood] = useState(null);
@@ -49,6 +49,17 @@ export default function MealModal({
         meal_type: meal.meal_type,
         quantity: meal.quantity,
         meal_date: formatDateForInput(meal.meal_date),
+      });
+
+      setSelectedFood({
+        food_id: meal.food_id,
+        food_name: meal.food_name,
+        caloric_value: meal.caloric_value,
+      });
+    } else if (meal) {
+      setForm({
+        ...getDefaultForm(),
+        food_id: meal.food_id || "",
       });
 
       setSelectedFood({

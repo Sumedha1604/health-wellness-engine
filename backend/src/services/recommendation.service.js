@@ -164,25 +164,70 @@ async function generateRecommendations(userId) {
 
 
   let recommendedExercises = [];
+let mlFoodRecommendations = [];
 
 
-  try {
+try {
 
-    const response = await axios.get(
-      `${ML_SERVICE_URL}/recommendations/collaborative/${userId}`
-    );
-
-
-    recommendedExercises = response.data;
+  const exerciseResponse = await axios.get(
+    `${ML_SERVICE_URL}/recommendations/hybrid/${userId}?fitness_goal=${preferences.fitness_goal}&activity_level=${preferences.activity_level}`
+  );
 
 
-  } catch (error) {
+  recommendedExercises = exerciseResponse.data;
 
-    console.log(
-      "ML recommendation service unavailable"
-    );
 
-  }
+} catch (error) {
+
+  console.log(
+    "Exercise recommendation service unavailable"
+  );
+
+}
+
+
+
+try {
+
+let foodId = null;
+
+
+const foodIdQuery = await db.execute(
+  `
+  SELECT food_id
+  FROM meal_plans
+  WHERE user_id = ?
+  ORDER BY meal_date DESC
+  LIMIT 1
+  `,
+  [userId]
+);
+
+
+foodId = foodIdQuery[0][0]?.food_id;
+
+
+// New user fallback
+if (!foodId) {
+  foodId = 2396;
+}
+
+
+const foodResponse = await axios.get(
+  `${ML_SERVICE_URL}/recommendations/food/${foodId}`
+);
+
+
+mlFoodRecommendations = foodResponse.data;
+
+
+} catch (error) {
+
+  console.log(
+    "Food recommendation service unavailable"
+  );
+
+}
 
 
 
@@ -233,7 +278,9 @@ async function generateRecommendations(userId) {
 
 
     recommended_foods:
-      recommendedFoods,
+    mlFoodRecommendations.length > 0
+      ? mlFoodRecommendations
+      : recommendedFoods,
 
 
     recommended_exercises:

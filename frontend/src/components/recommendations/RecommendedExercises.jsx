@@ -1,15 +1,19 @@
+import { useNavigate } from "react-router-dom";
 import {
   Dumbbell,
   BadgeCheck,
   Target,
   Wrench,
   Gauge,
+  Activity,
 } from "lucide-react";
 
 
 export default function RecommendedExercises({
   exercises = [],
 }) {
+
+  const navigate = useNavigate();
 
   return (
 
@@ -22,7 +26,7 @@ export default function RecommendedExercises({
         </h2>
 
         <p className="mt-1 text-gray-500">
-          AI-powered workouts based on similar user activity
+          AI-powered workouts based on your activity patterns
         </p>
 
       </div>
@@ -37,117 +41,197 @@ export default function RecommendedExercises({
 
         ) : (
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-            {exercises.map((exercise) => (
+            {exercises.map((exercise) => {
 
-              <div
-                key={exercise.exercise_id}
-                className="
-                  rounded-2xl
-                  border border-gray-100
-                  p-6
-                  hover:shadow-lg
-                  transition
-                "
-              >
-
-                <div className="flex justify-between items-start">
-
-                  <div
-                    className="
-                      flex h-12 w-12
-                      items-center justify-center
-                      rounded-xl
-                      bg-blue-50
-                    "
-                  >
-                    <Dumbbell
-                      className="h-6 w-6 text-blue-600"
-                    />
-                  </div>
+              const score = Math.round(
+                (exercise.score || 0) * 100
+              );
 
 
-                  <div className="flex items-center gap-1 text-green-600">
+              return (
 
-                    <BadgeCheck size={17}/>
-
-                    <span className="text-sm font-medium">
-                      AI Match
-                    </span>
-
-                  </div>
-
-                </div>
-
-
-                <h3 className="mt-5 text-lg font-semibold text-gray-900">
-                  {exercise.title}
-                </h3>
-
-
-                <div className="mt-4 space-y-2 text-sm text-gray-500">
-
-                  <div className="flex items-center gap-2">
-                    <Target size={16}/>
-                    <span>
-                      Target: {exercise.body_part}
-                    </span>
-                  </div>
-
-
-                  <div className="flex items-center gap-2">
-                    <Wrench size={16}/>
-                    <span>
-                      Equipment: {exercise.equipment}
-                    </span>
-                  </div>
-
-
-                  <div className="flex items-center gap-2">
-                    <Gauge size={16}/>
-                    <span>
-                      Difficulty: {exercise.difficulty_level}
-                    </span>
-                  </div>
-
-                </div>
-
-
-                <div className="mt-4 text-sm font-medium text-blue-600">
-
-                  Similarity score:
-                  {" "}
-                  {Math.round(exercise.score * 100)}%
-
-                </div>
-
-
-                <p className="mt-3 text-sm text-gray-500">
-                  {exercise.reason}
-                </p>
-
-
-                <button
+                <div
+                  key={exercise.exercise_id}
                   className="
-                    mt-5
-                    w-full
-                    rounded-xl
-                    bg-blue-500
-                    py-2.5
-                    text-white
-                    font-medium
-                    hover:bg-blue-600
-                    transition
+                    rounded-3xl
+                    border border-gray-100
+                    p-6
+                    hover:shadow-xl
+                    transition-all
+                    duration-300
+                    hover:-translate-y-1
                   "
                 >
-                  View Exercise
-                </button>
+
+                  <div className="flex justify-between items-start">
+
+                    <div
+                      className="
+                        flex h-14 w-14
+                        items-center justify-center
+                        rounded-2xl
+                        bg-blue-50
+                      "
+                    >
+                      <Dumbbell
+                        className="h-7 w-7 text-blue-600"
+                      />
+                    </div>
 
 
-              </div>
+                    <div
+                      className="
+                        flex items-center gap-1
+                        rounded-full
+                        bg-green-50
+                        px-3 py-1.5
+                        text-green-600
+                      "
+                    >
+                      <BadgeCheck size={16}/>
 
-            ))}
+                      <span className="text-xs font-semibold">
+                        AI Match
+                      </span>
+
+                    </div>
+
+                  </div>
+
+
+                  <h3 className="mt-5 text-xl font-semibold text-gray-900">
+                    {exercise.title}
+                  </h3>
+
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+
+                    <span className="
+                      rounded-full
+                      bg-blue-50
+                      px-3 py-1
+                      text-xs
+                      font-medium
+                      text-blue-600
+                    ">
+                      {exercise.body_part}
+                    </span>
+
+
+                    <span className="
+                      rounded-full
+                      bg-purple-50
+                      px-3 py-1
+                      text-xs
+                      font-medium
+                      text-purple-600
+                    ">
+                      {exercise.equipment}
+                    </span>
+
+
+                    <span className="
+                      rounded-full
+                      bg-orange-50
+                      px-3 py-1
+                      text-xs
+                      font-medium
+                      text-orange-600
+                    ">
+                      {exercise.difficulty_level}
+                    </span>
+
+                  </div>
+
+
+                  <div className="mt-6 space-y-3 text-sm text-gray-600">
+
+
+                    <div className="flex items-center gap-2">
+                      <Target size={16}/>
+                      <span>
+                        Target muscle: {exercise.body_part}
+                      </span>
+                    </div>
+
+
+                    <div className="flex items-center gap-2">
+                      <Wrench size={16}/>
+                      <span>
+                        Equipment: {exercise.equipment}
+                      </span>
+                    </div>
+
+
+                    <div className="flex items-center gap-2">
+                      <Gauge size={16}/>
+                      <span>
+                        Level: {exercise.difficulty_level}
+                      </span>
+                    </div>
+
+
+                    <div className="flex items-center gap-2">
+                      <Activity size={16}/>
+                      <span>
+                        Recommendation confidence: {score}%
+                      </span>
+                    </div>
+
+
+                  </div>
+
+
+                  <div className="mt-4">
+
+                    <div className="h-2 rounded-full bg-gray-100">
+
+                      <div
+                        className="
+                          h-2
+                          rounded-full
+                          bg-blue-500
+                        "
+                        style={{
+                          width: `${score}%`
+                        }}
+                      />
+
+                    </div>
+
+                  </div>
+
+
+                  <p className="mt-4 text-sm text-gray-500">
+                    {exercise.reason}
+                  </p>
+
+
+                  <button
+                    onClick={() => navigate(`/exercises/${exercise.exercise_id}`)}
+                    className="
+                      mt-6
+                      w-full
+                      rounded-xl
+                      bg-blue-500
+                      py-3
+                      text-white
+                      font-semibold
+                      hover:bg-blue-600
+                      transition
+                    "
+                  >
+                    View Exercise
+                  </button>
+
+
+                </div>
+
+              );
+
+            })}
 
           </div>
 

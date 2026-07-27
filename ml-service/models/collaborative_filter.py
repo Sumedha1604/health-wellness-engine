@@ -49,13 +49,12 @@ def load_exercises():
 # Build User Similarity Model
 # ==========================================================
 
-def build_user_similarity():
-
-    df = load_interactions()
-
+def build_user_similarity(
+    interactions
+):
 
     user_item_matrix = (
-        df
+        interactions
         .pivot_table(
             index="user_id",
             columns="item_id",
@@ -90,16 +89,16 @@ def build_user_similarity():
 
 def recommend_for_user(
     user_id,
+    interactions,
+    exercises,
     limit=5
 ):
 
-    interactions = load_interactions()
-
-    exercises = load_exercises()
-
 
     user_item_matrix, similarity_df = (
-        build_user_similarity()
+        build_user_similarity(
+            interactions
+        )
     )
 
 
@@ -126,7 +125,11 @@ def recommend_for_user(
     recommendations = []
 
 
+    recommended_ids = set()
+
+
     for similar_user in similar_users.index:
+
 
         similar_user_items = interactions[
             interactions["user_id"] == similar_user
@@ -135,10 +138,14 @@ def recommend_for_user(
 
         for _, row in similar_user_items.iterrows():
 
+
             item_id = row["item_id"]
 
 
-            if item_id not in user_items:
+            if (
+                item_id not in user_items
+                and item_id not in recommended_ids
+            ):
 
 
                 exercise = exercises[
@@ -148,6 +155,7 @@ def recommend_for_user(
 
                 if len(exercise) > 0:
 
+
                     exercise = exercise.iloc[0]
 
 
@@ -156,17 +164,22 @@ def recommend_for_user(
                             "exercise_id":
                                 int(exercise["exercise_id"]),
 
+
                             "title":
                                 exercise["title"],
+
 
                             "body_part":
                                 exercise["body_part"],
 
+
                             "equipment":
                                 exercise["equipment"],
 
+
                             "difficulty_level":
                                 exercise["difficulty_level"],
+
 
                             "score":
                                 round(
@@ -176,9 +189,15 @@ def recommend_for_user(
                                     2
                                 ),
 
+
                             "reason":
                                 "Recommended based on similar users"
                         }
+                    )
+
+
+                    recommended_ids.add(
+                        item_id
                     )
 
 

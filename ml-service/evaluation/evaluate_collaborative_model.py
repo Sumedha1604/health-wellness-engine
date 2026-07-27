@@ -8,6 +8,11 @@ from models.collaborative_filter import (
 )
 
 
+
+# ==========================================================
+# Paths
+# ==========================================================
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 DATASET_PATH = (
@@ -18,11 +23,21 @@ DATASET_PATH = (
 )
 
 
+# ==========================================================
+# Load Data
+# ==========================================================
+
 def load_data():
 
-    return pd.read_csv(DATASET_PATH)
+    df = pd.read_csv(DATASET_PATH)
+
+    return df
 
 
+
+# ==========================================================
+# Evaluation
+# ==========================================================
 
 def evaluate():
 
@@ -62,6 +77,9 @@ def evaluate():
             continue
 
 
+
+        # Hide items for testing
+
         test_items = set(
             random.sample(
                 user_items,
@@ -69,6 +87,10 @@ def evaluate():
             )
         )
 
+
+
+        # Training data
+        # Remove hidden items only for this user
 
         train_df = df[
             ~(
@@ -88,10 +110,12 @@ def evaluate():
         )
 
 
+
         recommended_items = set(
             item["exercise_id"]
             for item in recommendations
         )
+
 
 
         hits = (
@@ -99,6 +123,7 @@ def evaluate():
             &
             test_items
         )
+
 
 
         precision = (
@@ -110,11 +135,13 @@ def evaluate():
         )
 
 
+
         recall = (
             len(hits)
             /
             len(test_items)
         )
+
 
 
         precision_scores.append(
@@ -155,5 +182,7 @@ def evaluate():
     )
 
 
+
 if __name__ == "__main__":
-    evaluate()
+
+    evaluate() 

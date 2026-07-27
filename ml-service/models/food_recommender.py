@@ -116,11 +116,23 @@ def recommend_foods(
 
         recommendations.append(
             {
-                "food_id":
+                 "food_id":
                     int(food["food_id"]),
 
                 "food_name":
                     food["food_name"],
+
+                "caloric_value":
+                    float(food["caloric_value"]),
+
+                "protein":
+                    float(food["protein"]),
+
+                "carbohydrates":
+                    float(food["carbohydrates"]),
+
+                "fat":
+                    float(food["fat"]),
 
                 "similarity_score":
                     round(float(score), 2),
