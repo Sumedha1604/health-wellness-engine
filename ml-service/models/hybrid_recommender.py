@@ -8,6 +8,8 @@ from models.exercise_recommender import (
     build_exercise_model
 )
 
+from collections import Counter
+
 
 # ==========================================================
 # Preference Candidates
@@ -289,55 +291,35 @@ def apply_diversity_penalty(
     recommendations,
     limit
 ):
-
     final_results = []
+    remaining = recommendations.copy()
+    used_body_parts = set()
+    used_equipment = set()
 
-    used_body_parts = {}
+    while remaining and len(final_results) < limit:
+        def diversity_score(item):
+            penalty = 0
 
+            if item["body_part"] in used_body_parts:
+                penalty += 0.08
 
-    for item in recommendations:
+            if item["equipment"] in used_equipment:
+                penalty += 0.06
 
-        body_part = item["body_part"]
+            return item["score"] - penalty
 
-
-        count = used_body_parts.get(
-            body_part,
-            0
-        )
-
-
-        adjusted_score = item["score"]
-
-
-        if count > 0:
-
-            adjusted_score -= (
-                0.05 * count
-            )
-
-
-        item["score"] = round(
-            max(adjusted_score, 0),
+        selected = max(remaining, key=diversity_score)
+        selected["score"] = round(
+            max(diversity_score(selected), 0),
             2
         )
 
+        used_body_parts.add(selected["body_part"])
+        used_equipment.add(selected["equipment"])
+        final_results.append(selected)
+        remaining.remove(selected)
 
-        used_body_parts[body_part] = (
-            count + 1
-        )
-
-
-        final_results.append(item)
-
-
-
-    final_results.sort(
-        key=lambda x: x["score"],
-        reverse=True
-    )
-
-
-    return final_results[:limit]
+    return final_results
 
 
 
@@ -372,6 +354,126 @@ def calculate_feedback_score(
             )
 
     return feedback_score
+
+
+# ==========================================================
+# User Behaviour
+# ==========================================================
+
+def build_user_behavior_profile(
+    user_id,
+    interactions,
+    exercises
+):
+    user_interactions = interactions[
+        interactions["user_id"] == user_id
+    ]
+
+    completed_ids = set(
+        user_interactions["item_id"].astype(int).tolist()
+    )
+
+    completed_exercises = user_interactions.merge(
+        exercises,
+        left_on="item_id",
+        right_on="exercise_id",
+        how="inner"
+    )
+
+    def category_counts(column):
+        if column not in completed_exercises:
+            return {}
+
+        return Counter(
+            completed_exercises[column]
+            .dropna()
+            .astype(str)
+            .tolist()
+        )
+
+    return {
+        "completed_ids": completed_ids,
+        "body_parts": category_counts("body_part"),
+        "equipment": category_counts("equipment"),
+        "difficulty_levels": category_counts("difficulty_level"),
+        "exercise_types": category_counts("exercise_type")
+    }
+
+
+def calculate_behavior_score(
+    exercise,
+    behavior_profile
+):
+    category_weights = [
+        ("body_parts", "body_part", 0.35),
+        ("equipment", "equipment", 0.20),
+        ("difficulty_levels", "difficulty_level", 0.25),
+        ("exercise_types", "exercise_type", 0.20)
+    ]
+
+    score = 0
+    available_weight = 0
+
+    for profile_key, exercise_key, weight in category_weights:
+        counts = behavior_profile[profile_key]
+
+        if not counts:
+            continue
+
+        available_weight += weight
+        score += weight * (
+            counts.get(str(exercise[exercise_key]), 0)
+            / sum(counts.values())
+        )
+
+    if available_weight == 0:
+        return 0.5
+
+    return min(score / available_weight, 1)
+
+
+def generate_recommendation_reason(
+    exercise,
+    preferences,
+    behavior_profile,
+    feedback_score
+):
+    goal = preferences["fitness_goal"].lower()
+
+    if feedback_score > 0.2:
+        return (
+            "Recommended because you liked similar "
+            f"{exercise['exercise_type'].lower()} exercises and this "
+            f"matches your {goal} goal."
+        )
+
+    difficulty_count = behavior_profile["difficulty_levels"].get(
+        str(exercise["difficulty_level"]),
+        0
+    )
+
+    if difficulty_count:
+        return (
+            "Recommended because you usually complete "
+            f"{exercise['difficulty_level'].lower()}-level workouts."
+        )
+
+    body_part_count = behavior_profile["body_parts"].get(
+        str(exercise["body_part"]),
+        0
+    )
+
+    if body_part_count:
+        return (
+            "Recommended because you frequently select "
+            f"{exercise['body_part'].lower()} exercises and it supports "
+            f"your {goal} goal."
+        )
+
+    return (
+        f"Recommended because it matches your {goal} goal and "
+        f"{preferences['activity_level'].lower()} activity level."
+    )
 
 
 def hybrid_recommendations(
@@ -410,6 +512,11 @@ def hybrid_recommendations(
 
     candidates = {}
     feedback_scores = feedback_scores or {}
+    behavior_profile = build_user_behavior_profile(
+        user_id,
+        interactions,
+        exercises
+    )
 
 
 
@@ -491,20 +598,27 @@ def hybrid_recommendations(
             exercise_index
         )
 
+        behavior_score = calculate_behavior_score(
+            exercise,
+            behavior_profile
+        )
+
 
 
         final_score = (
-        0.25 * scores["cf_score"]
+        0.20 * scores["cf_score"]
         +
-        0.35 * preference_score
+        0.30 * preference_score
         +
-        0.15 * difficulty_score
+        0.12 * difficulty_score
         +
-        0.20 * body_part_score
+        0.15 * body_part_score
         +
-        0.05 * content_score
+        0.08 * content_score
         +
-        0.10 * feedback_score
+        0.08 * feedback_score
+        +
+        0.07 * behavior_score
     )
 
 
@@ -533,7 +647,12 @@ def hybrid_recommendations(
                     ),
 
                 "reason":
-                    "Hybrid recommendation based on user similarity, fitness goal, difficulty, body part, content similarity, feedback and diversity"
+                    generate_recommendation_reason(
+                        exercise,
+                        preferences,
+                        behavior_profile,
+                        feedback_score
+                    )
             }
         )
 
