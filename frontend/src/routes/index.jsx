@@ -15,6 +15,7 @@ import Register from "../pages/Register";
 import NotFound from "../pages/NotFound";
 import Exercises from "../pages/Exercises";
 import AIAssistant from "../pages/AIAssistant";
+import Progress from "../pages/Progress";
 
 export default function AppRoutes() {
   return (
@@ -87,6 +88,14 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute>
             <AIAssistant />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/progress"
+        element={
+          <ProtectedRoute>
+            <Progress />
           </ProtectedRoute>
         }
       />

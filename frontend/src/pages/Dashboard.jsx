@@ -6,6 +6,7 @@ import WaterIntake from "../components/dashboard/WaterIntake";
 import ExerciseHistory from "../components/dashboard/ExerciseHistory";
 import NutritionTracking from "../components/dashboard/NutritionTracking";
 import AIWellnessSummary from "../components/dashboard/AIWellnessSummary";
+import QuickProgress from "../components/dashboard/QuickProgress";
 import WeeklyChart from "../components/charts/WeeklyChart";
 import RecentMeals from "../components/charts/RecentMeals";
 import RecommendationCard from "../components/charts/RecommendationCard";
@@ -131,6 +132,9 @@ export default function Dashboard() {
 
 
       <AIWellnessSummary summary={wellnessSummary} />
+
+
+      <QuickProgress />
 
 
       <div className="grid grid-cols-2 gap-6">
