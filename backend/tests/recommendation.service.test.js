@@ -47,13 +47,24 @@ describe("Recommendation service", () => {
                         quantity: 1,
                     },
                 ],
+            ])
+            .mockResolvedValueOnce([
+                [
+                    {
+                        food_id: 123,
+                        food_name: "Chicken Breast",
+                    },
+                ],
             ]);
 
         const result = await recommendationService.generateRecommendations(11);
 
         expect(result.fitness_goal).toBe("Weight Loss");
         expect(result.summary.calorie_target).toBe(1800);
-        expect(result.top_recommendation).toBe("Increase Protein Intake");
+        expect(result.top_recommendation).toEqual({
+            food_id: 123,
+            food_name: "Chicken Breast",
+        });
         expect(result.ai_tip).toContain("protein intake is low");
         expect(result.recommended_foods).toEqual([
             "Chicken Breast",
@@ -88,6 +99,14 @@ describe("Recommendation service", () => {
                         quantity: 2,
                     },
                 ],
+            ])
+            .mockResolvedValueOnce([
+                [
+                    {
+                        food_id: 456,
+                        food_name: "Brown Rice",
+                    },
+                ],
             ]);
 
         const result = await recommendationService.generateRecommendations(11);
@@ -95,7 +114,10 @@ describe("Recommendation service", () => {
         expect(result.fitness_goal).toBe("Maintenance");
         expect(result.summary.calorie_target).toBe(2200);
         expect(result.summary.calories).toBe(600);
-        expect(result.top_recommendation).toBe("Increase Daily Calories");
+        expect(result.top_recommendation).toEqual({
+            food_id: 456,
+            food_name: "Brown Rice",
+        });
         expect(result.ai_tip).toContain("calorie target");
         expect(result.recommended_foods).toEqual([
             "Brown Rice",

@@ -162,6 +162,25 @@ async function generateRecommendations(userId) {
   }
 
 
+  const [[topRecommendationFood]] = await db.execute(
+    `
+    SELECT
+      food_id,
+      food_name
+    FROM foods
+    WHERE food_name = ?
+    LIMIT 1
+    `,
+    [recommendedFoods[0]]
+  );
+
+
+  topRecommendation = {
+    food_id: topRecommendationFood?.food_id,
+    food_name: topRecommendationFood?.food_name || recommendedFoods[0],
+  };
+
+
 
   let recommendedExercises = [];
 let mlFoodRecommendations = [];

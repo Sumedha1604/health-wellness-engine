@@ -55,7 +55,8 @@ export default function RecommendationCard({
   if (recommendations?.top_recommendation) {
 
     items.push(
-      recommendations.top_recommendation
+      recommendations.top_recommendation.food_name ||
+        recommendations.top_recommendation
     );
 
   }

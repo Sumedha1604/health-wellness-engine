@@ -6,11 +6,15 @@ import {
   Wrench,
   Gauge,
   Activity,
+  ThumbsUp,
+  ThumbsDown,
 } from "lucide-react";
 
 
 export default function RecommendedExercises({
   exercises = [],
+  feedback = {},
+  onFeedback,
 }) {
 
   const navigate = useNavigate();
@@ -35,9 +39,15 @@ export default function RecommendedExercises({
       {
         exercises.length === 0 ? (
 
-          <p className="text-gray-500 text-sm">
-            No exercise recommendations available yet.
-          </p>
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-6 py-12 text-center">
+            <Dumbbell className="h-8 w-8 text-blue-500"/>
+            <p className="mt-3 font-semibold text-gray-800">
+              No exercise recommendations yet
+            </p>
+            <p className="mt-1 max-w-sm text-sm text-gray-500">
+              Your next personalized workout matches will appear here.
+            </p>
+          </div>
 
         ) : (
 
@@ -48,6 +58,9 @@ export default function RecommendedExercises({
               const score = Math.round(
                 (exercise.score || 0) * 100
               );
+
+              const recommendationId =
+                `exercise-${exercise.exercise_id}`;
 
 
               return (
@@ -210,7 +223,11 @@ export default function RecommendedExercises({
 
 
                   <button
-                    onClick={() => navigate(`/exercises/${exercise.exercise_id}`)}
+                    onClick={() =>
+                      navigate(
+                        `/exercises?exercise_id=${exercise.exercise_id}`
+                      )
+                    }
                     className="
                       mt-6
                       w-full
@@ -225,6 +242,48 @@ export default function RecommendedExercises({
                   >
                     View Exercise
                   </button>
+
+
+                  <div className="mt-4 flex items-center justify-center gap-3">
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onFeedback?.(recommendationId, "like")
+                      }
+                      aria-pressed={
+                        feedback[recommendationId] === "like"
+                      }
+                      className={
+                        feedback[recommendationId] === "like"
+                          ? "flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-2 text-sm font-medium text-green-700 transition"
+                          : "flex items-center gap-1.5 rounded-full bg-gray-50 px-3 py-2 text-sm font-medium text-gray-500 transition hover:bg-green-50 hover:text-green-700"
+                      }
+                    >
+                      <ThumbsUp size={16}/>
+                      Like
+                    </button>
+
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onFeedback?.(recommendationId, "dislike")
+                      }
+                      aria-pressed={
+                        feedback[recommendationId] === "dislike"
+                      }
+                      className={
+                        feedback[recommendationId] === "dislike"
+                          ? "flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-2 text-sm font-medium text-red-600 transition"
+                          : "flex items-center gap-1.5 rounded-full bg-gray-50 px-3 py-2 text-sm font-medium text-gray-500 transition hover:bg-red-50 hover:text-red-600"
+                      }
+                    >
+                      <ThumbsDown size={16}/>
+                      Dislike
+                    </button>
+
+                  </div>
 
 
                 </div>

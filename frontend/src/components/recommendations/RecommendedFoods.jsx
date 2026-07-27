@@ -7,12 +7,17 @@ import {
   Apple,
   UtensilsCrossed,
   BadgeCheck,
-  Flame,
-  Dumbbell,
+  ThumbsUp,
+  ThumbsDown,
 } from "lucide-react";
 
 
-export default function RecommendedFoods({ foods = [], onAddToMealPlan }) {
+export default function RecommendedFoods({
+  foods = [],
+  onAddToMealPlan,
+  feedback = {},
+  onFeedback,
+}) {
 
 
   const foodIcons = {
@@ -49,7 +54,19 @@ export default function RecommendedFoods({ foods = [], onAddToMealPlan }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
 
-        {foods.map((food, index) => {
+        {foods.length === 0 ? (
+
+          <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-6 py-12 text-center">
+            <UtensilsCrossed className="h-8 w-8 text-green-500" />
+            <p className="mt-3 font-semibold text-gray-800">
+              No food recommendations yet
+            </p>
+            <p className="mt-1 max-w-sm text-sm text-gray-500">
+              Keep logging meals and your next food matches will appear here.
+            </p>
+          </div>
+
+        ) : foods.map((food, index) => {
 
 
           const isObject = typeof food !== "string";
@@ -67,6 +84,10 @@ export default function RecommendedFoods({ foods = [], onAddToMealPlan }) {
           const score = isObject
             ? Math.round((food.similarity_score || 0) * 100)
             : null;
+
+          const recommendationId = `food-${
+            isObject ? food.food_id || name : name
+          }`;
 
 
 
@@ -303,6 +324,48 @@ export default function RecommendedFoods({ foods = [], onAddToMealPlan }) {
               >
                 Add to Meal Plan
               </button>
+
+
+              <div className="mt-4 flex items-center justify-center gap-3">
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    onFeedback?.(recommendationId, "like")
+                  }
+                  aria-pressed={
+                    feedback[recommendationId] === "like"
+                  }
+                  className={
+                    feedback[recommendationId] === "like"
+                      ? "flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-2 text-sm font-medium text-green-700 transition"
+                      : "flex items-center gap-1.5 rounded-full bg-gray-50 px-3 py-2 text-sm font-medium text-gray-500 transition hover:bg-green-50 hover:text-green-700"
+                  }
+                >
+                  <ThumbsUp size={16}/>
+                  Like
+                </button>
+
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    onFeedback?.(recommendationId, "dislike")
+                  }
+                  aria-pressed={
+                    feedback[recommendationId] === "dislike"
+                  }
+                  className={
+                    feedback[recommendationId] === "dislike"
+                      ? "flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-2 text-sm font-medium text-red-600 transition"
+                      : "flex items-center gap-1.5 rounded-full bg-gray-50 px-3 py-2 text-sm font-medium text-gray-500 transition hover:bg-red-50 hover:text-red-600"
+                  }
+                >
+                  <ThumbsDown size={16}/>
+                  Dislike
+                </button>
+
+              </div>
 
 
             </div>

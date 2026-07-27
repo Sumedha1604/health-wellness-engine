@@ -1,10 +1,25 @@
-import { Star, CheckCircle } from "lucide-react";
-export default function TopRecommendationCard({ recommendation, onAddToMealPlan }) {
+import {
+  Star,
+  CheckCircle,
+  ThumbsUp,
+  ThumbsDown,
+} from "lucide-react";
+
+export default function TopRecommendationCard({
+  recommendation,
+  onAddToMealPlan,
+  feedback = {},
+  onFeedback,
+}) {
   const isObject = recommendation && typeof recommendation !== "string";
 
   const displayName = isObject
     ? recommendation.food_name || "Recommended Food"
     : recommendation;
+
+  const recommendationId = `top-${
+    isObject ? recommendation.food_id || displayName : displayName
+  }`;
 
   function handleAddClick() {
     if (!onAddToMealPlan || !recommendation) {
@@ -31,6 +46,10 @@ export default function TopRecommendationCard({ recommendation, onAddToMealPlan 
         rounded-3xl
         shadow-card
         p-8
+        transition-all
+        duration-300
+        hover:shadow-xl
+        hover:-translate-y-1
       "
     >
       <div className="flex items-center justify-between">
@@ -91,6 +110,36 @@ export default function TopRecommendationCard({ recommendation, onAddToMealPlan 
       >
         Add to Meal Plan
       </button>
+
+      <div className="mt-4 flex items-center justify-center gap-3">
+        <button
+          type="button"
+          onClick={() => onFeedback?.(recommendationId, "like")}
+          aria-pressed={feedback[recommendationId] === "like"}
+          className={
+            feedback[recommendationId] === "like"
+              ? "flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-2 text-sm font-medium text-green-700 transition"
+              : "flex items-center gap-1.5 rounded-full bg-gray-50 px-3 py-2 text-sm font-medium text-gray-500 transition hover:bg-green-50 hover:text-green-700"
+          }
+        >
+          <ThumbsUp size={16} />
+          Like
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onFeedback?.(recommendationId, "dislike")}
+          aria-pressed={feedback[recommendationId] === "dislike"}
+          className={
+            feedback[recommendationId] === "dislike"
+              ? "flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-2 text-sm font-medium text-red-600 transition"
+              : "flex items-center gap-1.5 rounded-full bg-gray-50 px-3 py-2 text-sm font-medium text-gray-500 transition hover:bg-red-50 hover:text-red-600"
+          }
+        >
+          <ThumbsDown size={16} />
+          Dislike
+        </button>
+      </div>
     </div>
   );
 }

@@ -1,11 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   Loader2,
   Search,
   ChevronLeft,
   ChevronRight,
+  BadgeCheck,
 } from "lucide-react";
-import { getExercises } from "../services/exercise.service";
+import {
+  getExerciseById,
+  getExercises,
+} from "../services/exercise.service";
 import {
   getFavorites,
   addFavorite,
@@ -19,10 +24,17 @@ const FILTER_OPTIONS_LIMIT = 1000;
 
 export default function Exercises() {
 
+  const [searchParams] = useSearchParams();
+  const exerciseId = searchParams.get("exercise_id");
+
   const [exercises, setExercises] = useState([]);
+  const [recommendedExercise, setRecommendedExercise] =
+    useState(null);
   const [favorites, setFavorites] = useState([]);
 
   const [loading, setLoading] = useState(true);
+  const [recommendedLoading, setRecommendedLoading] =
+    useState(false);
   const [error, setError] = useState(null);
 
   const [search, setSearch] = useState("");
@@ -38,6 +50,8 @@ export default function Exercises() {
 
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
+
+  const recommendedExerciseRef = useRef(null);
 
 
   useEffect(() => {
@@ -68,8 +82,37 @@ export default function Exercises() {
 
 
   useEffect(() => {
+    loadRecommendedExercise();
+  }, [exerciseId]);
+
+
+  useEffect(() => {
+
+    if (recommendedExercise) {
+
+      recommendedExerciseRef.current?.focus({
+        preventScroll: true,
+      });
+
+      recommendedExerciseRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+
+    }
+
+  }, [recommendedExercise]);
+
+
+  useEffect(() => {
     loadExercises();
-  }, [debouncedSearch, bodyPart, equipment, difficulty, page]);
+  }, [
+    debouncedSearch,
+    bodyPart,
+    equipment,
+    difficulty,
+    page,
+  ]);
 
 
   async function loadFavorites() {
@@ -173,6 +216,40 @@ export default function Exercises() {
     } finally {
 
       setLoading(false);
+
+    }
+
+  }
+
+
+  async function loadRecommendedExercise() {
+
+    if (!exerciseId) {
+
+      setRecommendedExercise(null);
+
+      return;
+
+    }
+
+    try {
+
+      setRecommendedLoading(true);
+
+      const exercise = await getExerciseById(
+        exerciseId
+      );
+
+      setRecommendedExercise(exercise);
+
+    } catch (err) {
+
+      console.error(err);
+      setRecommendedExercise(null);
+
+    } finally {
+
+      setRecommendedLoading(false);
 
     }
 
@@ -287,6 +364,106 @@ export default function Exercises() {
         </p>
 
       </div>
+
+
+      {recommendedLoading ? (
+
+        <div className="
+          flex
+          items-center
+          gap-3
+          rounded-3xl
+          border
+          border-blue-100
+          bg-blue-50
+          p-6
+          shadow-card
+        ">
+
+          <Loader2
+            className="h-5 w-5 animate-spin text-blue-600"
+            strokeWidth={2}
+          />
+
+          <p className="text-sm font-medium text-blue-700">
+            Loading your AI recommended exercise...
+          </p>
+
+        </div>
+
+
+      ) : recommendedExercise ? (
+
+        <section
+          ref={recommendedExerciseRef}
+          tabIndex={-1}
+          className="
+            rounded-3xl
+            border
+            border-blue-100
+            bg-blue-50
+            p-6
+            shadow-card
+            focus:outline-none
+          "
+        >
+
+          <div className="mb-6 flex items-start justify-between gap-4">
+
+            <div>
+
+              <h2 className="text-2xl font-semibold text-gray-900">
+                AI Recommended Exercise
+              </h2>
+
+              <p className="mt-1 text-gray-500">
+                Chosen for you based on your activity patterns.
+              </p>
+
+            </div>
+
+
+            <div className="
+              flex
+              shrink-0
+              items-center
+              gap-1
+              rounded-full
+              bg-white
+              px-3
+              py-1.5
+              text-blue-600
+            ">
+
+              <BadgeCheck size={16}/>
+
+              <span className="text-xs font-semibold">
+                AI Match
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <ExerciseCard
+            exercise={recommendedExercise}
+            isFavorite={
+              isFavorite(
+                recommendedExercise.exercise_id
+              )
+            }
+            onToggleFavorite={() =>
+              handleToggleFavorite(
+                recommendedExercise
+              )
+            }
+          />
+
+        </section>
+
+
+      ) : null}
 
 
       <div className="
