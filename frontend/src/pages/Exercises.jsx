@@ -258,13 +258,21 @@ export default function Exercises() {
   }
 
 
-  async function handleLogWorkout(exercise) {
+  async function handleLogWorkout(
+    exercise,
+    durationMinutes,
+    caloriesBurned
+  ) {
 
     try {
 
       setLoggingExerciseId(exercise.exercise_id);
 
-      await logExercise(exercise.exercise_id);
+      await logExercise(
+        exercise.exercise_id,
+        durationMinutes,
+        caloriesBurned
+      );
 
       toast.success(`${exercise.title} logged to today's exercises.`);
 
@@ -272,6 +280,7 @@ export default function Exercises() {
 
       console.error(err);
       toast.error("Unable to log this workout. Please try again.");
+      throw err;
 
     } finally {
 

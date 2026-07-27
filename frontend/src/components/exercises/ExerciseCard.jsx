@@ -9,6 +9,7 @@ import {
   Check,
   Loader2,
 } from "lucide-react";
+import { useState } from "react";
 
 export default function ExerciseCard({
   exercise,
@@ -17,6 +18,46 @@ export default function ExerciseCard({
   onLogWorkout,
   isLoggingWorkout,
 }) {
+
+  const [durationMinutes, setDurationMinutes] = useState("30");
+  const [caloriesBurned, setCaloriesBurned] = useState("200");
+  const [logError, setLogError] = useState(null);
+
+
+  async function handleLogWorkout(event) {
+
+    event.preventDefault();
+
+    const duration = Number(durationMinutes);
+    const calories = Number(caloriesBurned);
+
+    if (!Number.isInteger(duration) || duration < 1) {
+      setLogError("Enter a duration of at least 1 minute.");
+      return;
+    }
+
+    if (
+      caloriesBurned === "" ||
+      !Number.isFinite(calories) ||
+      calories < 0
+    ) {
+      setLogError("Enter calories burned as 0 or more.");
+      return;
+    }
+
+    try {
+
+      setLogError(null);
+
+      await onLogWorkout(exercise, duration, calories);
+
+    } catch {
+
+      setLogError("Unable to log this workout. Please try again.");
+
+    }
+
+  }
 
   return (
     <div
@@ -156,43 +197,86 @@ export default function ExerciseCard({
 
       {onLogWorkout ? (
 
-        <button
-          type="button"
-          onClick={(event) => {
-            event.stopPropagation();
-            onLogWorkout(exercise);
-          }}
-          disabled={isLoggingWorkout}
-          className="
-            mt-4
-            flex
-            w-full
-            items-center
-            justify-center
-            gap-2
-            rounded-2xl
-            bg-green-600
-            px-4
-            py-3
-            text-sm
-            font-semibold
-            text-white
-            transition-colors
-            hover:bg-green-700
-            disabled:cursor-not-allowed
-            disabled:opacity-70
-          "
+        <form
+          onSubmit={handleLogWorkout}
+          className="mt-4 rounded-2xl bg-green-50 p-4"
         >
 
-          {isLoggingWorkout ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Check className="h-4 w-4" strokeWidth={2.5} />
-          )}
+          <p className="text-sm font-semibold text-gray-800">
+            Log this workout
+          </p>
 
-          {isLoggingWorkout ? "Logging workout..." : "Log Workout"}
+          <div className="mt-3 grid grid-cols-2 gap-3">
 
-        </button>
+            <label className="text-xs font-medium text-gray-600">
+              Duration (min)
+              <input
+                type="number"
+                min="1"
+                step="1"
+                value={durationMinutes}
+                onChange={(event) => setDurationMinutes(event.target.value)}
+                disabled={isLoggingWorkout}
+                className="mt-1 w-full rounded-xl border border-green-100 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition focus:border-green-500"
+              />
+            </label>
+
+            <label className="text-xs font-medium text-gray-600">
+              Calories burned
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={caloriesBurned}
+                onChange={(event) => setCaloriesBurned(event.target.value)}
+                disabled={isLoggingWorkout}
+                className="mt-1 w-full rounded-xl border border-green-100 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition focus:border-green-500"
+              />
+            </label>
+
+          </div>
+
+          {logError ? (
+            <p className="mt-2 text-xs font-medium text-red-600">
+              {logError}
+            </p>
+          ) : null}
+
+          <button
+            type="submit"
+            disabled={isLoggingWorkout}
+            className="
+              mt-3
+              flex
+              w-full
+              items-center
+              justify-center
+              gap-2
+              rounded-2xl
+              bg-green-600
+              px-4
+              py-3
+              text-sm
+              font-semibold
+              text-white
+              transition-colors
+              hover:bg-green-700
+              disabled:cursor-not-allowed
+              disabled:opacity-70
+            "
+          >
+
+            {isLoggingWorkout ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Check className="h-4 w-4" strokeWidth={2.5} />
+            )}
+
+            {isLoggingWorkout ? "Logging workout..." : "Log Workout"}
+
+          </button>
+
+        </form>
 
       ) : null}
 
