@@ -189,6 +189,39 @@ describe("Workout plan service", () => {
 
     });
 
+    test("uses the exercise catalogue when goal-matched fallback exercises are unavailable", async () => {
+
+        const connection = {
+            beginTransaction: jest.fn(),
+            commit: jest.fn(),
+            rollback: jest.fn(),
+            release: jest.fn(),
+            execute: jest.fn()
+                .mockResolvedValueOnce([{ insertId: 48 }])
+                .mockResolvedValue([{}]),
+        };
+        const catalogueExercises = createExercises(6);
+
+        db.execute
+            .mockResolvedValueOnce([[
+                { fitness_goal: "Muscle Gain", activity_level: "Beginner" },
+            ]])
+            .mockResolvedValueOnce([[]])
+            .mockResolvedValueOnce([[]])
+            .mockResolvedValueOnce([catalogueExercises]);
+        db.getConnection.mockResolvedValue(connection);
+        recommendationService.generateRecommendations.mockResolvedValue({
+            recommended_exercises: [],
+        });
+        aiService.generateResponse.mockResolvedValue("A flexible strength plan.");
+
+        const result = await workoutPlanService.generateWorkoutPlan(11);
+
+        expect(result.id).toBe(48);
+        expect(result.exercises).toHaveLength(6);
+
+    });
+
     test("retrieves plans, details, and completion state", async () => {
 
         db.execute
