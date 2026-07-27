@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 
 import DashboardHeader from "../components/dashboard/DashboardHeader";
 import DashboardStats from "../components/dashboard/DashboardStats";
+import WaterIntake from "../components/dashboard/WaterIntake";
+import ExerciseHistory from "../components/dashboard/ExerciseHistory";
+import NutritionTracking from "../components/dashboard/NutritionTracking";
 import WeeklyChart from "../components/charts/WeeklyChart";
 import RecentMeals from "../components/charts/RecentMeals";
 import RecommendationCard from "../components/charts/RecommendationCard";
@@ -105,6 +108,18 @@ export default function Dashboard() {
 
 
       <DashboardStats summary={summary} />
+
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+
+        <WaterIntake />
+
+        <ExerciseHistory />
+
+      </div>
+
+
+      <NutritionTracking />
 
 
       <div className="grid grid-cols-2 gap-6">
