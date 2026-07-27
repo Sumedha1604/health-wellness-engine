@@ -1,110 +1,10 @@
 const axios = require("axios");
 const db = require("../config/db");
+const wellnessContextService = require("./wellness_context.service");
 
 async function buildUserContext(userId) {
 
-    const [
-        [userRows],
-        [preferencesRows],
-        [nutritionRows],
-        [waterRows],
-        [exerciseRows],
-        [chatHistoryRows],
-    ] = await Promise.all([
-        db.execute(
-            `
-            SELECT
-                CONCAT(first_name, ' ', last_name) AS name,
-                email
-            FROM users
-            WHERE user_id = ?
-            `,
-            [userId]
-        ),
-        db.execute(
-            `
-            SELECT
-                fitness_goal,
-                activity_level,
-                diet_type
-            FROM preferences
-            WHERE user_id = ?
-            `,
-            [userId]
-        ),
-        db.execute(
-            `
-            SELECT
-                COALESCE(SUM(f.caloric_value * nl.quantity), 0) AS calories,
-                COALESCE(SUM(f.protein * nl.quantity), 0) AS protein,
-                COALESCE(SUM(f.carbohydrates * nl.quantity), 0) AS carbs,
-                COALESCE(SUM(f.fat * nl.quantity), 0) AS fat
-            FROM nutrition_logs nl
-            INNER JOIN foods f
-                ON nl.food_id = f.food_id
-            WHERE
-                nl.user_id = ?
-                AND DATE(nl.logged_at) = CURDATE()
-            `,
-            [userId]
-        ),
-        db.execute(
-            `
-            SELECT COALESCE(SUM(amount_ml), 0) AS consumed
-            FROM water_logs
-            WHERE
-                user_id = ?
-                AND DATE(logged_at) = CURDATE()
-            `,
-            [userId]
-        ),
-        db.execute(
-            `
-            SELECT
-                e.title,
-                el.duration_minutes,
-                el.calories_burned
-            FROM exercise_logs el
-            INNER JOIN exercises e
-                ON el.exercise_id = e.exercise_id
-            WHERE
-                el.user_id = ?
-                AND DATE(el.completed_at) = CURDATE()
-            ORDER BY el.completed_at DESC
-            `,
-            [userId]
-        ),
-        db.execute(
-            `
-            SELECT
-                message,
-                response,
-                created_at
-            FROM chat_history
-            WHERE user_id = ?
-            ORDER BY created_at DESC, id DESC
-            LIMIT 5
-            `,
-            [userId]
-        ),
-    ]);
-
-    return {
-        user: userRows[0] || null,
-        preferences: preferencesRows[0] || null,
-        nutrition: {
-            calories: Number(nutritionRows[0].calories),
-            protein: Number(nutritionRows[0].protein),
-            carbs: Number(nutritionRows[0].carbs),
-            fat: Number(nutritionRows[0].fat),
-        },
-        water: {
-            consumed: Number(waterRows[0].consumed),
-            goal: 2500,
-        },
-        exercises: exerciseRows,
-        conversationHistory: chatHistoryRows.reverse(),
-    };
+    return wellnessContextService.buildUserContext(userId);
 }
 
 function buildSimpleResponse(message) {
@@ -167,7 +67,7 @@ async function generateResponse(message, context) {
             messages: [
                 {
                     role: "user",
-                    content: `You are a friendly, conversational wellness assistant. Respond naturally to greetings and casual questions before offering wellness guidance. Use the provided wellness context when it helps answer the user's question, but do not repeat a full wellness summary unless the user asks for it. Give practical, concise guidance and do not diagnose medical conditions.\n\nUser context: ${JSON.stringify(context)}\n\nQuestion: ${message}`,
+                    content: `You are a friendly, conversational wellness assistant. Respond naturally to greetings and casual questions before offering wellness guidance. Use the provided wellness context when it helps answer the user's question, but do not repeat a full wellness summary unless the user asks for it. For exercise suggestions, workouts, or exercise recommendations, use the ML exercise recommendations in context as the primary source and name relevant recommended exercises rather than giving generic suggestions. For nutrition questions, use both today's nutrition data and the recommended foods in context. Give practical, concise guidance and do not diagnose medical conditions.\n\nUser context: ${JSON.stringify(context)}\n\nQuestion: ${message}`,
                 },
             ],
             temperature: 0.7,
