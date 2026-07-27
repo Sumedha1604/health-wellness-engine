@@ -6,12 +6,16 @@ import {
   Gauge,
   Star,
   Heart,
+  Check,
+  Loader2,
 } from "lucide-react";
 
 export default function ExerciseCard({
   exercise,
   isFavorite,
   onToggleFavorite,
+  onLogWorkout,
+  isLoggingWorkout,
 }) {
 
   return (
@@ -148,6 +152,49 @@ export default function ExerciseCard({
         </button>
 
       </div>
+
+
+      {onLogWorkout ? (
+
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            onLogWorkout(exercise);
+          }}
+          disabled={isLoggingWorkout}
+          className="
+            mt-4
+            flex
+            w-full
+            items-center
+            justify-center
+            gap-2
+            rounded-2xl
+            bg-green-600
+            px-4
+            py-3
+            text-sm
+            font-semibold
+            text-white
+            transition-colors
+            hover:bg-green-700
+            disabled:cursor-not-allowed
+            disabled:opacity-70
+          "
+        >
+
+          {isLoggingWorkout ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Check className="h-4 w-4" strokeWidth={2.5} />
+          )}
+
+          {isLoggingWorkout ? "Logging workout..." : "Log Workout"}
+
+        </button>
+
+      ) : null}
 
 
       <div

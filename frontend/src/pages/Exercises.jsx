@@ -11,6 +11,7 @@ import {
   getExerciseById,
   getExercises,
 } from "../services/exercise.service";
+import { logExercise } from "../services/tracking.service";
 import {
   getFavorites,
   addFavorite,
@@ -31,6 +32,7 @@ export default function Exercises() {
   const [recommendedExercise, setRecommendedExercise] =
     useState(null);
   const [favorites, setFavorites] = useState([]);
+  const [loggingExerciseId, setLoggingExerciseId] = useState(null);
 
   const [loading, setLoading] = useState(true);
   const [recommendedLoading, setRecommendedLoading] =
@@ -256,6 +258,30 @@ export default function Exercises() {
   }
 
 
+  async function handleLogWorkout(exercise) {
+
+    try {
+
+      setLoggingExerciseId(exercise.exercise_id);
+
+      await logExercise(exercise.exercise_id);
+
+      toast.success(`${exercise.title} logged to today's exercises.`);
+
+    } catch (err) {
+
+      console.error(err);
+      toast.error("Unable to log this workout. Please try again.");
+
+    } finally {
+
+      setLoggingExerciseId(null);
+
+    }
+
+  }
+
+
   function isFavorite(exerciseId) {
 
     return favorites.some(
@@ -457,6 +483,11 @@ export default function Exercises() {
               handleToggleFavorite(
                 recommendedExercise
               )
+            }
+            onLogWorkout={handleLogWorkout}
+            isLoggingWorkout={
+              loggingExerciseId ===
+              recommendedExercise.exercise_id
             }
           />
 
@@ -826,6 +857,10 @@ export default function Exercises() {
                   handleToggleFavorite(
                     exercise
                   )
+                }
+                onLogWorkout={handleLogWorkout}
+                isLoggingWorkout={
+                  loggingExerciseId === exercise.exercise_id
                 }
               />
 

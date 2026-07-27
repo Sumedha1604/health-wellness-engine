@@ -1,6 +1,9 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Dumbbell, Flame, Loader2, Timer } from "lucide-react";
-import { getTodayExercises } from "../../services/tracking.service";
+import {
+  EXERCISE_LOGGED_EVENT,
+  getTodayExercises,
+} from "../../services/tracking.service";
 
 
 export default function ExerciseHistory() {
@@ -9,12 +12,7 @@ export default function ExerciseHistory() {
   const [loading, setLoading] = useState(true);
 
 
-  useEffect(() => {
-    loadExercises();
-  }, []);
-
-
-  async function loadExercises() {
+  const loadExercises = useCallback(async () => {
 
     try {
 
@@ -34,7 +32,19 @@ export default function ExerciseHistory() {
 
     }
 
-  }
+  }, []);
+
+
+  useEffect(() => {
+    const loadTimeout = window.setTimeout(loadExercises, 0);
+
+    window.addEventListener(EXERCISE_LOGGED_EVENT, loadExercises);
+
+    return () => {
+      window.clearTimeout(loadTimeout);
+      window.removeEventListener(EXERCISE_LOGGED_EVENT, loadExercises);
+    };
+  }, [loadExercises]);
 
 
   return (

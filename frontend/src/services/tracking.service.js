@@ -1,5 +1,28 @@
 import api from "./api";
 
+export const EXERCISE_LOGGED_EVENT = "exercise-logged";
+
+export async function logExercise(
+  exerciseId,
+  durationMinutes = 30,
+  caloriesBurned = 200
+) {
+
+  const response = await api.post(
+    "/tracking/exercise",
+    {
+      exercise_id: exerciseId,
+      duration_minutes: durationMinutes,
+      calories_burned: caloriesBurned,
+    }
+  );
+
+  window.dispatchEvent(new Event(EXERCISE_LOGGED_EVENT));
+
+  return response.data.data;
+
+}
+
 export async function addWater(amountMl) {
 
   const response = await api.post(
