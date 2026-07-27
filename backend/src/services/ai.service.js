@@ -4,11 +4,23 @@ const db = require("../config/db");
 async function buildUserContext(userId) {
 
     const [
+        [userRows],
         [preferencesRows],
         [nutritionRows],
         [waterRows],
         [exerciseRows],
+        [chatHistoryRows],
     ] = await Promise.all([
+        db.execute(
+            `
+            SELECT
+                CONCAT(first_name, ' ', last_name) AS name,
+                email
+            FROM users
+            WHERE user_id = ?
+            `,
+            [userId]
+        ),
         db.execute(
             `
             SELECT
@@ -62,9 +74,23 @@ async function buildUserContext(userId) {
             `,
             [userId]
         ),
+        db.execute(
+            `
+            SELECT
+                message,
+                response,
+                created_at
+            FROM chat_history
+            WHERE user_id = ?
+            ORDER BY created_at DESC, id DESC
+            LIMIT 5
+            `,
+            [userId]
+        ),
     ]);
 
     return {
+        user: userRows[0] || null,
         preferences: preferencesRows[0] || null,
         nutrition: {
             calories: Number(nutritionRows[0].calories),
@@ -77,69 +103,125 @@ async function buildUserContext(userId) {
             goal: 2500,
         },
         exercises: exerciseRows,
+        conversationHistory: chatHistoryRows.reverse(),
     };
 }
 
-function buildFallbackResponse(context) {
+function buildSimpleResponse(message) {
 
-    const goal = context.preferences?.fitness_goal || "wellness";
-    const activity = context.preferences?.activity_level || "your current activity level";
-    const waterRemaining = Math.max(
-        0,
-        context.water.goal - context.water.consumed
-    );
+    const normalizedMessage = message.toLowerCase().trim();
 
-    const exerciseMessage = context.exercises.length > 0
-        ? `You have completed ${context.exercises.length} workout${
-            context.exercises.length === 1 ? "" : "s"
-        } today.`
-        : "A short workout or walk would be a great way to add movement today.";
+    if (
+        /^(hi|hello|hey|good morning|good afternoon|good evening)[!. ]*$/.test(
+            normalizedMessage
+        )
+    ) {
+        return "Hi! How can I help you with your fitness or wellness today?";
+    }
 
-    return `For your ${goal} goal and ${activity} activity level, focus on one sustainable step at a time. ${exerciseMessage} You have logged ${Math.round(context.nutrition.protein)} g of protein and ${Math.round(context.nutrition.calories)} calories today. ${waterRemaining > 0 ? `Try to drink another ${waterRemaining} ml of water to reach your daily goal.` : "You have reached your daily water goal—great work!"}`;
+    if (/^(help|help me)[!. ]*$/.test(normalizedMessage)) {
+        return "I can help you with fitness goals, nutrition advice, hydration tracking, workout suggestions, and understanding your wellness progress.";
+    }
+
+    if (
+        /thanks|thank you|thx/.test(
+            normalizedMessage
+        )
+    ) {
+        return "You’re welcome! Let me know whenever you’d like help with your wellness routine.";
+    }
+
+    return null;
+}
+
+function buildFallbackResponse() {
+
+    return "I’m unable to reach the AI assistant right now. Please try again shortly.";
 }
 
 async function generateResponse(message, context) {
 
-    if (!process.env.AI_API_KEY) {
-        return buildFallbackResponse(context);
+    const simpleResponse = buildSimpleResponse(message);
+    const apiKey = process.env.GROQ_API_KEY;
+    const model = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
+    const apiUrl = process.env.GROQ_API_URL ||
+        "https://api.groq.com/openai/v1/chat/completions";
+
+    if (simpleResponse) {
+        return simpleResponse;
+    }
+
+    if (!apiKey) {
+        console.warn("AI fallback used: GROQ_API_KEY is not configured.", {
+            groqApiUrlConfigured: Boolean(process.env.GROQ_API_URL),
+            groqModelConfigured: Boolean(process.env.GROQ_MODEL),
+        });
+
+        return buildFallbackResponse();
     }
 
     try {
 
+        const requestBody = {
+            model,
+            messages: [
+                {
+                    role: "user",
+                    content: `You are a friendly, conversational wellness assistant. Respond naturally to greetings and casual questions before offering wellness guidance. Use the provided wellness context when it helps answer the user's question, but do not repeat a full wellness summary unless the user asks for it. Give practical, concise guidance and do not diagnose medical conditions.\n\nUser context: ${JSON.stringify(context)}\n\nQuestion: ${message}`,
+                },
+            ],
+            temperature: 0.7,
+        };
+
+        console.info("Groq request sent.", {
+            apiUrl,
+            model,
+            apiKeyConfigured: Boolean(apiKey),
+            authorizationScheme: "Bearer",
+            messageCount: requestBody.messages.length,
+        });
+
         const response = await axios.post(
-            process.env.AI_API_URL ||
-                "https://api.openai.com/v1/chat/completions",
-            {
-                model: process.env.AI_MODEL || "gpt-4o-mini",
-                messages: [
-                    {
-                        role: "system",
-                        content: "You are a supportive wellness assistant. Give practical, concise guidance based only on the provided user context. Do not diagnose medical conditions.",
-                    },
-                    {
-                        role: "user",
-                        content: `User context: ${JSON.stringify(context)}\n\nQuestion: ${message}`,
-                    },
-                ],
-                temperature: 0.7,
-            },
+            apiUrl,
+            requestBody,
             {
                 headers: {
-                    Authorization: `Bearer ${process.env.AI_API_KEY}`,
+                    Authorization: `Bearer ${apiKey}`,
                     "Content-Type": "application/json",
                 },
             }
         );
 
-        const reply = response.data?.choices?.[0]?.message?.content;
+        const reply = response.data?.choices?.[0]?.message?.content?.trim();
 
-        return reply || buildFallbackResponse(context);
+        if (reply) {
+            return reply;
+        }
+
+        console.warn("AI fallback used: Groq returned an empty response.", {
+            status: response.status,
+            apiUrl,
+            model,
+        });
+
+        return buildFallbackResponse();
 
     } catch (error) {
 
-        console.error("AI provider unavailable", error.message);
+        console.error("Groq request failed.", {
+            errorMessage: error.message,
+            status: error.response?.status || null,
+            statusText: error.response?.statusText || null,
+            responseData: error.response?.data || null,
+            code: error.code || null,
+            apiUrl,
+            model,
+            apiKeyConfigured: Boolean(apiKey),
+        });
 
-        return buildFallbackResponse(context);
+        console.warn("AI fallback used: Groq request failed.");
+
+        return buildFallbackResponse();
 
     }
 }

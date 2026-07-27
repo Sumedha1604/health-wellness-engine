@@ -29,6 +29,42 @@ describe("Chat API", () => {
 
     });
 
+    test("POST /api/chat should respond naturally to a greeting", async () => {
+
+        const { token } = await createAuthenticatedUser();
+
+        const response = await request(app)
+            .post("/api/chat")
+            .set("Authorization", `Bearer ${token}`)
+            .send({
+                message: "hi",
+            });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.data.reply).toBe(
+            "Hi! How can I help you with your fitness or wellness today?"
+        );
+
+    });
+
+    test("POST /api/chat should respond naturally to thanks", async () => {
+
+        const { token } = await createAuthenticatedUser();
+
+        const response = await request(app)
+            .post("/api/chat")
+            .set("Authorization", `Bearer ${token}`)
+            .send({
+                message: "thanks",
+            });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.data.reply).toBe(
+            "You’re welcome! Let me know whenever you’d like help with your wellness routine."
+        );
+
+    });
+
     test("POST /api/chat should reject an empty message", async () => {
 
         const { token } = await createAuthenticatedUser();
