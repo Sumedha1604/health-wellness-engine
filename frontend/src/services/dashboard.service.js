@@ -31,3 +31,11 @@ export async function getWeeklyCalories() {
   return response.data.data;
 
 }
+
+export async function getWellnessSummary() {
+
+  const response = await api.get("/wellness/summary");
+
+  return response.data.data;
+
+}

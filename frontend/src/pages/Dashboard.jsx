@@ -5,6 +5,7 @@ import DashboardStats from "../components/dashboard/DashboardStats";
 import WaterIntake from "../components/dashboard/WaterIntake";
 import ExerciseHistory from "../components/dashboard/ExerciseHistory";
 import NutritionTracking from "../components/dashboard/NutritionTracking";
+import AIWellnessSummary from "../components/dashboard/AIWellnessSummary";
 import WeeklyChart from "../components/charts/WeeklyChart";
 import RecentMeals from "../components/charts/RecentMeals";
 import RecommendationCard from "../components/charts/RecommendationCard";
@@ -13,6 +14,7 @@ import QuickAction from "../components/charts/QuickAction";
 import {
   getDashboard,
   getTodaySummary,
+  getWellnessSummary,
 } from "../services/dashboard.service";
 
 import {
@@ -27,6 +29,8 @@ export default function Dashboard() {
   const [summary, setSummary] = useState(null);
 
   const [recommendations, setRecommendations] = useState(null);
+
+  const [wellnessSummary, setWellnessSummary] = useState(null);
 
   const [loading, setLoading] = useState(true);
 
@@ -43,12 +47,16 @@ export default function Dashboard() {
 
         const recommendationData = await getRecommendations();
 
+        const wellnessData = await getWellnessSummary();
+
 
         setDashboard(dashboardData);
 
         setSummary(todayData);
 
         setRecommendations(recommendationData);
+
+        setWellnessSummary(wellnessData);
 
 
       } catch (error) {
@@ -120,6 +128,9 @@ export default function Dashboard() {
 
 
       <NutritionTracking />
+
+
+      <AIWellnessSummary summary={wellnessSummary} />
 
 
       <div className="grid grid-cols-2 gap-6">
