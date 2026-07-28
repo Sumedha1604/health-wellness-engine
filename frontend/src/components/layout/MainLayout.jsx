@@ -7,7 +7,7 @@ export default function MainLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-white">
 
       <Sidebar
         isOpen={isSidebarOpen}

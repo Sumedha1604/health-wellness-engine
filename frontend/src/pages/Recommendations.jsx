@@ -150,20 +150,21 @@ export default function Recommendations() {
   return (
     <div className="space-y-8 transition-opacity duration-300">
       {/* Hero Header */}
-      <div>
-        <h1 className="text-4xl font-bold text-gray-900 tracking-tight">
+      <div className="rounded-wellness bg-wellness-slate p-6 text-white shadow-card sm:p-8">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/60">Guided by your habits</p>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
           AI Health Recommendations
         </h1>
-        <p className="text-gray-500 mt-2">
+        <p className="mt-2 max-w-2xl text-white/75">
           Personalized nutrition insights based on your preferences and meal history.
         </p>
       </div>
 
       {!hasRecommendations ? (
-        <div className="bg-white rounded-3xl shadow-card p-8">
+        <div className="wellness-empty">
           <div className="flex flex-col items-center justify-center text-center py-16">
             <span className="flex h-16 w-16 items-center justify-center rounded-full bg-green-50">
-              <Sparkles className="h-8 w-8 text-green-500" strokeWidth={1.5} />
+              <Sparkles className="h-8 w-8 text-wellness-aqua" strokeWidth={1.5} />
             </span>
             <p className="mt-5 text-lg font-semibold text-gray-900">
               No recommendations yet
@@ -177,8 +178,7 @@ export default function Recommendations() {
               className="
                 mt-6
                 flex items-center gap-2
-                bg-gradient-to-r from-green-500 to-emerald-500
-                hover:from-green-600 hover:to-emerald-600
+                bg-wellness-slate hover:bg-[#2e4747]
                 text-white
                 font-semibold
                 rounded-xl

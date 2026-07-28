@@ -12,7 +12,7 @@ export default function LineChart({
   subtitle,
   data,
   dataKey,
-  color = "#34D399",
+  color = "#73ABA6",
   unit = "",
 }) {
 
@@ -33,17 +33,17 @@ export default function LineChart({
               <stop offset="100%" stopColor={color} stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid vertical={false} stroke="#F1F5F4" />
+          <CartesianGrid vertical={false} stroke="#E1ECEA" />
           <XAxis
             dataKey="date"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#9CA3AF", fontSize: 12 }}
+            tick={{ fill: "#6B8582", fontSize: 12 }}
             tickFormatter={(value) => value.slice(5)}
           />
           <Tooltip
             formatter={(value) => [`${value} ${unit}`, title]}
-            contentStyle={{ borderRadius: "12px", border: "1px solid #F1F5F4" }}
+            contentStyle={{ borderRadius: "12px", border: "1px solid #E1ECEA" }}
           />
           <Area
             type="monotone"

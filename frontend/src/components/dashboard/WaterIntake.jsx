@@ -92,56 +92,67 @@ export default function WaterIntake() {
 
   return (
 
-    <div className="rounded-3xl bg-white p-8 shadow-card">
+    <div className="wellness-card overflow-hidden p-6 sm:p-8">
 
-      <div className="flex items-start justify-between">
+      <div className="-mx-6 -mt-6 mb-6 flex items-start justify-between bg-wellness-slate px-6 py-5 text-white sm:-mx-8 sm:-mt-8 sm:px-8">
 
         <div>
 
-          <h2 className="text-2xl font-semibold tracking-tight text-gray-900">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/60">Hydration ritual</p>
+          <h2 className="mt-1 text-2xl font-semibold tracking-tight">
             Water Intake
           </h2>
 
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-white/75">
             Stay hydrated throughout the day.
           </p>
 
         </div>
 
 
-        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50">
-          <Droplets className="h-5 w-5 text-blue-600" />
+        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10">
+          <Droplets className="h-5 w-5 text-white" />
         </span>
 
       </div>
 
 
-      <div className="mt-7 flex items-end justify-between gap-4">
+      <div className="mt-6 flex flex-col items-center gap-6 sm:flex-row sm:items-end sm:justify-between">
 
-        <p className="text-4xl font-bold tracking-tight text-gray-900">
+        <div
+          className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full p-2"
+          style={{ background: `conic-gradient(#0FB1D2 ${percentage}%, #e6f3f0 0)` }}
+        >
+          <div className="flex h-full w-full flex-col items-center justify-center rounded-full bg-white">
+            <span className="text-2xl font-bold tracking-tight text-wellness-slate">{percentage}%</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-wellness-teal">complete</span>
+          </div>
+        </div>
+
+        <p className="text-4xl font-bold tracking-tight text-wellness-slate">
           {consumed}
-          <span className="ml-1 text-lg font-medium text-gray-400">
+            <span className="ml-1 text-lg font-medium text-wellness-teal">
             ml
           </span>
         </p>
 
-        <p className="text-sm font-medium text-gray-500">
+        <p className="text-sm font-semibold text-[#6b8582]">
           Goal: {goal} ml
         </p>
 
       </div>
 
 
-      <div className="mt-5 h-3 overflow-hidden rounded-full bg-blue-50">
+      <div className="mt-6 h-2.5 overflow-hidden rounded-full bg-[#e6f3f0]">
         <div
-          className="h-full rounded-full bg-blue-500 transition-all duration-500"
+          className="h-full rounded-full bg-wellness-aqua transition-all duration-500"
           style={{ width: `${percentage}%` }}
         />
       </div>
 
 
-      <p className="mt-2 text-sm font-medium text-blue-600">
-        {water?.percentage || 0}% of your daily goal
+      <p className="mt-2 text-sm font-semibold text-wellness-aqua">
+        {Math.max(0, goal - consumed)} ml to your daily goal
       </p>
 
 
@@ -153,7 +164,7 @@ export default function WaterIntake() {
             type="button"
             onClick={() => handleAddWater(amount)}
             disabled={addingAmount !== null}
-            className="flex items-center justify-center gap-1.5 rounded-xl bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-600 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex items-center justify-center gap-1.5 rounded-xl bg-wellness-mist px-4 py-3 text-sm font-semibold text-wellness-slate transition hover:bg-wellness-teal/25 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {addingAmount === amount ? (
               <Loader2 className="h-4 w-4 animate-spin" />

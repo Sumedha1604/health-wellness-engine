@@ -388,13 +388,14 @@ export default function Exercises() {
     <div className="space-y-8">
 
 
-      <div>
+      <div className="rounded-wellness bg-wellness-slate p-6 text-white shadow-card sm:p-8">
 
-        <h1 className="text-4xl font-bold tracking-tight text-gray-900">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/65">Move with intention</p>
+        <h1 className="mt-2 text-4xl font-bold tracking-tight">
           Exercises
         </h1>
 
-        <p className="mt-2 text-lg text-gray-500">
+        <p className="mt-2 text-lg text-white/75">
           Browse exercises and improve your fitness routine.
         </p>
 

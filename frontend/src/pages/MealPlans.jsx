@@ -103,18 +103,19 @@ export default function MealPlans() {
       {/* Hero Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight sm:text-4xl">
+          <p className="wellness-eyebrow">Nourishment planner</p>
+          <h1 className="mt-1 text-3xl font-bold text-wellness-slate tracking-tight sm:text-4xl">
             Meal Plans
           </h1>
-          <p className="text-gray-500 mt-2">
+          <p className="mt-2 text-[#6b8582]">
             Create, manage, and organize your healthy meals.
           </p>
         </div>
         <Button
           onClick={handleAddMeal}
           className="w-full sm:w-auto
-            bg-gradient-to-r from-green-500 to-emerald-500
-            hover:from-green-600 hover:to-emerald-600
+            bg-wellness-slate
+            hover:bg-[#2e4747]
             text-white
             rounded-xl
             px-6 py-3
@@ -131,9 +132,9 @@ export default function MealPlans() {
       </div>
 
       {/* Meals Section */}
-      <div className="bg-white rounded-3xl shadow-card p-8">
+      <div className="wellness-card p-6 sm:p-8">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">
+          <h2 className="text-2xl font-semibold text-wellness-slate tracking-tight">
             My Meals
           </h2>
           <span className="rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-700">
@@ -143,8 +144,8 @@ export default function MealPlans() {
 
         {meals.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-center py-16">
-            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-green-50">
-              <UtensilsCrossed className="h-8 w-8 text-green-500" strokeWidth={1.5} />
+            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-wellness-mist">
+              <UtensilsCrossed className="h-8 w-8 text-wellness-aqua" strokeWidth={1.5} />
             </span>
             <p className="mt-5 text-lg font-semibold text-gray-900">
               No meals yet
@@ -156,8 +157,8 @@ export default function MealPlans() {
               onClick={handleAddMeal}
               className="
                 mt-6
-                bg-gradient-to-r from-green-500 to-emerald-500
-                hover:from-green-600 hover:to-emerald-600
+                bg-wellness-slate
+                hover:bg-[#2e4747]
                 text-white
                 rounded-xl
                 px-6 py-3

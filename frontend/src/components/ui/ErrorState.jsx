@@ -7,7 +7,7 @@ export default function ErrorState({
 }) {
   return (
     <div className="flex min-h-52 items-center justify-center py-12">
-      <div className="flex max-w-md flex-col items-center gap-4 rounded-3xl bg-white px-8 py-8 text-center shadow-card sm:px-12 sm:py-10">
+      <div className="flex max-w-md flex-col items-center gap-4 rounded-wellness border border-white/80 bg-white px-8 py-8 text-center shadow-card sm:px-12 sm:py-10">
         <span className="flex h-14 w-14 items-center justify-center rounded-full bg-red-50">
           <AlertCircle className="h-7 w-7 text-red-400" />
         </span>
@@ -19,7 +19,7 @@ export default function ErrorState({
           <button
             type="button"
             onClick={onRetry}
-            className="rounded-xl bg-green-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-green-600"
+            className="rounded-xl bg-wellness-slate px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#2e4747]"
           >
             Try Again
           </button>

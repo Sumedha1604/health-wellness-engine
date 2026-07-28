@@ -128,15 +128,15 @@ export default function AIAssistant() {
       <div>
 
         <div className="flex items-center gap-3">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-100">
-            <Sparkles className="h-6 w-6 text-green-600" />
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-wellness-mist">
+            <Sparkles className="h-6 w-6 text-wellness-aqua" />
           </span>
 
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+            <h1 className="text-2xl font-bold tracking-tight text-wellness-slate sm:text-4xl">
               AI Wellness Assistant
             </h1>
-            <p className="mt-1 text-gray-500">
+            <p className="mt-1 text-[#6b8582]">
               Personalized guidance using your wellness activity today.
             </p>
           </div>
@@ -146,10 +146,10 @@ export default function AIAssistant() {
       </div>
 
 
-      <div className="overflow-hidden rounded-3xl bg-white shadow-card">
+      <div className="overflow-hidden rounded-wellness border border-[#e9efee] bg-white shadow-card">
 
         <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 sm:px-8 sm:py-5">
-          <p className="text-sm font-medium text-green-600">
+          <p className="text-sm font-semibold text-wellness-aqua">
             Personalized wellness guidance
           </p>
 
@@ -178,15 +178,15 @@ export default function AIAssistant() {
                 }`}
               >
                 {!isUser && (
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-100">
-                    <Bot className="h-5 w-5 text-green-600" />
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-wellness-mist">
+                    <Bot className="h-5 w-5 text-wellness-slate" />
                   </span>
                 )}
 
                 <div
                   className={`max-w-[calc(100%-3.25rem)] break-words rounded-2xl px-4 py-3 text-sm leading-relaxed sm:max-w-[80%] sm:text-base ${
                     isUser
-                      ? "rounded-br-md bg-green-500 text-white"
+                      ? "rounded-br-md bg-wellness-slate text-white"
                       : "rounded-bl-md bg-gray-50 text-gray-700"
                   }`}
                 >
@@ -194,7 +194,7 @@ export default function AIAssistant() {
 
                   <span
                     className={`mt-1.5 flex items-center gap-1 text-[11px] ${
-                      isUser ? "text-green-100" : "text-gray-400"
+                      isUser ? "text-white/70" : "text-gray-400"
                     }`}
                   >
                     <Clock3 className="h-3 w-3" />
@@ -203,8 +203,8 @@ export default function AIAssistant() {
                 </div>
 
                 {isUser && (
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50">
-                    <User className="h-5 w-5 text-blue-600" />
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#e1f8fd]">
+                    <User className="h-5 w-5 text-wellness-aqua" />
                   </span>
                 )}
               </div>
@@ -214,11 +214,11 @@ export default function AIAssistant() {
 
           {loading && (
             <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
-                <Bot className="h-5 w-5 text-green-600" />
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-wellness-mist">
+                <Bot className="h-5 w-5 text-wellness-slate" />
               </span>
               <div className="flex items-center gap-2 rounded-2xl rounded-bl-md bg-gray-50 px-4 py-3 text-sm text-gray-500">
-                <Loader2 className="h-4 w-4 animate-spin text-green-600" />
+                <Loader2 className="h-4 w-4 animate-spin text-wellness-aqua" />
                 Thinking about your wellness data...
               </div>
             </div>
@@ -248,13 +248,13 @@ export default function AIAssistant() {
               onChange={(event) => setMessage(event.target.value)}
               placeholder="Ask about your fitness, meals, or hydration..."
               disabled={loading}
-              className="min-w-0 flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:cursor-not-allowed disabled:opacity-60"
+              className="min-w-0 flex-1 rounded-xl border border-wellness-teal/25 bg-white px-4 py-3 text-sm text-wellness-slate focus:outline-none focus:ring-2 focus:ring-wellness-aqua disabled:cursor-not-allowed disabled:opacity-60"
             />
 
             <button
               type="submit"
               disabled={!message.trim() || loading}
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-500 text-white transition hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-wellness-aqua text-white transition hover:bg-[#0a9cbc] disabled:cursor-not-allowed disabled:opacity-50"
               aria-label="Send message"
             >
               {loading ? (

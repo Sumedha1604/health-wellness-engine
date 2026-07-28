@@ -48,21 +48,21 @@ export default function Navbar({ onMenuClick }) {
 
   return (
 
-    <header className="flex h-16 items-center justify-between border-b border-gray-100 bg-white px-4 sm:h-20 sm:px-8">
+    <header className="flex h-16 items-center justify-between border-b border-wellness-teal/15 bg-white/85 px-4 backdrop-blur-xl sm:h-20 sm:px-8">
 
       <div className="flex min-w-0 items-center gap-3">
 
         <button
           type="button"
           onClick={onMenuClick}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl hover:bg-gray-100 md:hidden"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-wellness-slate transition hover:bg-wellness-mist md:hidden"
           aria-label="Open navigation"
         >
           <Menu size={22} />
         </button>
 
-        <h2 className="truncate text-lg font-semibold sm:text-2xl">
-          Dashboard
+        <h2 className="truncate text-lg font-bold tracking-tight text-wellness-slate sm:text-2xl">
+          Your wellness space
         </h2>
 
       </div>
@@ -87,10 +87,10 @@ export default function Navbar({ onMenuClick }) {
               rounded-xl
               px-2 py-1.5
               transition-colors duration-200
-              hover:bg-green-50
+              hover:bg-wellness-mist
             "
           >
-            <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-green-100 text-lg font-bold text-green-700">
+            <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-wellness-slate text-lg font-bold text-white">
               {user?.first_name?.charAt(0)}
             </span>
 
@@ -118,7 +118,7 @@ export default function Navbar({ onMenuClick }) {
                 bg-white
                 rounded-2xl
                 shadow-card
-                border border-gray-100
+                border border-wellness-teal/15
                 p-2
                 z-50
               "
@@ -131,10 +131,10 @@ export default function Navbar({ onMenuClick }) {
                   px-3 py-2.5
                   text-sm font-medium text-gray-700
                   transition-colors duration-200
-                  hover:bg-green-50
+                  hover:bg-wellness-mist
                 "
               >
-                <User className="h-4 w-4 text-green-600" strokeWidth={2} />
+                <User className="h-4 w-4 text-wellness-aqua" strokeWidth={2} />
                 Go to Profile
               </button>
 

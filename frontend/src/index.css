@@ -18,18 +18,27 @@ html{
 
 body{
   font-family:"Inter",sans-serif;
-  background:#F8FAF9;
-  color:#1F2937;
+  background:#FFFFFF;
+  color:#395656;
   transition:background .25s,color .25s;
 }
 
 body.dark{
-  background:#111827;
+  background:#395656;
   color:white;
 }
 
 button{
   font-family:inherit;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible{
+  outline:3px solid rgba(15,177,210,.3);
+  outline-offset:2px;
 }
 
 a{
@@ -46,7 +55,7 @@ a{
 }
 
 .card{
-  @apply bg-white rounded-3xl shadow-card transition-all duration-300;
+  @apply rounded-wellness border border-[#e9efee] bg-white shadow-card transition-all duration-300;
 }
 
 .card:hover{
@@ -54,15 +63,40 @@ a{
 }
 
 .text-muted{
-  @apply text-gray-500;
+  color:#6b8582;
 }
 
 .bg-background{
-  background:#F8FAF9;
+  background:#FFFFFF;
 }
 
 .bg-primary{
-  background:#A1E8CC;
+  background:#0FB1D2;
+}
+
+.wellness-card{
+  @apply rounded-wellness border border-[#e9efee] bg-white shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-hover;
+}
+
+.wellness-eyebrow{
+  @apply text-xs font-bold uppercase tracking-[0.16em];
+  color:#0FB1D2;
+}
+
+.wellness-button{
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60;
+  background:#395656;
+  box-shadow:0 10px 20px rgba(57,86,86,.18);
+}
+
+.wellness-button:hover{
+  background:#2e4747;
+}
+
+.wellness-empty{
+  @apply rounded-wellness border border-dashed p-8 text-center;
+  border-color:rgba(115,171,166,.38);
+  background:#FFFFFF;
 }
 
 }

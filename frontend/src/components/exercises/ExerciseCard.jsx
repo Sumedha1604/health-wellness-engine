@@ -62,9 +62,7 @@ export default function ExerciseCard({
   return (
     <div
       className="
-        bg-white
-        rounded-3xl
-        shadow-card
+        wellness-card
         p-6
         transition-all duration-200
         hover:shadow-lg
@@ -83,11 +81,11 @@ export default function ExerciseCard({
             items-center
             justify-center
             rounded-2xl
-            bg-green-50
+            bg-wellness-mist
           "
         >
           <Dumbbell
-            className="h-6 w-6 text-green-600"
+            className="h-6 w-6 text-wellness-slate"
             strokeWidth={2}
           />
         </div>
@@ -99,7 +97,7 @@ export default function ExerciseCard({
             className="
               text-xl
               font-bold
-              text-gray-900
+              text-wellness-slate
               tracking-tight
               line-clamp-2
               break-words
@@ -108,7 +106,7 @@ export default function ExerciseCard({
             {exercise.title}
           </h3>
 
-          <p className="mt-1 text-sm text-gray-500 truncate">
+          <p className="mt-1 text-sm text-[#6b8582] truncate">
             {exercise.exercise_type}
           </p>
 
@@ -125,18 +123,18 @@ export default function ExerciseCard({
             items-center
             gap-1
             rounded-full
-            bg-green-100
+            bg-wellness-mist
             px-3
             py-1.5
             text-sm
             font-semibold
-            text-green-700
+            text-wellness-slate
             shrink-0
             whitespace-nowrap
           "
         >
           <Star
-            className="h-4 w-4 fill-green-600 text-green-600"
+            className="h-4 w-4 fill-wellness-aqua text-wellness-aqua"
             strokeWidth={2}
           />
 
@@ -158,11 +156,11 @@ export default function ExerciseCard({
             shrink-0
             whitespace-nowrap
             rounded-full
-            bg-green-50
+            bg-wellness-mist
             px-3
             py-2
             transition-colors
-            hover:bg-green-100
+            hover:bg-wellness-teal/25
           "
           aria-label={
             isFavorite
@@ -174,7 +172,7 @@ export default function ExerciseCard({
           <Heart
             className={
               isFavorite
-                ? "h-5 w-5 fill-green-600 text-green-600 shrink-0"
+                ? "h-5 w-5 fill-wellness-aqua text-wellness-aqua shrink-0"
                 : "h-5 w-5 text-gray-400 shrink-0"
             }
             strokeWidth={2}
@@ -183,7 +181,7 @@ export default function ExerciseCard({
           <span
             className={
               isFavorite
-                ? "text-sm font-medium text-green-600"
+                ? "text-sm font-medium text-wellness-slate"
                 : "text-sm font-medium text-gray-500"
             }
           >
@@ -199,10 +197,10 @@ export default function ExerciseCard({
 
         <form
           onSubmit={handleLogWorkout}
-          className="mt-4 rounded-2xl bg-green-50 p-4"
+          className="mt-4 rounded-2xl bg-wellness-mist p-4"
         >
 
-          <p className="text-sm font-semibold text-gray-800">
+          <p className="text-sm font-semibold text-wellness-slate">
             Log this workout
           </p>
 
@@ -217,7 +215,7 @@ export default function ExerciseCard({
                 value={durationMinutes}
                 onChange={(event) => setDurationMinutes(event.target.value)}
                 disabled={isLoggingWorkout}
-                className="mt-1 w-full rounded-xl border border-green-100 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition focus:border-green-500"
+                className="mt-1 w-full rounded-xl border border-wellness-teal/25 bg-white px-3 py-2 text-sm text-wellness-slate outline-none transition focus:border-wellness-aqua"
               />
             </label>
 
@@ -230,7 +228,7 @@ export default function ExerciseCard({
                 value={caloriesBurned}
                 onChange={(event) => setCaloriesBurned(event.target.value)}
                 disabled={isLoggingWorkout}
-                className="mt-1 w-full rounded-xl border border-green-100 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition focus:border-green-500"
+                className="mt-1 w-full rounded-xl border border-wellness-teal/25 bg-white px-3 py-2 text-sm text-wellness-slate outline-none transition focus:border-wellness-aqua"
               />
             </label>
 
@@ -253,14 +251,14 @@ export default function ExerciseCard({
               justify-center
               gap-2
               rounded-2xl
-              bg-green-600
+              bg-wellness-slate
               px-4
               py-3
               text-sm
               font-semibold
               text-white
               transition-colors
-              hover:bg-green-700
+              hover:bg-[#2e4747]
               disabled:cursor-not-allowed
               disabled:opacity-70
             "

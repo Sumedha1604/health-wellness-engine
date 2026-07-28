@@ -3,6 +3,9 @@ export default function StatCard({
   value,
   unit,
   icon,
+  progress = 0,
+  tone = "bg-wellness-mist",
+  progressColor = "bg-wellness-teal",
 }) {
   const formattedValue =
     typeof value === "number"
@@ -14,48 +17,41 @@ export default function StatCard({
   return (
     <div
       className="
-        bg-white
-        rounded-3xl
+        wellness-card
         p-6
-        shadow-card
-        hover:shadow-xl
-        hover:-translate-y-1
-        transition-all
-        duration-300
       "
     >
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-gray-500 text-sm font-medium">
+          <p className="text-sm font-semibold text-[#6b8582]">
             {title}
           </p>
 
           <div className="flex items-end gap-2 mt-4">
-            <h2 className="text-4xl font-bold">
+            <h2 className="text-4xl font-bold tracking-tight text-wellness-slate">
               {formattedValue}
             </h2>
 
-            <span className="text-gray-400 mb-1">
+            <span className="mb-1 text-wellness-teal">
               {unit}
             </span>
           </div>
         </div>
 
         <div
-          className="
-            w-12
-            h-12
-            rounded-2xl
-            bg-green-100
-            flex
-            items-center
-            justify-center
-            text-green-600
-          "
+          className={`flex h-12 w-12 items-center justify-center rounded-2xl ${tone}`}
         >
           {icon}
         </div>
       </div>
+
+      <div className="mt-6 h-2 overflow-hidden rounded-full bg-[#edf3ef]">
+        <div
+          className={`h-full rounded-full transition-all duration-500 ${progressColor}`}
+          style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
+        />
+      </div>
+      <p className="mt-2 text-xs font-medium text-[#6b8582]">{Math.round(progress)}% of daily goal</p>
     </div>
   );
 }

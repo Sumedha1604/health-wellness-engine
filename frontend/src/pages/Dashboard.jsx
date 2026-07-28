@@ -112,7 +112,11 @@ export default function Dashboard() {
       <DashboardHeader user={dashboard.user} />
 
 
-      <DashboardStats summary={summary} />
+      <DashboardStats
+        summary={summary}
+        water={wellnessSummary?.water}
+        fitnessGoal={dashboard.preferences?.fitness_goal}
+      />
 
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

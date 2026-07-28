@@ -12,7 +12,7 @@ export default function BarChart({
   subtitle,
   data,
   dataKey,
-  color = "#8B5CF6",
+  color = "#A64253",
   unit = "",
 }) {
 
@@ -27,17 +27,17 @@ export default function BarChart({
 
       <ResponsiveContainer width="100%" height="78%" className="mt-3">
         <RechartsBarChart data={data} margin={{ top: 20, right: 12, left: 0, bottom: 0 }}>
-          <CartesianGrid vertical={false} stroke="#F1F5F4" />
+          <CartesianGrid vertical={false} stroke="#E1ECEA" />
           <XAxis
             dataKey="date"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#9CA3AF", fontSize: 12 }}
+            tick={{ fill: "#6B8582", fontSize: 12 }}
             tickFormatter={(value) => value.slice(5)}
           />
           <Tooltip
             formatter={(value) => [`${value} ${unit}`, title]}
-            contentStyle={{ borderRadius: "12px", border: "1px solid #F1F5F4" }}
+            contentStyle={{ borderRadius: "12px", border: "1px solid #E1ECEA" }}
           />
           <Bar dataKey={dataKey} fill={color} radius={[8, 8, 0, 0]} />
         </RechartsBarChart>

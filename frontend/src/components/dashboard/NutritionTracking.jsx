@@ -72,56 +72,57 @@ export default function NutritionTracking() {
       value: Math.round(totals.calories),
       unit: "kcal",
       icon: Flame,
-      color: "text-orange-500",
-      background: "bg-orange-50",
+      color: "text-wellness-aqua",
+      background: "bg-[#e1f8fd]",
     },
     {
       label: "Protein",
       value: Math.round(totals.protein * 10) / 10,
       unit: "g",
       icon: Beef,
-      color: "text-green-600",
-      background: "bg-green-50",
+      color: "text-wellness-mauve",
+      background: "bg-[#f7eaec]",
     },
     {
       label: "Carbs",
       value: Math.round(totals.carbs * 10) / 10,
       unit: "g",
       icon: Wheat,
-      color: "text-purple-600",
-      background: "bg-purple-50",
+      color: "text-wellness-teal",
+      background: "bg-wellness-mist",
     },
     {
       label: "Fat",
       value: Math.round(totals.fat * 10) / 10,
       unit: "g",
       icon: Droplets,
-      color: "text-red-500",
-      background: "bg-red-50",
+      color: "text-wellness-slate",
+      background: "bg-wellness-cream",
     },
   ];
 
 
   return (
 
-    <div className="rounded-3xl bg-white p-8 shadow-card">
+    <div className="wellness-card p-6 sm:p-8">
 
       <div className="flex items-start justify-between">
 
         <div>
 
-          <h2 className="text-2xl font-semibold tracking-tight text-gray-900">
+          <p className="wellness-eyebrow">Fuel check-in</p>
+          <h2 className="mt-1 text-2xl font-semibold tracking-tight text-wellness-slate">
             Nutrition Tracking
           </h2>
 
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-[#6b8582]">
             Today&apos;s logged nutrition totals.
           </p>
 
         </div>
 
 
-        <span className="rounded-full bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700">
+        <span className="rounded-full bg-wellness-mist px-3 py-1.5 text-sm font-semibold text-wellness-slate">
           {nutritionLogs.length} logged
         </span>
 
@@ -131,7 +132,7 @@ export default function NutritionTracking() {
       {loading ? (
 
         <div className="flex min-h-32 items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-green-600" />
+          <Loader2 className="h-6 w-6 animate-spin text-wellness-aqua" />
         </div>
 
 
@@ -145,7 +146,7 @@ export default function NutritionTracking() {
             return (
               <div
                 key={stat.label}
-                className="rounded-2xl border border-gray-100 p-4"
+                className="rounded-2xl border border-wellness-teal/15 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-card"
               >
                 <span className={`flex h-9 w-9 items-center justify-center rounded-xl ${stat.background}`}>
                   <Icon className={`h-4 w-4 ${stat.color}`} />
@@ -153,7 +154,7 @@ export default function NutritionTracking() {
                 <p className="mt-4 text-sm text-gray-500">
                   {stat.label}
                 </p>
-                <p className="mt-1 text-xl font-bold text-gray-900">
+                <p className="mt-1 text-xl font-bold text-wellness-slate">
                   {stat.value}
                   <span className="ml-1 text-sm font-medium text-gray-400">
                     {stat.unit}

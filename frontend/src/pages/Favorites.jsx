@@ -152,13 +152,14 @@ export default function Favorites() {
     <div className="space-y-8">
 
 
-      <div>
+      <div className="rounded-wellness bg-wellness-slate p-6 text-white shadow-card sm:p-8">
 
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/65">Saved for later</p>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
           Favorites
         </h1>
 
-        <p className="mt-2 text-lg text-gray-500">
+        <p className="mt-2 text-lg text-white/75">
           Your saved meals and exercises.
         </p>
 
@@ -171,7 +172,7 @@ export default function Favorites() {
         w-full
         sm:w-fit
         rounded-2xl
-        bg-gray-100
+        bg-wellness-mist
         p-1
       ">
 
@@ -194,7 +195,7 @@ export default function Favorites() {
             transition-all
             ${
               activeTab === "meals"
-              ? "bg-white text-green-600 shadow"
+              ? "bg-white text-wellness-slate shadow-card"
               : "text-gray-500"
             }
           `}
@@ -226,7 +227,7 @@ export default function Favorites() {
             transition-all
             ${
               activeTab === "exercises"
-              ? "bg-white text-green-600 shadow"
+              ? "bg-white text-wellness-slate shadow-card"
               : "text-gray-500"
             }
           `}
@@ -262,15 +263,13 @@ export default function Favorites() {
         exerciseFavorites.length === 0 ? (
 
           <div className="
-            rounded-3xl
-            bg-white
+            wellness-empty
             p-6
             sm:p-10
             text-center
-            shadow-card
           ">
 
-            <Heart className="mx-auto h-12 w-12 text-green-600"/>
+            <Heart className="mx-auto h-12 w-12 text-wellness-aqua"/>
 
             <h2 className="mt-4 text-2xl font-semibold">
               No favorite exercises yet
@@ -332,15 +331,13 @@ export default function Favorites() {
         mealFavorites.length === 0 ? (
 
           <div className="
-            rounded-3xl
-            bg-white
+            wellness-empty
             p-6
             sm:p-10
             text-center
-            shadow-card
           ">
 
-            <Heart className="mx-auto h-12 w-12 text-green-600"/>
+            <Heart className="mx-auto h-12 w-12 text-wellness-aqua"/>
 
             <h2 className="mt-4 text-2xl font-semibold">
               No favorite meals yet

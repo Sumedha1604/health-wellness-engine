@@ -11,7 +11,7 @@ export default function Button({
       secondary:
         "bg-white border border-gray-200 hover:bg-gray-50",
       danger:
-        "bg-red-400 text-white hover:bg-red-500",
+        "bg-wellness-mauve text-white hover:bg-[#8A3444]",
     };
   
     return (

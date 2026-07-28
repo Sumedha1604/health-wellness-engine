@@ -50,14 +50,14 @@ export default function WeeklyChart() {
         <AreaChart data={data} margin={{ top: 24, right: 8, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="calorieFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#6EE7B7" stopOpacity={0.35} />
-              <stop offset="100%" stopColor="#6EE7B7" stopOpacity={0} />
+              <stop offset="0%" stopColor="#0FB1D2" stopOpacity={0.32} />
+              <stop offset="100%" stopColor="#0FB1D2" stopOpacity={0} />
             </linearGradient>
           </defs>
 
           <CartesianGrid
             vertical={false}
-            stroke="#F1F5F4"
+            stroke="#E1ECEA"
             strokeWidth={1}
           />
 
@@ -65,26 +65,26 @@ export default function WeeklyChart() {
             dataKey="day"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#9CA3AF", fontSize: 12 }}
+            tick={{ fill: "#6B8582", fontSize: 12 }}
             dy={8}
           />
 
           <Tooltip
             content={<CustomTooltip />}
-            cursor={{ stroke: "#D1FAE5", strokeWidth: 1 }}
+            cursor={{ stroke: "#73ABA6", strokeWidth: 1 }}
           />
 
           <Area
             type="monotone"
             dataKey="calories"
-            stroke="#34D399"
+            stroke="#0FB1D2"
             strokeWidth={3.5}
             strokeLinecap="round"
             strokeLinejoin="round"
             fill="url(#calorieFill)"
             activeDot={{
               r: 7,
-              fill: "#34D399",
+              fill: "#0FB1D2",
               stroke: "#ffffff",
               strokeWidth: 2,
             }}

@@ -18,7 +18,7 @@ import {
 
 function ExerciseCard({ exercise }) {
   return (
-    <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4 transition-all duration-200 hover:border-purple-100 hover:bg-purple-50/40">
+    <div className="rounded-2xl border border-wellness-teal/15 bg-white p-4 transition-all duration-200 hover:border-wellness-aqua/30 hover:bg-wellness-mist">
       <div className="flex items-start justify-between gap-3">
         <div>
           <h3 className="font-semibold text-gray-900">{exercise.title}</h3>
@@ -137,23 +137,23 @@ export default function WorkoutPlans() {
   if (loading) {
     return (
       <div className="flex justify-center py-24">
-        <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-wellness-aqua" />
       </div>
     );
   }
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col justify-between gap-6 rounded-3xl bg-gradient-to-r from-purple-500 to-violet-600 p-5 text-white shadow-lg sm:p-8 md:flex-row md:items-center">
+      <div className="flex flex-col justify-between gap-6 rounded-wellness bg-wellness-slate p-5 text-white shadow-card sm:p-8 md:flex-row md:items-center">
         <div>
-          <p className="text-sm font-medium uppercase tracking-widest text-purple-100">AI Workout Planner</p>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/65">AI Workout Planner</p>
           <h1 className="mt-2 text-3xl font-bold sm:text-4xl">Train with a clear plan</h1>
-          <p className="mt-3 max-w-2xl text-purple-100">Generate a weekly routine using your goal, activity level, and exercise recommendations.</p>
+          <p className="mt-3 max-w-2xl text-white/75">Generate a weekly routine using your goal, activity level, and exercise recommendations.</p>
         </div>
         <button
           onClick={handleGenerate}
           disabled={generating}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-purple-700 shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-70 md:w-auto"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-wellness-slate shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-70 md:w-auto"
         >
           {generating ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
           {generating ? "Generating..." : "Generate Workout Plan"}
@@ -166,7 +166,7 @@ export default function WorkoutPlans() {
             <button
               key={plan.id}
               onClick={() => handleSelectPlan(plan.id)}
-              className={`min-w-52 rounded-2xl border p-4 text-left transition-all ${selectedPlan?.id === plan.id ? "border-purple-200 bg-purple-50" : "border-gray-100 bg-white hover:border-purple-100"}`}
+              className={`min-w-52 rounded-2xl border p-4 text-left transition-all ${selectedPlan?.id === plan.id ? "border-wellness-aqua/30 bg-[#e1f8fd]" : "border-[#e9efee] bg-white hover:border-wellness-aqua/30"}`}
             >
               <p className="font-semibold text-gray-900">{plan.title}</p>
               <p className="mt-1 text-xs text-gray-500">{plan.exercise_count} exercises · {plan.completed_at ? "Completed" : "Active"}</p>
@@ -176,14 +176,14 @@ export default function WorkoutPlans() {
       )}
 
       {!selectedPlan ? (
-        <div className="rounded-3xl bg-white p-14 text-center shadow-card">
-          <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-purple-50"><Dumbbell className="h-8 w-8 text-purple-600" /></span>
+        <div className="wellness-empty p-14">
+          <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#e1f8fd]"><Dumbbell className="h-8 w-8 text-wellness-aqua" /></span>
           <h2 className="mt-5 text-2xl font-semibold text-gray-900">Create your first workout plan</h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-gray-500">We&apos;ll build a weekly routine from your preferences and recommended exercises.</p>
           <div className="mx-auto mt-6 max-w-xs"><Button onClick={handleGenerate} disabled={generating}>{generating ? "Generating..." : "Generate Workout Plan"}</Button></div>
         </div>
       ) : (
-        <div className="rounded-3xl bg-white p-5 shadow-card sm:p-8">
+        <div className="wellness-card p-5 sm:p-8">
           <div className="flex flex-col justify-between gap-5 border-b border-gray-100 pb-6 md:flex-row md:items-start">
             <div>
               <div className="flex items-center gap-2 text-sm font-medium text-purple-600"><CalendarDays className="h-4 w-4" /> {selectedPlan.duration_weeks} week plan · {selectedPlan.goal}</div>

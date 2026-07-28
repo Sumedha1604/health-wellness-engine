@@ -18,12 +18,13 @@ export default function AIWellnessSummary({ summary }) {
 
 
   return (
-    <div className="rounded-3xl bg-white p-8 shadow-card">
+    <div className="wellness-card p-6 sm:p-8">
 
       <div className="flex items-start justify-between gap-4">
 
         <div>
-          <h2 className="text-2xl font-semibold tracking-tight text-gray-900">
+          <p className="wellness-eyebrow">Your guided next step</p>
+          <h2 className="mt-1 text-2xl font-semibold tracking-tight text-wellness-slate">
             AI Wellness Summary
           </h2>
           <p className="mt-1 text-sm text-gray-500">
@@ -31,8 +32,8 @@ export default function AIWellnessSummary({ summary }) {
           </p>
         </div>
 
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-purple-50">
-          <Sparkles className="h-5 w-5 text-purple-600" />
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#f7eaec]">
+          <Sparkles className="h-5 w-5 text-wellness-mauve" />
         </span>
 
       </div>
@@ -40,7 +41,7 @@ export default function AIWellnessSummary({ summary }) {
 
       <div className="mt-7 flex items-end justify-between gap-4">
         <div>
-          <p className="text-4xl font-bold tracking-tight text-gray-900">
+          <p className="text-4xl font-bold tracking-tight text-wellness-slate">
             {progress}%
           </p>
           <p className="mt-1 text-sm font-medium text-gray-500">
@@ -48,28 +49,28 @@ export default function AIWellnessSummary({ summary }) {
           </p>
         </div>
 
-        <span className="rounded-full bg-purple-50 px-3 py-1.5 text-sm font-semibold text-purple-700">
+        <span className="rounded-full bg-[#f7eaec] px-3 py-1.5 text-sm font-semibold text-wellness-mauve">
           {summary.exercises_completed} workout{summary.exercises_completed === 1 ? "" : "s"}
         </span>
       </div>
 
 
-      <div className="mt-5 h-3 overflow-hidden rounded-full bg-purple-50">
+      <div className="mt-5 h-3 overflow-hidden rounded-full bg-[#f7eaec]">
         <div
-          className="h-full rounded-full bg-purple-500 transition-all duration-500"
+          className="h-full rounded-full bg-wellness-mauve transition-all duration-500"
           style={{ width: `${Math.min(100, progress)}%` }}
         />
       </div>
 
 
-      <div className="mt-6 rounded-2xl bg-purple-50 p-4">
+      <div className="mt-6 rounded-2xl bg-[#f7eaec] p-4">
         <div className="flex gap-3">
-          <Lightbulb className="mt-0.5 h-5 w-5 shrink-0 text-purple-600" />
+          <Lightbulb className="mt-0.5 h-5 w-5 shrink-0 text-wellness-mauve" />
           <div>
-            <p className="text-sm font-semibold text-purple-900">
+            <p className="text-sm font-semibold text-wellness-slate">
               Today&apos;s insight
             </p>
-            <p className="mt-1 text-sm leading-6 text-purple-800">
+            <p className="mt-1 text-sm leading-6 text-wellness-slate">
               {summary.insights}
             </p>
           </div>
@@ -78,7 +79,7 @@ export default function AIWellnessSummary({ summary }) {
 
 
       <div className="mt-4 flex gap-3 rounded-2xl border border-gray-100 p-4">
-        <Target className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
+        <Target className="mt-0.5 h-5 w-5 shrink-0 text-wellness-aqua" />
         <div>
           <p className="text-sm font-semibold text-gray-900">
             Suggested action
