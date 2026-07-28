@@ -47,6 +47,8 @@ A production-quality full-stack AI-powered Health & Wellness Recommendation Engi
 - ❤️ Favourite Foods & Exercises
 - 📊 Dashboard Analytics
 - 🤖 AI-powered Health Recommendations
+- 💬 AI wellness assistant with private per-user conversation memory
+- 🧠 Hybrid ML exercise recommendations in assistant wellness context
 - 🗃️ Automated Food Dataset Import Pipeline
 - 🧪 49 Backend Integration Tests
 - 📈 Automated Test Coverage Reports
@@ -93,6 +95,22 @@ Generate coverage:
 ```bash
 npm run test:coverage
 ```
+
+---
+
+# 🤖 AI Assistant Architecture
+
+`POST /api/chat` is protected by JWT authentication. For each request, the
+backend retrieves only the authenticated user's profile and preferences,
+today's nutrition, hydration, recent workouts, progress streak, recent chat
+turns, and hybrid ML recommendations. That context is sent to Groq with a
+structured wellness prompt.
+
+Conversation memory is stored as individual `user` and `assistant` turns in
+`chat_history`. Only the ten most recent turns for the authenticated user are
+included in a model request. If Groq or an ML service is unavailable, the
+existing safe fallback response remains available and no API key is returned to
+the client.
 
 ---
 

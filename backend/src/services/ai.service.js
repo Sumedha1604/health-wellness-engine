@@ -2,9 +2,16 @@ const axios = require("axios");
 const db = require("../config/db");
 const wellnessContextService = require("./wellness_context.service");
 
+const CHAT_HISTORY_LIMIT = 10;
+
 async function buildUserContext(userId) {
 
-    return wellnessContextService.buildUserContext(userId);
+    const conversationHistory = await getConversationHistory(userId);
+
+    return wellnessContextService.buildUserContext(
+        userId,
+        conversationHistory
+    );
 }
 
 function buildSimpleResponse(message) {
@@ -60,16 +67,28 @@ ${JSON.stringify(context)}`;
 function buildChatMessages(message, context) {
 
     const conversationHistory = context?.conversationHistory || [];
-    const historyMessages = conversationHistory.flatMap((conversation) => [
-        {
-            role: "user",
-            content: conversation.message,
-        },
-        {
-            role: "assistant",
-            content: conversation.response,
-        },
-    ]);
+    const historyMessages = conversationHistory.flatMap((conversation) => {
+
+        if (conversation.role) {
+            return [{
+                role: conversation.role,
+                content: conversation.message,
+            }];
+        }
+
+        // Support pre-normalization rows while the database migration is rolled
+        // out, without sending a malformed history to Groq.
+        return [
+            {
+                role: "user",
+                content: conversation.message,
+            },
+            {
+                role: "assistant",
+                content: conversation.response,
+            },
+        ];
+    });
 
     return [
         {
@@ -167,18 +186,18 @@ async function generateResponse(message, context) {
     }
 }
 
-async function saveConversation(userId, message, response) {
+async function saveMessage(userId, role, message) {
 
     const [result] = await db.execute(
         `
         INSERT INTO chat_history (
             user_id,
-            message,
-            response
+            role,
+            message
         )
         VALUES (?, ?, ?)
         `,
-        [userId, message, response]
+        [userId, role, message]
     );
 
     return {
@@ -186,9 +205,42 @@ async function saveConversation(userId, message, response) {
     };
 }
 
+async function getConversationHistory(userId, limit = CHAT_HISTORY_LIMIT) {
+
+    const safeLimit = Math.min(
+        Math.max(Number.parseInt(limit, 10) || CHAT_HISTORY_LIMIT, 1),
+        CHAT_HISTORY_LIMIT
+    );
+
+    const [rows] = await db.execute(
+        `
+        SELECT
+            role,
+            message,
+            created_at
+        FROM chat_history
+        WHERE user_id = ?
+        ORDER BY created_at DESC, id DESC
+        LIMIT ${safeLimit}
+        `,
+        [userId]
+    );
+
+    return rows.reverse();
+}
+
+async function saveConversation(userId, message, response) {
+
+    await saveMessage(userId, "user", message);
+
+    return saveMessage(userId, "assistant", response);
+}
+
 module.exports = {
     buildUserContext,
     buildChatMessages,
     generateResponse,
+    getConversationHistory,
+    saveMessage,
     saveConversation,
 };

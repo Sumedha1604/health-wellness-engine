@@ -536,11 +536,13 @@ CREATE TABLE chat_history (
 
     user_id INT NOT NULL,
 
+    role ENUM('user', 'assistant') NOT NULL,
+
     message TEXT NOT NULL,
 
-    response TEXT NOT NULL,
-
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_chat_history_user_created (user_id, created_at),
 
     CONSTRAINT fk_chat_history_user
         FOREIGN KEY (user_id)

@@ -1,5 +1,6 @@
 const request = require("supertest");
 const app = require("../src/app");
+const db = require("../src/config/db");
 
 const {
     createAuthenticatedUser,
@@ -13,7 +14,7 @@ describe("Chat API", () => {
 
     test("POST /api/chat should return a fallback wellness response", async () => {
 
-        const { token } = await createAuthenticatedUser();
+        const { token, user } = await createAuthenticatedUser();
 
         const response = await request(app)
             .post("/api/chat")
@@ -29,6 +30,24 @@ describe("Chat API", () => {
         expect(response.body.data.timestamp).toEqual(expect.any(String));
         expect(response.body.data.conversation_id).toEqual(expect.any(Number));
 
+        const [[storedUser]] = await db.execute(
+            "SELECT user_id FROM users WHERE email = ?",
+            [user.email]
+        );
+        const [history] = await db.execute(
+            `
+            SELECT role, message
+            FROM chat_history
+            WHERE user_id = ?
+            ORDER BY id ASC
+            `,
+            [storedUser.user_id]
+        );
+
+        expect(history.slice(-2)).toEqual([
+            { role: "user", message: "How can I improve my fitness?" },
+            { role: "assistant", message: response.body.data.reply },
+        ]);
     });
 
     test("POST /api/chat should respond naturally to a greeting", async () => {

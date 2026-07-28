@@ -1,5 +1,6 @@
 const db = require("../config/db");
 const recommendationService = require("./recommendation.service");
+const progressService = require("./progress.service");
 
 function getCurrentStreak(activityRows) {
 
@@ -42,7 +43,7 @@ async function getRecommendations(userId) {
     }
 }
 
-async function buildUserContext(userId) {
+async function buildUserContext(userId, conversationHistory = []) {
 
     const [
         [userRows],
@@ -50,15 +51,14 @@ async function buildUserContext(userId) {
         [nutritionRows],
         [waterRows],
         [exerciseRows],
-        [chatHistoryRows],
         [activityRows],
         recommendations,
+        progressTrends,
     ] = await Promise.all([
         db.execute(
             `
             SELECT
-                CONCAT(first_name, ' ', last_name) AS name,
-                email
+                CONCAT(first_name, ' ', last_name) AS name
             FROM users
             WHERE user_id = ?
             `,
@@ -119,19 +119,6 @@ async function buildUserContext(userId) {
         ),
         db.execute(
             `
-            SELECT
-                message,
-                response,
-                created_at
-            FROM chat_history
-            WHERE user_id = ?
-            ORDER BY created_at DESC, id DESC
-            LIMIT 10
-            `,
-            [userId]
-        ),
-        db.execute(
-            `
             SELECT activity_date
             FROM (
                 SELECT DATE(completed_at) AS activity_date
@@ -151,6 +138,7 @@ async function buildUserContext(userId) {
             [userId, userId, userId]
         ),
         getRecommendations(userId),
+        progressService.getProgressHistory(userId),
     ]);
 
     return {
@@ -173,12 +161,13 @@ async function buildUserContext(userId) {
         progress: {
             workouts_completed: exerciseRows.length,
             current_streak: getCurrentStreak(activityRows),
+            recent_trends: progressTrends,
         },
         goals: {
             fitness_goal: preferencesRows[0]?.fitness_goal || null,
             workout_difficulty: preferencesRows[0]?.activity_level || null,
         },
-        conversationHistory: chatHistoryRows.reverse(),
+        conversationHistory,
         recommendations,
     };
 }
