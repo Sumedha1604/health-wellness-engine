@@ -1,5 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { Bot, Loader2, Send, Sparkles, User } from "lucide-react";
+import {
+  Bot,
+  Clock3,
+  Loader2,
+  Send,
+  Sparkles,
+  Trash2,
+  User,
+} from "lucide-react";
 import toast from "react-hot-toast";
 import { sendChatMessage } from "../services/chat.service";
 
@@ -10,10 +18,12 @@ export default function AIAssistant() {
     {
       role: "assistant",
       content: "Hi! I’m your AI wellness assistant. Ask me about your fitness, nutrition, hydration, or daily routine.",
+      timestamp: new Date().toISOString(),
     },
   ]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const latestMessageRef = useRef(null);
 
@@ -26,6 +36,35 @@ export default function AIAssistant() {
     });
 
   }, [messages, loading]);
+
+
+  function formatMessageTime(timestamp) {
+
+    if (!timestamp) {
+      return "";
+    }
+
+    return new Date(timestamp).toLocaleTimeString([], {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+
+  }
+
+
+  function handleClearConversation() {
+
+    setMessages([
+      {
+        role: "assistant",
+        content: "Conversation cleared. What would you like help with next?",
+        timestamp: new Date().toISOString(),
+      },
+    ]);
+    setError(null);
+    toast.success("Conversation cleared.");
+
+  }
 
 
   async function handleSubmit(event) {
@@ -43,9 +82,11 @@ export default function AIAssistant() {
       {
         role: "user",
         content: trimmedMessage,
+        timestamp: new Date().toISOString(),
       },
     ]);
     setMessage("");
+    setError(null);
 
     try {
 
@@ -60,12 +101,15 @@ export default function AIAssistant() {
         {
           role: "assistant",
           content: response.reply,
+          timestamp: response.timestamp,
+          conversationId: response.conversation_id,
         },
       ]);
 
     } catch (error) {
 
       console.error(error);
+      setError("Your message could not be sent. Please try again.");
       toast.error("Unable to reach your wellness assistant.");
 
     } finally {
@@ -104,10 +148,20 @@ export default function AIAssistant() {
 
       <div className="overflow-hidden rounded-3xl bg-white shadow-card">
 
-        <div className="border-b border-gray-100 px-5 py-4 sm:px-8 sm:py-5">
+        <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 sm:px-8 sm:py-5">
           <p className="text-sm font-medium text-green-600">
             Personalized wellness guidance
           </p>
+
+          <button
+            type="button"
+            onClick={handleClearConversation}
+            disabled={loading}
+            className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-gray-500 transition hover:bg-gray-50 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Trash2 className="h-4 w-4" />
+            Clear
+          </button>
         </div>
 
 
@@ -129,15 +183,24 @@ export default function AIAssistant() {
                   </span>
                 )}
 
-                <p
+                <div
                   className={`max-w-[calc(100%-3.25rem)] break-words rounded-2xl px-4 py-3 text-sm leading-relaxed sm:max-w-[80%] sm:text-base ${
                     isUser
                       ? "rounded-br-md bg-green-500 text-white"
                       : "rounded-bl-md bg-gray-50 text-gray-700"
                   }`}
                 >
-                  {chatMessage.content}
-                </p>
+                  <p>{chatMessage.content}</p>
+
+                  <span
+                    className={`mt-1.5 flex items-center gap-1 text-[11px] ${
+                      isUser ? "text-green-100" : "text-gray-400"
+                    }`}
+                  >
+                    <Clock3 className="h-3 w-3" />
+                    {formatMessageTime(chatMessage.timestamp)}
+                  </span>
+                </div>
 
                 {isUser && (
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50">
@@ -160,6 +223,13 @@ export default function AIAssistant() {
               </div>
             </div>
           )}
+
+
+          {error ? (
+            <p className="rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
+              {error}
+            </p>
+          ) : null}
 
 
           <div ref={latestMessageRef}/>

@@ -1,6 +1,23 @@
 const db = require("../config/db");
 const recommendationService = require("./recommendation.service");
 
+function getCurrentStreak(activityRows) {
+
+    const activityDates = new Set(
+        activityRows.map((row) => String(row.activity_date).slice(0, 10))
+    );
+    const currentDate = new Date();
+    let streak = 0;
+
+    while (activityDates.has(currentDate.toISOString().slice(0, 10))) {
+        streak += 1;
+        currentDate.setDate(currentDate.getDate() - 1);
+    }
+
+    return streak;
+
+}
+
 async function getRecommendations(userId) {
 
     try {
@@ -34,6 +51,7 @@ async function buildUserContext(userId) {
         [waterRows],
         [exerciseRows],
         [chatHistoryRows],
+        [activityRows],
         recommendations,
     ] = await Promise.all([
         db.execute(
@@ -108,9 +126,29 @@ async function buildUserContext(userId) {
             FROM chat_history
             WHERE user_id = ?
             ORDER BY created_at DESC, id DESC
-            LIMIT 5
+            LIMIT 10
             `,
             [userId]
+        ),
+        db.execute(
+            `
+            SELECT activity_date
+            FROM (
+                SELECT DATE(completed_at) AS activity_date
+                FROM exercise_logs
+                WHERE user_id = ?
+                UNION
+                SELECT DATE(logged_at) AS activity_date
+                FROM water_logs
+                WHERE user_id = ?
+                UNION
+                SELECT DATE(logged_at) AS activity_date
+                FROM nutrition_logs
+                WHERE user_id = ?
+            ) AS activity_days
+            ORDER BY activity_date DESC
+            `,
+            [userId, userId, userId]
         ),
         getRecommendations(userId),
     ]);
@@ -127,8 +165,19 @@ async function buildUserContext(userId) {
         water: {
             consumed: Number(waterRows[0].consumed),
             goal: 2500,
+            percentage: Math.round(
+                Number(waterRows[0].consumed) / 2500 * 100
+            ),
         },
         exercises: exerciseRows,
+        progress: {
+            workouts_completed: exerciseRows.length,
+            current_streak: getCurrentStreak(activityRows),
+        },
+        goals: {
+            fitness_goal: preferencesRows[0]?.fitness_goal || null,
+            workout_difficulty: preferencesRows[0]?.activity_level || null,
+        },
         conversationHistory: chatHistoryRows.reverse(),
         recommendations,
     };
@@ -136,4 +185,5 @@ async function buildUserContext(userId) {
 
 module.exports = {
     buildUserContext,
+    getCurrentStreak,
 };

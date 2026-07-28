@@ -26,6 +26,8 @@ describe("Chat API", () => {
         expect(response.body.success).toBe(true);
         expect(typeof response.body.data.reply).toBe("string");
         expect(response.body.data.reply.length).toBeGreaterThan(0);
+        expect(response.body.data.timestamp).toEqual(expect.any(String));
+        expect(response.body.data.conversation_id).toEqual(expect.any(Number));
 
     });
 

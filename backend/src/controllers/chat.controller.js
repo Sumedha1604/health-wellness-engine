@@ -13,13 +13,17 @@ const sendMessage = asyncHandler(async (req, res) => {
         context
     );
 
-    await aiService.saveConversation(
+    const conversation = await aiService.saveConversation(
         req.user.user_id,
         req.body.message,
         reply
     );
 
-    success(res, { reply });
+    success(res, {
+        reply,
+        timestamp: new Date().toISOString(),
+        conversation_id: conversation.id,
+    });
 
 });
 

@@ -39,6 +39,52 @@ function buildFallbackResponse() {
     return "I’m unable to reach the AI assistant right now. Please try again shortly.";
 }
 
+function buildSystemPrompt(context) {
+
+    return `You are a personalized wellness assistant.
+
+Rules:
+- Give friendly, actionable fitness, nutrition, hydration, and wellness guidance.
+- Use the user's provided data when it is relevant to the question.
+- Never invent user information or claim progress that is not in the context.
+- Ask a brief clarifying question when the context or request is insufficient.
+- For workout suggestions, use the user's goal, activity level, completed workouts, and recommended exercises.
+- For nutrition and hydration questions, use today's logged totals and goals.
+- Do not diagnose medical conditions; recommend qualified professional help for medical concerns.
+
+Current user context:
+${JSON.stringify(context)}`;
+
+}
+
+function buildChatMessages(message, context) {
+
+    const conversationHistory = context?.conversationHistory || [];
+    const historyMessages = conversationHistory.flatMap((conversation) => [
+        {
+            role: "user",
+            content: conversation.message,
+        },
+        {
+            role: "assistant",
+            content: conversation.response,
+        },
+    ]);
+
+    return [
+        {
+            role: "system",
+            content: buildSystemPrompt(context),
+        },
+        ...historyMessages,
+        {
+            role: "user",
+            content: message,
+        },
+    ];
+
+}
+
 async function generateResponse(message, context) {
 
     const simpleResponse = buildSimpleResponse(message);
@@ -64,12 +110,7 @@ async function generateResponse(message, context) {
 
         const requestBody = {
             model,
-            messages: [
-                {
-                    role: "user",
-                    content: `You are a friendly, conversational wellness assistant. Respond naturally to greetings and casual questions before offering wellness guidance. Use the provided wellness context when it helps answer the user's question, but do not repeat a full wellness summary unless the user asks for it. For exercise suggestions, workouts, or exercise recommendations, use the ML exercise recommendations in context as the primary source and name relevant recommended exercises rather than giving generic suggestions. For nutrition questions, use both today's nutrition data and the recommended foods in context. Give practical, concise guidance and do not diagnose medical conditions.\n\nUser context: ${JSON.stringify(context)}\n\nQuestion: ${message}`,
-                },
-            ],
+            messages: buildChatMessages(message, context),
             temperature: 0.7,
         };
 
@@ -128,7 +169,7 @@ async function generateResponse(message, context) {
 
 async function saveConversation(userId, message, response) {
 
-    await db.execute(
+    const [result] = await db.execute(
         `
         INSERT INTO chat_history (
             user_id,
@@ -139,10 +180,15 @@ async function saveConversation(userId, message, response) {
         `,
         [userId, message, response]
     );
+
+    return {
+        id: result.insertId,
+    };
 }
 
 module.exports = {
     buildUserContext,
+    buildChatMessages,
     generateResponse,
     saveConversation,
 };
