@@ -94,7 +94,7 @@ stored interaction data.
 ## Docker setup
 
 Docker Compose starts the complete local stack: frontend, backend, ML service,
-and MySQL.
+MySQL, and an idempotent development seed job.
 
 ```bash
 docker compose up --build -d
@@ -119,6 +119,18 @@ retaining the MySQL volume with:
 docker compose down
 ```
 
+For local Docker development, `SEED_DEVELOPMENT_DATA` defaults to `true` when
+it is not set. This creates or refreshes the demo account on every
+`docker compose up` without affecting other users:
+
+```text
+Email:    demo@nourish.local
+Password: DemoPassword123!
+```
+
+Set `SEED_DEVELOPMENT_DATA=false` in the production environment. The provided
+root `.env.example` already uses that production-safe value.
+
 ## Environment variables
 
 | Area | Variables |
@@ -127,7 +139,7 @@ docker compose down
 | Backend | `NODE_ENV`, `PORT`, `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `JWT_SECRET`, `CORS_ORIGIN`, `ML_SERVICE_URL` |
 | AI (optional) | `GROQ_API_KEY`, `GROQ_MODEL`, `GROQ_API_URL` |
 | ML service | `ML_SERVICE_HOST`, `ML_SERVICE_PORT`, `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` |
-| Compose/MySQL | `MYSQL_ROOT_PASSWORD`, `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD` |
+| Compose/MySQL | `MYSQL_ROOT_PASSWORD`, `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`, `SEED_DEVELOPMENT_DATA` |
 
 `CORS_ORIGIN` accepts a comma-separated list of trusted frontend origins.
 Only `VITE_` variables are exposed to the browser build; never put database

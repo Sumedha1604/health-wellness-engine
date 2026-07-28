@@ -36,6 +36,8 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+      dev-seed:
+        condition: service_completed_successfully
       ml-service:
         condition: service_started
 
@@ -61,8 +63,33 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
       - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
-      - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
       - ./database/indexes.sql:/docker-entrypoint-initdb.d/03-indexes.sql:ro
+
+  dev-seed:
+    image: mysql:8.4
+    restart: "no"
+
+    environment:
+      SEED_DEVELOPMENT_DATA: ${SEED_DEVELOPMENT_DATA:-true}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
+    volumes:
+      - ./database/seed.sql:/seed/seed.sql:ro
+
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        if [ "$$SEED_DEVELOPMENT_DATA" = "true" ]; then
+          mysql -h mysql -u"$$MYSQL_USER" -p"$$MYSQL_PASSWORD" "$$MYSQL_DATABASE" < /seed/seed.sql
+        else
+          echo "Development seed data disabled."
+        fi
 
   ml-service:
     build:
