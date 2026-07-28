@@ -20,6 +20,7 @@ body{
   font-family:"Inter",sans-serif;
   background:#FFFFFF;
   color:#395656;
+  min-width:320px;
   transition:background .25s,color .25s;
 }
 
@@ -75,7 +76,7 @@ a{
 }
 
 .wellness-card{
-  @apply rounded-wellness border border-[#e9efee] bg-white shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-hover;
+  @apply rounded-wellness border border-[#e1ecea] bg-white shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-hover;
 }
 
 .wellness-eyebrow{

@@ -184,13 +184,13 @@ export default function Recommendations() {
       {!hasRecommendations ? (
         <div className="wellness-empty">
           <div className="flex flex-col items-center justify-center text-center py-16">
-            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-green-50">
+            <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#e1f8fd]">
               <Sparkles className="h-8 w-8 text-wellness-aqua" strokeWidth={1.5} />
             </span>
-            <p className="mt-5 text-lg font-semibold text-gray-900">
+            <p className="mt-5 text-lg font-semibold text-wellness-slate">
               No recommendations yet
             </p>
-            <p className="mt-1 max-w-sm text-sm text-gray-500">
+            <p className="mt-1 max-w-sm text-sm text-[#6b8582]">
               Recommendations will appear here once you set your preferences or start logging meals.
             </p>
             <button
@@ -230,25 +230,20 @@ export default function Recommendations() {
 
             <div
               className="
-                bg-white
-                rounded-2xl
-                shadow-sm
-                border border-gray-100
+                wellness-card
                 p-8
                 transition-all duration-200
-                hover:shadow-lg
-                hover:-translate-y-0.5
               "
             >
               <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100">
-                  <Sparkles className="h-5 w-5 text-green-600" strokeWidth={2} />
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#f7eaec]">
+                  <Sparkles className="h-5 w-5 text-wellness-mauve" strokeWidth={2} />
                 </span>
-                <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">
+                <h2 className="text-2xl font-semibold text-wellness-slate tracking-tight">
                   AI Tip
                 </h2>
               </div>
-              <p className="mt-6 text-gray-500 leading-relaxed">
+              <p className="mt-6 leading-relaxed text-[#526e6b]">
                 {recommendations.ai_tip}
               </p>
 

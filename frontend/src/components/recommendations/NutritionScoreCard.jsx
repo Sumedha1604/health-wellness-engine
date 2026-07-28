@@ -1,3 +1,6 @@
+import { Sparkles } from "lucide-react";
+
+
 export default function NutritionScoreCard({ score }) {
 
     let message = "Excellent nutrition balance today.";
@@ -45,9 +48,9 @@ export default function NutritionScoreCard({ score }) {
   
           </div>
   
-          <div className="text-6xl">
-            🤖
-          </div>
+          <span className="flex h-16 w-16 items-center justify-center rounded-3xl bg-[#f7eaec]">
+            <Sparkles className="h-7 w-7 text-wellness-mauve" />
+          </span>
   
         </div>
       </div>

@@ -41,12 +41,12 @@ export default function RecommendedExercises({
       {
         exercises.length === 0 ? (
 
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-6 py-12 text-center">
-            <Dumbbell className="h-8 w-8 text-blue-500"/>
-            <p className="mt-3 font-semibold text-gray-800">
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-wellness-teal/30 bg-white px-6 py-12 text-center">
+            <Dumbbell className="h-8 w-8 text-wellness-aqua"/>
+            <p className="mt-3 font-semibold text-wellness-slate">
               No exercise recommendations yet
             </p>
-            <p className="mt-1 max-w-sm text-sm text-gray-500">
+            <p className="mt-1 max-w-sm text-sm text-[#6b8582]">
               Your next personalized workout matches will appear here.
             </p>
           </div>
@@ -70,7 +70,7 @@ export default function RecommendedExercises({
                 <div
                   key={exercise.exercise_id}
                   className="
-                    rounded-3xl
+                    rounded-wellness
                     border border-wellness-teal/15 bg-white
                     p-6
                     hover:shadow-hover
@@ -116,7 +116,7 @@ export default function RecommendedExercises({
                   </div>
 
 
-                  <h3 className="mt-5 text-xl font-semibold text-wellness-slate">
+                  <h3 className="mt-5 text-xl font-semibold tracking-tight text-wellness-slate">
                     {exercise.title}
                   </h3>
 
@@ -161,7 +161,7 @@ export default function RecommendedExercises({
                   </div>
 
 
-                  <div className="mt-6 space-y-3 text-sm text-gray-600">
+                  <div className="mt-6 grid gap-2 text-sm text-[#526e6b] sm:grid-cols-2">
 
 
                     <div className="flex items-center gap-2">
@@ -199,9 +199,14 @@ export default function RecommendedExercises({
                   </div>
 
 
-                  <div className="mt-4">
+                  <div className="mt-5">
 
-                    <div className="h-2 rounded-full bg-gray-100">
+                    <div className="mb-2 flex items-center justify-between text-xs font-semibold text-[#6b8582]">
+                      <span>Recommendation score</span>
+                      <span className="text-wellness-aqua">{score}%</span>
+                    </div>
+
+                    <div className="h-2 rounded-full bg-[#eaf1f0]">
 
                       <div
                         className="
@@ -219,9 +224,14 @@ export default function RecommendedExercises({
                   </div>
 
 
-                  <p className="mt-4 text-sm text-gray-500">
-                    {exercise.reason}
-                  </p>
+                  <div className="mt-5 rounded-2xl bg-wellness-mist p-4">
+                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-wellness-teal">
+                      Why this match
+                    </p>
+                    <p className="mt-1 text-sm leading-6 text-wellness-slate">
+                      {exercise.reason || "Selected to support your current wellness preferences."}
+                    </p>
+                  </div>
 
 
                   <button
@@ -261,8 +271,8 @@ export default function RecommendedExercises({
                       }
                       className={
                         feedback[recommendationId] === "like"
-                          ? "flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-2 text-sm font-medium text-green-700 transition"
-                          : "flex items-center gap-1.5 rounded-full bg-gray-50 px-3 py-2 text-sm font-medium text-gray-500 transition hover:bg-green-50 hover:text-green-700"
+                          ? "flex items-center gap-1.5 rounded-full bg-wellness-mist px-3 py-2 text-sm font-medium text-wellness-teal transition"
+                          : "flex items-center gap-1.5 rounded-full bg-white px-3 py-2 text-sm font-medium text-[#6b8582] ring-1 ring-wellness-teal/15 transition hover:bg-wellness-mist hover:text-wellness-teal"
                       }
                     >
                       <ThumbsUp size={16}/>
@@ -284,8 +294,8 @@ export default function RecommendedExercises({
                       }
                       className={
                         feedback[recommendationId] === "dislike"
-                          ? "flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-2 text-sm font-medium text-red-600 transition"
-                          : "flex items-center gap-1.5 rounded-full bg-gray-50 px-3 py-2 text-sm font-medium text-gray-500 transition hover:bg-red-50 hover:text-red-600"
+                          ? "flex items-center gap-1.5 rounded-full bg-[#f7eaec] px-3 py-2 text-sm font-medium text-wellness-mauve transition"
+                          : "flex items-center gap-1.5 rounded-full bg-white px-3 py-2 text-sm font-medium text-[#6b8582] ring-1 ring-wellness-mauve/15 transition hover:bg-[#f7eaec] hover:text-wellness-mauve"
                       }
                     >
                       <ThumbsDown size={16}/>

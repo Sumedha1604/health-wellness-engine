@@ -83,7 +83,7 @@ export default function RecommendationCard({
   if (items.length === 0) {
 
     items.push(
-      "Great job! You're maintaining a balanced routine."
+      "Keep logging meals, water, and workouts to unlock more tailored guidance."
     );
 
   }
@@ -91,16 +91,23 @@ export default function RecommendationCard({
 
   return (
 
-    <div className="bg-white rounded-3xl p-8 shadow-card">
+    <section className="wellness-card p-6 sm:p-8">
 
-      <h2 className="text-2xl font-semibold text-gray-900">
-        AI Health Insights
-      </h2>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="wellness-eyebrow">Personalized guidance</p>
+          <h2 className="mt-1 text-2xl font-semibold tracking-tight text-wellness-slate">
+            Recommendation insights
+          </h2>
 
-
-      <p className="mt-2 text-sm text-gray-500">
-        Personalized recommendations based on your health data.
-      </p>
+          <p className="mt-1 text-sm text-[#6b8582]">
+            Practical next steps based on your current wellness data.
+          </p>
+        </div>
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#f7eaec]">
+          <HeartPulse className="h-5 w-5 text-wellness-mauve" />
+        </span>
+      </div>
 
 
       {
@@ -108,11 +115,11 @@ export default function RecommendationCard({
 
           <div className="mt-5">
 
-            <p className="text-sm text-gray-500">
+            <p className="text-sm font-medium text-[#6b8582]">
               Nutrition Score
             </p>
 
-            <p className="text-3xl font-bold text-green-600">
+            <p className="mt-1 text-3xl font-bold text-wellness-teal">
               {recommendations.nutrition_score}/100
             </p>
 
@@ -139,7 +146,7 @@ export default function RecommendationCard({
                   className="
                     flex items-center gap-4
                     py-4 px-2
-                    border-b border-gray-100
+                    border-b border-wellness-teal/10
                   "
                 >
 
@@ -147,18 +154,18 @@ export default function RecommendationCard({
                     className="
                       flex h-9 w-9
                       items-center justify-center
-                      rounded-full bg-green-50
+                        rounded-xl bg-wellness-mist
                     "
                   >
 
                     <Icon
-                      className="h-5 w-5 text-green-600"
+                      className="h-5 w-5 text-wellness-teal"
                     />
 
                   </span>
 
 
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm leading-6 text-wellness-slate">
                     {item}
                   </p>
 
@@ -173,13 +180,7 @@ export default function RecommendationCard({
 
       </div>
 
-
-      <p className="mt-6 text-xs text-gray-400">
-        Powered by recommendation engine
-      </p>
-
-
-    </div>
+    </section>
 
   );
 

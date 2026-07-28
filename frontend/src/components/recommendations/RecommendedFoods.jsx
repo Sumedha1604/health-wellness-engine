@@ -83,12 +83,16 @@ export default function RecommendedFoods({
 
 
           const score = isObject
-            ? Math.round((food.similarity_score || 0) * 100)
+            ? Math.min(100, Math.max(0, Math.round((food.similarity_score || 0) * 100)))
             : null;
 
           const foodId = isObject
             ? food.food_id
             : null;
+
+          const category = isObject
+            ? food.category || food.food_category || "Nutrition match"
+            : "Nutrition match";
 
           const recommendationId = `food-${foodId}`;
 
@@ -119,7 +123,7 @@ export default function RecommendedFoods({
             <div
               key={index}
               className="
-                rounded-3xl
+                rounded-wellness
                 border border-wellness-teal/15 bg-white
                 p-6
                 hover:shadow-hover
@@ -177,6 +181,15 @@ export default function RecommendedFoods({
                 {name}
               </h3>
 
+              <div className="mt-3 flex flex-wrap gap-2">
+                <span className="rounded-full bg-wellness-mist px-3 py-1 text-xs font-semibold text-wellness-teal">
+                  {category}
+                </span>
+                <span className="rounded-full bg-wellness-cream px-3 py-1 text-xs font-semibold text-wellness-slate">
+                  Nutrition profile
+                </span>
+              </div>
+
 
 
               {isObject && (
@@ -186,15 +199,15 @@ export default function RecommendedFoods({
 
                   <div className="
                     rounded-xl
-                    bg-orange-50
+                    bg-[#e1f8fd]
                     p-3
                   ">
 
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-[#6b8582]">
                       Calories
                     </p>
 
-                    <p className="font-semibold text-gray-900">
+                    <p className="font-semibold text-wellness-slate">
                       {food.caloric_value} kcal
                     </p>
 
@@ -204,15 +217,15 @@ export default function RecommendedFoods({
 
                   <div className="
                     rounded-xl
-                    bg-blue-50
+                    bg-[#f7eaec]
                     p-3
                   ">
 
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-[#6b8582]">
                       Protein
                     </p>
 
-                    <p className="font-semibold text-gray-900">
+                    <p className="font-semibold text-wellness-slate">
                       {food.protein} g
                     </p>
 
@@ -222,15 +235,15 @@ export default function RecommendedFoods({
 
                   <div className="
                     rounded-xl
-                    bg-purple-50
+                    bg-wellness-mist
                     p-3
                   ">
 
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-[#6b8582]">
                       Carbs
                     </p>
 
-                    <p className="font-semibold text-gray-900">
+                    <p className="font-semibold text-wellness-slate">
                       {food.carbohydrates} g
                     </p>
 
@@ -240,15 +253,15 @@ export default function RecommendedFoods({
 
                   <div className="
                     rounded-xl
-                    bg-red-50
+                    bg-wellness-cream
                     p-3
                   ">
 
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-[#6b8582]">
                       Fat
                     </p>
 
-                    <p className="font-semibold text-gray-900">
+                    <p className="font-semibold text-wellness-slate">
                       {food.fat} g
                     </p>
 
@@ -268,24 +281,24 @@ export default function RecommendedFoods({
 
                   <div className="flex justify-between text-sm mb-2">
 
-                    <span className="text-gray-500">
-                      Similarity score
+                    <span className="text-[#6b8582]">
+                      Recommendation score
                     </span>
 
-                    <span className="font-semibold text-green-600">
+                    <span className="font-semibold text-wellness-teal">
                       {score}%
                     </span>
 
                   </div>
 
 
-                  <div className="h-2 rounded-full bg-gray-100">
+                  <div className="h-2 rounded-full bg-[#eaf1f0]">
 
                     <div
                       className="
                         h-2
                         rounded-full
-                        bg-green-500
+                          bg-wellness-teal
                       "
                       style={{
                         width: `${score}%`
@@ -301,13 +314,16 @@ export default function RecommendedFoods({
 
 
 
-              {isObject && food.reason && (
-
-                <p className="mt-4 text-sm text-gray-500">
-                  {food.reason}
+              <div className="mt-5 rounded-2xl bg-wellness-mist p-4">
+                <p className="text-xs font-bold uppercase tracking-[0.14em] text-wellness-teal">
+                  Why this match
                 </p>
-
-              )}
+                <p className="mt-1 text-sm leading-6 text-wellness-slate">
+                  {isObject && food.reason
+                    ? food.reason
+                    : "Selected to complement your current nutrition profile."}
+                </p>
+              </div>
 
 
 
@@ -317,12 +333,12 @@ export default function RecommendedFoods({
                   mt-6
                   w-full
                   rounded-xl
-                  bg-green-500
+                  bg-wellness-slate
                   py-3
                   font-semibold
                   text-white
                   transition
-                  hover:bg-green-600
+                  hover:bg-[#2e4747]
                 "
               >
                 Add to Meal Plan
@@ -346,8 +362,8 @@ export default function RecommendedFoods({
                   }
                   className={
                     feedback[recommendationId] === "like"
-                      ? "flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-2 text-sm font-medium text-green-700 transition disabled:cursor-not-allowed disabled:opacity-50"
-                      : "flex items-center gap-1.5 rounded-full bg-gray-50 px-3 py-2 text-sm font-medium text-gray-500 transition hover:bg-green-50 hover:text-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                      ? "flex items-center gap-1.5 rounded-full bg-wellness-mist px-3 py-2 text-sm font-medium text-wellness-teal transition disabled:cursor-not-allowed disabled:opacity-50"
+                      : "flex items-center gap-1.5 rounded-full bg-white px-3 py-2 text-sm font-medium text-[#6b8582] ring-1 ring-wellness-teal/15 transition hover:bg-wellness-mist hover:text-wellness-teal disabled:cursor-not-allowed disabled:opacity-50"
                   }
                 >
                   <ThumbsUp size={16}/>
@@ -370,8 +386,8 @@ export default function RecommendedFoods({
                   }
                   className={
                     feedback[recommendationId] === "dislike"
-                      ? "flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-2 text-sm font-medium text-red-600 transition disabled:cursor-not-allowed disabled:opacity-50"
-                      : "flex items-center gap-1.5 rounded-full bg-gray-50 px-3 py-2 text-sm font-medium text-gray-500 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+                      ? "flex items-center gap-1.5 rounded-full bg-[#f7eaec] px-3 py-2 text-sm font-medium text-wellness-mauve transition disabled:cursor-not-allowed disabled:opacity-50"
+                      : "flex items-center gap-1.5 rounded-full bg-white px-3 py-2 text-sm font-medium text-[#6b8582] ring-1 ring-wellness-mauve/15 transition hover:bg-[#f7eaec] hover:text-wellness-mauve disabled:cursor-not-allowed disabled:opacity-50"
                   }
                 >
                   <ThumbsDown size={16}/>

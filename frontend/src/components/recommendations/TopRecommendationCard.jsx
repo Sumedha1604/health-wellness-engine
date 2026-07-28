@@ -1,6 +1,6 @@
 import {
   Star,
-  CheckCircle,
+  UtensilsCrossed,
 } from "lucide-react";
 
 export default function TopRecommendationCard({
@@ -47,8 +47,8 @@ export default function TopRecommendationCard({
           <p className="wellness-eyebrow">
             Top Recommendation
           </p>
-          <h2 className="text-3xl font-bold mt-2 text-wellness-slate">
-            🥗 {displayName}
+          <h2 className="text-3xl font-bold mt-2 tracking-tight text-wellness-slate">
+            {displayName}
           </h2>
           <div className="flex items-center gap-2 mt-4">
             <Star
@@ -61,29 +61,37 @@ export default function TopRecommendationCard({
           </div>
         </div>
       </div>
-      <div className="mt-8 space-y-3">
+      <div className="mt-8 rounded-2xl bg-wellness-mist p-4">
         <div className="flex items-center gap-3">
-          <CheckCircle
+          <UtensilsCrossed
             size={18}
             className="text-wellness-teal"
           />
-          <p>Based on today's nutrition</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <CheckCircle
-            size={18}
-            className="text-wellness-teal"
-          />
-          <p>Matches your wellness goal</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <CheckCircle
-            size={18}
-            className="text-wellness-teal"
-          />
-          <p>Generated from your meal history</p>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-wellness-teal">
+              Why it stands out
+            </p>
+            <p className="mt-1 text-sm leading-6 text-wellness-slate">
+              {isObject && recommendation.reason
+                ? recommendation.reason
+                : "A personalized food suggestion selected to support today's nutrition plan."}
+            </p>
+          </div>
         </div>
       </div>
+
+      {isObject && (
+        <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+          <div className="rounded-2xl border border-wellness-teal/10 p-3">
+            <p className="text-xs font-medium text-[#6b8582]">Calories</p>
+            <p className="mt-1 font-bold text-wellness-slate">{recommendation.caloric_value || 0} kcal</p>
+          </div>
+          <div className="rounded-2xl border border-wellness-teal/10 p-3">
+            <p className="text-xs font-medium text-[#6b8582]">Protein</p>
+            <p className="mt-1 font-bold text-wellness-slate">{recommendation.protein || 0} g</p>
+          </div>
+        </div>
+      )}
       <button
         onClick={handleAddClick}
         className="
