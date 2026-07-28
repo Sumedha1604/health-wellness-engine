@@ -16,32 +16,30 @@ export default function NutritionScoreCard({ score }) {
     return (
       <div
         className="
-          bg-white
-          rounded-3xl
-          shadow-card
-          p-8
+          wellness-card
+          p-6 sm:p-8
         "
       >
         <div className="flex items-center justify-between">
   
           <div>
   
-            <p className="text-gray-500 font-medium">
+            <p className="wellness-eyebrow">
               Nutrition Score
             </p>
   
-            <h2 className="text-5xl font-bold mt-3">
+            <h2 className="text-5xl font-bold mt-3 text-wellness-slate">
               {score}
               <span className="text-2xl text-gray-400">
                 /100
               </span>
             </h2>
   
-            <p className="text-green-600 font-semibold mt-4">
+            <p className="text-wellness-aqua font-semibold mt-4">
               {stars}
             </p>
   
-            <p className="text-gray-500 mt-2">
+            <p className="text-[#6b8582] mt-2">
               {message}
             </p>
   

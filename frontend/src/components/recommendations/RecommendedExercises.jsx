@@ -21,15 +21,16 @@ export default function RecommendedExercises({
 
   return (
 
-    <div className="bg-white rounded-3xl shadow-card p-8">
+    <div className="wellness-card p-6 sm:p-8">
 
       <div className="mb-8">
 
-        <h2 className="text-2xl font-semibold text-gray-900">
+        <p className="wellness-eyebrow">Move with confidence</p>
+        <h2 className="mt-1 text-2xl font-semibold text-wellness-slate">
           Recommended Exercises
         </h2>
 
-        <p className="mt-1 text-gray-500">
+        <p className="mt-1 text-[#6b8582]">
           AI-powered workouts based on your activity patterns
         </p>
 
@@ -69,9 +70,9 @@ export default function RecommendedExercises({
                   key={exercise.exercise_id}
                   className="
                     rounded-3xl
-                    border border-gray-100
+                    border border-wellness-teal/15 bg-white
                     p-6
-                    hover:shadow-xl
+                    hover:shadow-hover
                     transition-all
                     duration-300
                     hover:-translate-y-1
@@ -85,11 +86,11 @@ export default function RecommendedExercises({
                         flex h-14 w-14
                         items-center justify-center
                         rounded-2xl
-                        bg-blue-50
+                        bg-[#e1f8fd]
                       "
                     >
                       <Dumbbell
-                        className="h-7 w-7 text-blue-600"
+                        className="h-7 w-7 text-wellness-aqua"
                       />
                     </div>
 
@@ -98,9 +99,9 @@ export default function RecommendedExercises({
                       className="
                         flex items-center gap-1
                         rounded-full
-                        bg-green-50
+                        bg-wellness-mist
                         px-3 py-1.5
-                        text-green-600
+                        text-wellness-teal
                       "
                     >
                       <BadgeCheck size={16}/>
@@ -114,7 +115,7 @@ export default function RecommendedExercises({
                   </div>
 
 
-                  <h3 className="mt-5 text-xl font-semibold text-gray-900">
+                  <h3 className="mt-5 text-xl font-semibold text-wellness-slate">
                     {exercise.title}
                   </h3>
 
@@ -123,11 +124,11 @@ export default function RecommendedExercises({
 
                     <span className="
                       rounded-full
-                      bg-blue-50
+                      bg-[#e1f8fd]
                       px-3 py-1
                       text-xs
                       font-medium
-                      text-blue-600
+                      text-wellness-aqua
                     ">
                       {exercise.body_part}
                     </span>
@@ -135,11 +136,11 @@ export default function RecommendedExercises({
 
                     <span className="
                       rounded-full
-                      bg-purple-50
+                      bg-[#f7eaec]
                       px-3 py-1
                       text-xs
                       font-medium
-                      text-purple-600
+                      text-wellness-mauve
                     ">
                       {exercise.equipment}
                     </span>
@@ -147,11 +148,11 @@ export default function RecommendedExercises({
 
                     <span className="
                       rounded-full
-                      bg-orange-50
+                      bg-wellness-cream
                       px-3 py-1
                       text-xs
                       font-medium
-                      text-orange-600
+                      text-wellness-slate
                     ">
                       {exercise.difficulty_level}
                     </span>
@@ -205,7 +206,7 @@ export default function RecommendedExercises({
                         className="
                           h-2
                           rounded-full
-                          bg-blue-500
+                          bg-wellness-aqua
                         "
                         style={{
                           width: `${score}%`
@@ -232,11 +233,11 @@ export default function RecommendedExercises({
                       mt-6
                       w-full
                       rounded-xl
-                      bg-blue-500
+                      bg-wellness-slate
                       py-3
                       text-white
                       font-semibold
-                      hover:bg-blue-600
+                      hover:bg-[#2e4747]
                       transition
                     "
                   >

@@ -1,4 +1,5 @@
 import { Lightbulb, Sparkles, Target } from "lucide-react";
+import ProgressBar from "../ui/ProgressBar";
 
 
 export default function AIWellnessSummary({ summary }) {
@@ -55,12 +56,7 @@ export default function AIWellnessSummary({ summary }) {
       </div>
 
 
-      <div className="mt-5 h-3 overflow-hidden rounded-full bg-[#f7eaec]">
-        <div
-          className="h-full rounded-full bg-wellness-mauve transition-all duration-500"
-          style={{ width: `${Math.min(100, progress)}%` }}
-        />
-      </div>
+      <ProgressBar value={progress} color="bg-wellness-mauve" className="mt-5" label="Daily goal progress" />
 
 
       <div className="mt-6 rounded-2xl bg-[#f7eaec] p-4">

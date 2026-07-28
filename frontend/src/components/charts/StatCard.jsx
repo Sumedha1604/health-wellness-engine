@@ -46,10 +46,7 @@ export default function StatCard({
       </div>
 
       <div className="mt-6 h-2 overflow-hidden rounded-full bg-[#edf3ef]">
-        <div
-          className={`h-full rounded-full transition-all duration-500 ${progressColor}`}
-          style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
-        />
+        <div className={`h-full rounded-full transition-all duration-500 ${progressColor}`} style={{ width: `${Math.min(100, Math.max(0, progress))}%` }} />
       </div>
       <p className="mt-2 text-xs font-medium text-[#6b8582]">{Math.round(progress)}% of daily goal</p>
     </div>

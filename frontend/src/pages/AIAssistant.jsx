@@ -14,6 +14,12 @@ import { sendChatMessage } from "../services/chat.service";
 
 export default function AIAssistant() {
 
+  const suggestedPrompts = [
+    "How is my hydration today?",
+    "Suggest a workout for me",
+    "What should I eat after exercise?",
+  ];
+
   const [messages, setMessages] = useState([
     {
       role: "assistant",
@@ -165,7 +171,25 @@ export default function AIAssistant() {
         </div>
 
 
-        <div className="min-h-[360px] space-y-5 p-4 sm:min-h-[420px] sm:p-8">
+        <div className="min-h-[360px] space-y-5 bg-[linear-gradient(180deg,#ffffff_0%,#fbfdfd_100%)] p-4 sm:min-h-[420px] sm:p-8">
+
+          {messages.length === 1 && !loading ? (
+            <div className="rounded-2xl border border-wellness-teal/15 bg-wellness-mist/60 p-4 sm:p-5">
+              <p className="text-sm font-semibold text-wellness-slate">Start with a personalized check-in</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {suggestedPrompts.map((prompt) => (
+                  <button
+                    key={prompt}
+                    type="button"
+                    onClick={() => setMessage(prompt)}
+                    className="rounded-full border border-wellness-teal/20 bg-white px-3 py-2 text-xs font-semibold text-wellness-slate transition hover:border-wellness-aqua/40 hover:bg-[#e1f8fd]"
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
 
           {messages.map((chatMessage, index) => {
             const isUser = chatMessage.role === "user";
@@ -239,7 +263,7 @@ export default function AIAssistant() {
 
         <form
           onSubmit={handleSubmit}
-          className="border-t border-gray-100 p-4 sm:p-6"
+          className="border-t border-wellness-teal/10 bg-white p-4 sm:p-6"
         >
           <div className="flex items-center gap-3">
             <input
@@ -248,7 +272,7 @@ export default function AIAssistant() {
               onChange={(event) => setMessage(event.target.value)}
               placeholder="Ask about your fitness, meals, or hydration..."
               disabled={loading}
-              className="min-w-0 flex-1 rounded-xl border border-wellness-teal/25 bg-white px-4 py-3 text-sm text-wellness-slate focus:outline-none focus:ring-2 focus:ring-wellness-aqua disabled:cursor-not-allowed disabled:opacity-60"
+              className="min-w-0 flex-1 rounded-xl border border-wellness-teal/25 bg-[#fbfdfd] px-4 py-3 text-sm text-wellness-slate shadow-inner outline-none transition placeholder:text-[#8ba39f] focus:border-wellness-aqua focus:bg-white focus:ring-2 focus:ring-wellness-aqua/20 disabled:cursor-not-allowed disabled:opacity-60"
             />
 
             <button

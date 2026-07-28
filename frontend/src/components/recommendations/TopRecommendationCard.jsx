@@ -34,10 +34,8 @@ export default function TopRecommendationCard({
   return (
     <div
       className="
-        bg-white
-        rounded-3xl
-        shadow-card
-        p-8
+        wellness-card
+        p-6 sm:p-8
         transition-all
         duration-300
         hover:shadow-xl
@@ -46,16 +44,16 @@ export default function TopRecommendationCard({
     >
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-green-600">
+          <p className="wellness-eyebrow">
             Top Recommendation
           </p>
-          <h2 className="text-3xl font-bold mt-2">
+          <h2 className="text-3xl font-bold mt-2 text-wellness-slate">
             🥗 {displayName}
           </h2>
           <div className="flex items-center gap-2 mt-4">
             <Star
               size={18}
-              className="text-yellow-500 fill-yellow-400"
+            className="text-wellness-aqua fill-wellness-aqua"
             />
             <span className="font-semibold">
               Personalized
@@ -67,21 +65,21 @@ export default function TopRecommendationCard({
         <div className="flex items-center gap-3">
           <CheckCircle
             size={18}
-            className="text-green-500"
+            className="text-wellness-teal"
           />
           <p>Based on today's nutrition</p>
         </div>
         <div className="flex items-center gap-3">
           <CheckCircle
             size={18}
-            className="text-green-500"
+            className="text-wellness-teal"
           />
           <p>Matches your wellness goal</p>
         </div>
         <div className="flex items-center gap-3">
           <CheckCircle
             size={18}
-            className="text-green-500"
+            className="text-wellness-teal"
           />
           <p>Generated from your meal history</p>
         </div>
@@ -92,11 +90,11 @@ export default function TopRecommendationCard({
           mt-8
           w-full
           rounded-xl
-          bg-green-500
+          bg-wellness-slate
           text-white
           py-3
           font-semibold
-          hover:bg-green-600
+          hover:bg-[#2e4747]
           transition
         "
       >

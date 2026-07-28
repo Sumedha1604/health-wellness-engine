@@ -1,16 +1,12 @@
-export default function Card({ children }) {
+export default function Card({ children, className = "" }) {
     return (
       <div
         className="
+        wellness-card
         w-full
-        max-w-[420px]
-        bg-white
-        rounded-3xl
-        shadow-card
-        p-8
-        transition-all
-        duration-300
-        hover:shadow-hover
+        p-6
+        sm:p-8
+        ${className}
       "
       >
         {children}

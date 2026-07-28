@@ -6,6 +6,7 @@ import {
   Tooltip,
   XAxis,
 } from "recharts";
+import ChartContainer from "../ui/ChartContainer";
 
 export default function LineChart({
   title,
@@ -17,15 +18,8 @@ export default function LineChart({
 }) {
 
   return (
-    <div className="h-[310px] rounded-3xl bg-white p-5 shadow-card sm:h-[340px] sm:p-7">
-      <h2 className="text-xl font-semibold tracking-tight text-gray-900">
-        {title}
-      </h2>
-      <p className="mt-1 text-sm text-gray-500">
-        {subtitle}
-      </p>
-
-      <ResponsiveContainer width="100%" height="78%" className="mt-3">
+    <ChartContainer title={title} subtitle={subtitle}>
+      <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 20, right: 12, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id={`${dataKey}Fill`} x1="0" y1="0" x2="0" y2="1">
@@ -43,7 +37,7 @@ export default function LineChart({
           />
           <Tooltip
             formatter={(value) => [`${value} ${unit}`, title]}
-            contentStyle={{ borderRadius: "12px", border: "1px solid #E1ECEA" }}
+            contentStyle={{ borderRadius: "14px", border: "1px solid #E1ECEA", boxShadow: "0 12px 28px rgba(57,86,86,.12)" }}
           />
           <Area
             type="monotone"
@@ -55,7 +49,7 @@ export default function LineChart({
           />
         </AreaChart>
       </ResponsiveContainer>
-    </div>
+    </ChartContainer>
   );
 
 }

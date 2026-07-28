@@ -34,16 +34,17 @@ export default function RecommendedFoods({
 
   return (
 
-    <div className="bg-white rounded-3xl shadow-card p-8">
+    <div className="wellness-card p-6 sm:p-8">
 
 
       <div className="mb-8">
 
-        <h2 className="text-2xl font-semibold text-gray-900">
+        <p className="wellness-eyebrow">Nourish your goal</p>
+        <h2 className="mt-1 text-2xl font-semibold text-wellness-slate">
           Recommended Foods
         </h2>
 
-        <p className="mt-1 text-gray-500">
+        <p className="mt-1 text-[#6b8582]">
           AI-selected foods based on your nutrition profile
         </p>
 
@@ -119,9 +120,9 @@ export default function RecommendedFoods({
               key={index}
               className="
                 rounded-3xl
-                border border-gray-100
+                border border-wellness-teal/15 bg-white
                 p-6
-                hover:shadow-xl
+                hover:shadow-hover
                 transition-all
                 duration-300
                 hover:-translate-y-1
@@ -137,12 +138,12 @@ export default function RecommendedFoods({
                     flex h-14 w-14
                     items-center justify-center
                     rounded-2xl
-                    bg-green-50
+                    bg-wellness-mist
                   "
                 >
 
                   <FoodIcon
-                    className="h-7 w-7 text-green-600"
+                    className="h-7 w-7 text-wellness-teal"
                   />
 
                 </div>
@@ -153,9 +154,9 @@ export default function RecommendedFoods({
                   className="
                     flex items-center gap-1
                     rounded-full
-                    bg-yellow-50
+                    bg-wellness-cream
                     px-3 py-1.5
-                    text-yellow-600
+                    text-wellness-slate
                   "
                 >
 
@@ -172,7 +173,7 @@ export default function RecommendedFoods({
 
 
 
-              <h3 className="mt-5 text-xl font-semibold text-gray-900">
+              <h3 className="mt-5 text-xl font-semibold text-wellness-slate">
                 {name}
               </h3>
 

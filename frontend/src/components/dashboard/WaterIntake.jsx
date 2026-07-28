@@ -5,6 +5,8 @@ import {
   addWater,
   getTodayWater,
 } from "../../services/tracking.service";
+import CircularProgress from "../charts/CircularProgress";
+import ProgressBar from "../ui/ProgressBar";
 
 
 export default function WaterIntake() {
@@ -119,15 +121,7 @@ export default function WaterIntake() {
 
       <div className="mt-6 flex flex-col items-center gap-6 sm:flex-row sm:items-end sm:justify-between">
 
-        <div
-          className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full p-2"
-          style={{ background: `conic-gradient(#0FB1D2 ${percentage}%, #e6f3f0 0)` }}
-        >
-          <div className="flex h-full w-full flex-col items-center justify-center rounded-full bg-white">
-            <span className="text-2xl font-bold tracking-tight text-wellness-slate">{percentage}%</span>
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-wellness-teal">complete</span>
-          </div>
-        </div>
+        <CircularProgress value={percentage} />
 
         <p className="text-4xl font-bold tracking-tight text-wellness-slate">
           {consumed}
@@ -143,12 +137,7 @@ export default function WaterIntake() {
       </div>
 
 
-      <div className="mt-6 h-2.5 overflow-hidden rounded-full bg-[#e6f3f0]">
-        <div
-          className="h-full rounded-full bg-wellness-aqua transition-all duration-500"
-          style={{ width: `${percentage}%` }}
-        />
-      </div>
+      <ProgressBar value={percentage} className="mt-6" />
 
 
       <p className="mt-2 text-sm font-semibold text-wellness-aqua">
