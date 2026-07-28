@@ -97,6 +97,27 @@ python evaluate_model.py \
   --k 5
 ```
 
+## ML training workflow
+
+The offline training pipeline builds a user-item preference matrix from real
+interaction exports, calculates user cosine similarity, and saves a pickle
+artifact. It does not alter the running API models or recommendation endpoints.
+
+The input CSV must contain `user_id`, `exercise_id`, `rating`, `completed`, and
+`timestamp`. A small schema-valid sample is available at
+`data/sample_interactions.csv` for local verification.
+
+```bash
+cd ml-service
+python -m training.train_recommendation_model \
+  --data data/sample_interactions.csv \
+  --output models/saved/recommendation_model.pkl
+```
+
+Trained artifacts are written to `models/saved/`. Use production interaction
+exports when training a real model; the supplied sample dataset is only for
+verifying the pipeline.
+
 ## Communication flow
 
 ```text
