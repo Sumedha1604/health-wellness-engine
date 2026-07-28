@@ -62,6 +62,20 @@ jobs:
       - name: Install food import dependencies
         run: python -m pip install pandas sqlalchemy pymysql python-dotenv
 
+      - name: Wait for MySQL
+        run: |
+          for attempt in {1..30}; do
+            if mysqladmin ping -h "$DB_HOST" -P "$DB_PORT" -u"$DB_USER" -p"$DB_PASSWORD" --silent; then
+              exit 0
+            fi
+
+            echo "Waiting for mysql service (${attempt}/30)..."
+            sleep 2
+          done
+
+          echo "The mysql service did not become ready."
+          exit 1
+
       - name: Initialize test database
         run: mysql -h "$DB_HOST" -P "$DB_PORT" -u"$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" < database/schema.sql
 
