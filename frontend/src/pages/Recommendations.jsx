@@ -9,12 +9,14 @@ import NutritionScoreCard from "../components/recommendations/NutritionScoreCard
 import TopRecommendationCard from "../components/recommendations/TopRecommendationCard";
 import RecommendedFoods from "../components/recommendations/RecommendedFoods";
 import RecommendedExercises from "../components/recommendations/RecommendedExercises";
+import RecommendationAnalytics from "../components/recommendations/RecommendationAnalytics";
 import MealModal from "../components/mealPlans/MealModal";
 import toast from "react-hot-toast";
 import LoadingState from "../components/ui/LoadingState";
 import ErrorState from "../components/ui/ErrorState";
 import {
   getRecommendationFeedback,
+  getRecommendationAnalytics,
   submitRecommendationFeedback,
 } from "../services/recommendation.service";
 
@@ -23,6 +25,7 @@ export default function Recommendations() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [feedback, setFeedback] = useState({});
+  const [analytics, setAnalytics] = useState(null);
   const navigate = useNavigate();
 
   const [mealModalOpen, setMealModalOpen] = useState(false);
@@ -31,6 +34,7 @@ export default function Recommendations() {
   useEffect(() => {
     fetchRecommendations();
     loadFeedback();
+    loadAnalytics();
   }, []);
 
   async function fetchRecommendations() {
@@ -93,6 +97,19 @@ export default function Recommendations() {
     }
   }
 
+  async function loadAnalytics() {
+    try {
+
+      const analyticsData = await getRecommendationAnalytics();
+      setAnalytics(analyticsData);
+
+    } catch (error) {
+
+      console.error("Unable to load recommendation analytics", error);
+
+    }
+  }
+
   async function handleFeedback(
     recommendationType,
     recommendationId,
@@ -115,11 +132,15 @@ export default function Recommendations() {
         [feedbackId]: response,
       }));
 
-      toast.success(
-        response === "like"
-          ? "Thanks! We'll use this feedback to improve recommendations."
-          : "Thanks! We'll show you better matches."
-      );
+      loadAnalytics();
+
+      if (response !== "viewed") {
+        toast.success(
+          response === "like"
+            ? "Thanks! We'll use this feedback to improve recommendations."
+            : "Thanks! We'll show you better matches."
+        );
+      }
 
     } catch (error) {
 
@@ -199,6 +220,8 @@ export default function Recommendations() {
             score={recommendations.nutrition_score}
           />
 
+          <RecommendationAnalytics analytics={analytics} />
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <TopRecommendationCard
               recommendation={recommendations.top_recommendation}
@@ -243,6 +266,9 @@ export default function Recommendations() {
             exercises={recommendations.recommended_exercises}
             feedback={feedback}
             onFeedback={handleFeedback}
+            onView={(exerciseId) =>
+              handleFeedback("exercise", exerciseId, "viewed")
+            }
           />
         </>
       )}

@@ -1,4 +1,6 @@
 const db = require("../config/db");
+const recommendationEventService =
+    require("./recommendation_event.service");
 
 
 async function saveRecommendationInteraction(userId, interaction) {
@@ -48,9 +50,44 @@ async function saveRecommendationInteraction(userId, interaction) {
         ]
     );
 
+    const eventType = getEventType(action, rating);
+
+    if (eventType) {
+        await recommendationEventService.recordRecommendationEvent(
+            userId,
+            exercise_id,
+            eventType
+        );
+    }
+
     return {
         id: result.insertId,
     };
+}
+
+
+function getEventType(action, rating) {
+
+    const eventTypes = {
+        VIEWED: "view",
+        COMPLETED: "accept",
+        FAVORITED: "favourite",
+        SKIPPED: "reject",
+    };
+
+    if (eventTypes[action]) {
+        return eventTypes[action];
+    }
+
+    if (action === "RATED" && rating >= 4) {
+        return "accept";
+    }
+
+    if (action === "RATED" && rating <= 2) {
+        return "reject";
+    }
+
+    return null;
 }
 
 

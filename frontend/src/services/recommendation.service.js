@@ -32,3 +32,14 @@ export async function getRecommendationFeedback() {
   return response.data.data;
 
 }
+
+
+export async function getRecommendationAnalytics() {
+
+  const response = await api.get(
+    "/recommendations/analytics"
+  );
+
+  return response.data.data;
+
+}

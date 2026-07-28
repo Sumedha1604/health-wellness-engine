@@ -8,6 +8,8 @@ const recommendationFeedbackController =
     require("../controllers/recommendationFeedback.controller");
 const recommendationInteractionController =
     require("../controllers/recommendationInteraction.controller");
+const recommendationAnalyticsController =
+    require("../controllers/recommendationAnalytics.controller");
 const validationMiddleware =
     require("../middleware/validation.middleware");
 
@@ -88,6 +90,12 @@ router.get(
     "/feedback/history",
     authenticateToken,
     recommendationFeedbackController.getRecommendationFeedbackHistory
+);
+
+router.get(
+    "/analytics",
+    authenticateToken,
+    recommendationAnalyticsController.getRecommendationAnalytics
 );
 
 router.post(

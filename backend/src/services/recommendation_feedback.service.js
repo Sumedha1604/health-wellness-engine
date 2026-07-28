@@ -1,4 +1,6 @@
 const db = require("../config/db");
+const recommendationEventService =
+    require("./recommendation_event.service");
 
 function getRecommendationScore(feedback) {
 
@@ -42,6 +44,19 @@ async function createRecommendationFeedback(userId, feedback) {
             recommendationScore,
             true,
         ]
+    );
+
+    const eventType = {
+        like: "accept",
+        dislike: "reject",
+        viewed: "view",
+    }[response];
+
+    await recommendationEventService.recordRecommendationEvent(
+        userId,
+        recommendation_id,
+        eventType,
+        recommendation_type
     );
 
     return {

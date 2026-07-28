@@ -15,6 +15,7 @@ export default function RecommendedExercises({
   exercises = [],
   feedback = {},
   onFeedback,
+  onView,
 }) {
 
   const navigate = useNavigate();
@@ -224,11 +225,10 @@ export default function RecommendedExercises({
 
 
                   <button
-                    onClick={() =>
-                      navigate(
-                        `/exercises?exercise_id=${exercise.exercise_id}`
-                      )
-                    }
+                    onClick={() => {
+                      onView?.(exercise.exercise_id);
+                      navigate(`/exercises?exercise_id=${exercise.exercise_id}`);
+                    }}
                     className="
                       mt-6
                       w-full
