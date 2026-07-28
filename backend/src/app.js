@@ -23,11 +23,34 @@ const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./config/swagger");
 
 const app = express();
+const configuredOrigins = (process.env.CORS_ORIGIN || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const corsOptions = {
+  origin(origin, callback) {
+    // Non-browser clients (health checks, mobile clients, and server-to-server
+    // requests) do not send an Origin header.
+    if (!origin || configuredOrigins.length === 0 || configuredOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+
+    const corsError = new Error("Origin is not allowed by CORS.");
+    corsError.statusCode = 403;
+    callback(corsError);
+  },
+  credentials: true,
+};
 
 // Middleware
 app.use(helmet());
-app.use(cors());
-app.use(morgan("dev"));
+app.use(cors(corsOptions));
+
+if (process.env.NODE_ENV !== "test") {
+  app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
+}
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

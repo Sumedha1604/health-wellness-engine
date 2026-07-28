@@ -1,8 +1,10 @@
 """FastAPI entry point for content-based and collaborative recommendations."""
 
+from pathlib import Path
 from typing import Any
 
 import mysql.connector
+from dotenv import load_dotenv
 
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
@@ -12,6 +14,9 @@ from models.collaborative_recommender import CollaborativeRecommender
 from models.deep_recommender import DeepRecommendationModel
 from models.hybrid_recommender import HybridRecommender
 
+
+SERVICE_ROOT = Path(__file__).resolve().parent
+load_dotenv(SERVICE_ROOT / ".env")
 
 app = FastAPI(title="Health Wellness ML Service")
 recommender = ContentBasedRecommender()

@@ -1,153 +1,135 @@
-# 🩺 Intelligent Health & Wellness Recommendation Engine
+# Health & Wellness Recommendation Engine
 
-A production-quality full-stack AI-powered Health & Wellness Recommendation Engine that delivers personalized nutrition and wellness recommendations using Machine Learning, REST APIs, and a scalable backend architecture.
+A full-stack wellness application with nutrition and exercise tracking,
+personalized recommendations, an AI assistant, and Python ML recommenders.
 
----
-
-# 🚀 Tech Stack
-
-## Frontend
-- React
-- Vite
-- React Router
-- Axios
-- Tailwind CSS
-
-## Backend
-- Node.js
-- Express.js
-- JWT Authentication
-- RESTful APIs
-- Jest & Supertest
-
-## Machine Learning
-- Python
-- Scikit-learn
-- Pandas
-- NumPy
-- SQLAlchemy
-
-## Database
-- MySQL 8.4
-- Docker Compose
-
-## DevOps
-- Docker
-- Docker Compose
-- GitHub Actions (CI/CD)
-- Git
-
----
-
-# ✨ Features
-
-- 🔐 Secure JWT Authentication
-- 👤 User Profile Management
-- 🥗 Personalized Meal Plans
-- ❤️ Favourite Foods & Exercises
-- 📊 Dashboard Analytics
-- 🤖 AI-powered Health Recommendations
-- 💬 AI wellness assistant with private per-user conversation memory
-- 🧠 Hybrid ML exercise recommendations in assistant wellness context
-- 🗃️ Automated Food Dataset Import Pipeline
-- 🧪 49 Backend Integration Tests
-- 📈 Automated Test Coverage Reports
-- ⚙️ Continuous Integration with GitHub Actions
-
----
-
-# 📁 Project Structure
+## Production architecture
 
 ```text
-health-wellness-engine/
-│
-├── backend/
-├── frontend/
-├── data_pipeline/
-├── database/
-├── docker/
-├── datasets/
-├── docker-compose.yml
-└── README.md
+Browser
+  │
+  ▼
+Frontend (Vite build)
+  │  HTTPS requests to VITE_API_URL
+  ▼
+Backend API (Express)
+  ├───────────────────────┐
+  ▼                       ▼
+MySQL                 ML Service (FastAPI)
+                            │
+                            ▼
+                    Recommendation models
 ```
 
----
+The backend is the only service that receives browser authentication tokens.
+The ML service is an internal dependency, while optional Groq credentials stay
+on the backend and are never sent to the frontend.
 
-# 🧪 Testing
+## Production configuration
 
-The backend includes a comprehensive integration test suite.
-
-- ✅ 49 Tests
-- ✅ 9 Test Suites
-- ✅ Jest
-- ✅ Supertest
-- ✅ Automated GitHub Actions Pipeline
-
-Run locally:
+Environment files are intentionally ignored by Git. Start from the templates:
 
 ```bash
-cd backend
-npm test
+cp .env.example .env
+cp backend/.env.example backend/.env       # non-Docker backend runs only
+cp ml-service/.env.example ml-service/.env # non-Docker ML runs only
+cp frontend/.env.example frontend/.env.production
 ```
 
-Generate coverage:
+Replace every `replace_with_...` placeholder with a unique production value.
+Never commit `.env` files, JWT secrets, database passwords, or provider API
+keys.
+
+### Required variables
+
+| Area | Variables |
+| --- | --- |
+| Frontend | `VITE_API_URL` (the public backend URL, including `/api`) |
+| Backend | `NODE_ENV`, `PORT`, `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `JWT_SECRET`, `CORS_ORIGIN`, `ML_SERVICE_URL` |
+| AI (optional) | `GROQ_API_KEY`, `GROQ_MODEL`, `GROQ_API_URL` |
+| ML service | `ML_SERVICE_HOST`, `ML_SERVICE_PORT`, `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` |
+| Compose/MySQL | `MYSQL_ROOT_PASSWORD`, `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD` |
+
+`VITE_API_URL` is embedded during the frontend build, so it must be the final
+public API address before building the frontend image. `CORS_ORIGIN` accepts a
+comma-separated list of trusted browser origins, for example
+`https://app.example.com,https://admin.example.com`.
+
+## Docker deployment
+
+1. Create and complete the root `.env` file as above.
+2. Set `VITE_API_URL` to your public API URL and `CORS_ORIGIN` to your public
+   frontend URL.
+3. Build and start the stack:
 
 ```bash
-npm run test:coverage
+docker compose up --build -d
+docker compose ps
 ```
 
----
+The Compose network uses service names internally: the backend and ML service
+connect to MySQL at `mysql`, and the backend connects to the ML service at
+`http://ml-service:8000`. Expose only the ports required by your deployment
+platform or reverse proxy.
 
-# 🤖 AI Assistant Architecture
+The health endpoints are:
 
-`POST /api/chat` is protected by JWT authentication. For each request, the
-backend retrieves only the authenticated user's profile and preferences,
-today's nutrition, hydration, recent workouts, progress streak, recent chat
-turns, and hybrid ML recommendations. That context is sent to Groq with a
-structured wellness prompt.
-
-Conversation memory is stored as individual `user` and `assistant` turns in
-`chat_history`. Only the ten most recent turns for the authenticated user are
-included in a model request. If Groq or an ML service is unavailable, the
-existing safe fallback response remains available and no API key is returned to
-the client.
-
----
-
-# 🐳 Running with Docker
-
-Start the complete application stack:
-
-```bash
-docker compose up --build
+```text
+GET /health              Backend health check
+GET /health              ML service health check (on the ML service host/port)
 ```
 
-The frontend is available at `http://localhost:4173`, the backend API at
-`http://localhost:5050`, and the ML service at `http://localhost:8000`.
-Compose reads database and optional Groq configuration from your root `.env`
-file; do not commit real credentials.
+For local development, Docker exposes the frontend on port `4173`, backend on
+`5050`, and ML service on `8000` unless overridden in `.env`.
 
-Stop containers while keeping the persistent database volume:
+Stop containers while retaining MySQL data:
 
 ```bash
 docker compose down
 ```
 
----
+## Local development
 
-# 📊 Continuous Integration
+```bash
+# Backend
+cd backend
+npm ci
+npm start
 
-GitHub Actions automatically:
+# Frontend
+cd frontend
+npm ci
+npm run dev
 
-- Installs dependencies
-- Starts MySQL
-- Initializes the database
-- Imports the food dataset
-- Runs backend integration tests
-- Generates coverage reports
+# ML service
+cd ml-service
+python -m pip install -r requirements.txt
+uvicorn app:app --reload
+```
 
----
+## Verification
 
-# 👩‍💻 Author
+```bash
+# Frontend production bundle
+cd frontend && npm run build
 
-Developed by **Sumedha**
+# Backend tests
+cd backend && npm test -- --runInBand
+
+# ML tests
+cd ml-service && python -m unittest
+```
+
+GitHub Actions runs the backend suite against an isolated MySQL service,
+builds the frontend, runs ML tests, and validates all three Docker images on
+every push and pull request.
+
+## Security and operational notes
+
+- `.env` files are ignored; commit only the `*.env.example` templates.
+- Set a long, random `JWT_SECRET` for every environment.
+- Restrict `CORS_ORIGIN` in production; an empty value retains permissive
+  development behavior for compatibility.
+- The backend returns generic messages for unexpected errors in production and
+  logs error details server-side.
+- The AI assistant safely falls back when Groq is not configured or unavailable.

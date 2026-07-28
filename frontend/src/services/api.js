@@ -1,15 +1,16 @@
 import axios from "axios";
 
 const configuredApiUrl = import.meta.env.VITE_API_URL;
+const developmentApiUrl = "http://localhost:5050/api";
 
 if (!configuredApiUrl) {
   console.error(
-    "Missing VITE_API_URL. Set it in frontend/.env.development or frontend/.env.production. Falling back to http://localhost:5050/api."
+    "Missing VITE_API_URL. Configure it before a production build. Requests will use the same-origin /api path."
   );
 }
 
 const apiBaseUrl = (
-  configuredApiUrl || "http://localhost:5050/api"
+  configuredApiUrl || (import.meta.env.DEV ? developmentApiUrl : "/api")
 ).replace(/\/$/, "");
 
 const api = axios.create({
