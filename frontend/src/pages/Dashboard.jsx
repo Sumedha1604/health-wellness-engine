@@ -6,8 +6,7 @@ import WaterIntake from "../components/dashboard/WaterIntake";
 import ExerciseHistory from "../components/dashboard/ExerciseHistory";
 import NutritionTracking from "../components/dashboard/NutritionTracking";
 import AIWellnessSummary from "../components/dashboard/AIWellnessSummary";
-import QuickProgress from "../components/dashboard/QuickProgress";
-import WeeklyChart from "../components/charts/WeeklyChart";
+import DashboardAnalytics from "../components/dashboard/DashboardAnalytics";
 import RecentMeals from "../components/charts/RecentMeals";
 import RecommendationCard from "../components/charts/RecommendationCard";
 import QuickAction from "../components/charts/QuickAction";
@@ -22,7 +21,12 @@ import {
 
 import {
   getRecommendations,
+  getRecommendationAnalytics,
 } from "../services/recommendation.service";
+import {
+  getProgressHistory,
+  getProgressOverview,
+} from "../services/progress.service";
 
 
 export default function Dashboard() {
@@ -34,6 +38,12 @@ export default function Dashboard() {
   const [recommendations, setRecommendations] = useState(null);
 
   const [wellnessSummary, setWellnessSummary] = useState(null);
+
+  const [progressOverview, setProgressOverview] = useState(null);
+
+  const [progressHistory, setProgressHistory] = useState([]);
+
+  const [recommendationAnalytics, setRecommendationAnalytics] = useState(null);
 
   const [loading, setLoading] = useState(true);
 
@@ -52,6 +62,12 @@ export default function Dashboard() {
 
         const wellnessData = await getWellnessSummary();
 
+        const analyticsResults = await Promise.allSettled([
+          getProgressOverview(),
+          getProgressHistory(),
+          getRecommendationAnalytics(),
+        ]);
+
 
         setDashboard(dashboardData);
 
@@ -60,6 +76,18 @@ export default function Dashboard() {
         setRecommendations(recommendationData);
 
         setWellnessSummary(wellnessData);
+
+        if (analyticsResults[0].status === "fulfilled") {
+          setProgressOverview(analyticsResults[0].value);
+        }
+
+        if (analyticsResults[1].status === "fulfilled") {
+          setProgressHistory(analyticsResults[1].value);
+        }
+
+        if (analyticsResults[2].status === "fulfilled") {
+          setRecommendationAnalytics(analyticsResults[2].value);
+        }
 
 
       } catch (error) {
@@ -134,19 +162,18 @@ export default function Dashboard() {
       <AIWellnessSummary summary={wellnessSummary} />
 
 
-      <QuickProgress />
+      <DashboardAnalytics
+        overview={progressOverview}
+        history={progressHistory}
+        summary={summary}
+        analytics={recommendationAnalytics}
+      />
 
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-
-        <WeeklyChart />
-
-        <RecommendationCard
-          summary={summary}
-          recommendations={recommendations}
-        />
-
-      </div>
+      <RecommendationCard
+        summary={summary}
+        recommendations={recommendations}
+      />
 
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
