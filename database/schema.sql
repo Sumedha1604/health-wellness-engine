@@ -229,6 +229,11 @@ CREATE TABLE exercise_logs (
 
     completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
+    INDEX idx_exercise_logs_user_completed_at (
+        user_id,
+        completed_at
+    ),
+
     CONSTRAINT fk_exercise_logs_user
         FOREIGN KEY (user_id)
         REFERENCES users(user_id)
@@ -250,6 +255,11 @@ CREATE TABLE water_logs (
 
     logged_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
+    INDEX idx_water_logs_user_logged_at (
+        user_id,
+        logged_at
+    ),
+
     CONSTRAINT fk_water_logs_user
         FOREIGN KEY (user_id)
         REFERENCES users(user_id)
@@ -267,6 +277,11 @@ CREATE TABLE nutrition_logs (
     quantity DECIMAL(10,2) NOT NULL,
 
     logged_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_nutrition_logs_user_logged_at (
+        user_id,
+        logged_at
+    ),
 
     CONSTRAINT fk_nutrition_logs_user
         FOREIGN KEY (user_id)
@@ -296,6 +311,11 @@ CREATE TABLE workout_plans (
     completed_at TIMESTAMP NULL DEFAULT NULL,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_workout_plans_user_created_at (
+        user_id,
+        created_at
+    ),
 
     CONSTRAINT fk_workout_plans_user
         FOREIGN KEY (user_id)

@@ -158,6 +158,7 @@ otherwise noted. The base API URL is `/api`.
 | Exercises and foods | `GET /api/exercises`, `GET /api/foods` |
 | Tracking | `POST/GET /api/tracking/exercise`, `POST/GET /api/tracking/water`, `POST/GET /api/tracking/nutrition` |
 | Plans | `/api/meal-plans`, `/api/workout-plans` |
+| Detailed history | `GET /api/history?period=today|last7days|last30days` |
 | Recommendations | `GET /api/recommendations`, feedback and interaction routes under `/api/recommendations` |
 | Analytics | `GET /api/dashboard`, `GET /api/progress/overview`, `GET /api/progress/history`, `GET /api/wellness/summary` |
 | AI assistant | `POST /api/chat` |

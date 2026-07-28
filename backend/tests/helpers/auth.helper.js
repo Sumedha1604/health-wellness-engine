@@ -29,6 +29,7 @@ async function createAuthenticatedUser() {
             token: loginResponse.body.data.token,
             password,
             user: {
+                user_id: loginResponse.body.data.user.user_id,
                 first_name: "Test",
                 last_name: "User",
                 email,
