@@ -55,6 +55,37 @@ public API address before building the frontend image. `CORS_ORIGIN` accepts a
 comma-separated list of trusted browser origins, for example
 `https://app.example.com,https://admin.example.com`.
 
+## Cloud deployment
+
+Deploy each production concern as a separate service:
+
+| Service | Deployment target | Required configuration |
+| --- | --- | --- |
+| Frontend | Static-site host or CDN | Build with `VITE_API_URL=https://api.example.com/api` |
+| Backend | Node.js service | Managed MySQL credentials, `JWT_SECRET`, `CORS_ORIGIN`, and reachable `ML_SERVICE_URL` |
+| ML service | Python/FastAPI service | Managed MySQL credentials and a private or public service URL reachable by the backend |
+| Database | Managed MySQL | Create a dedicated application user and restrict network access to the backend and ML service |
+
+### Deployment order
+
+1. Provision the managed MySQL instance, create the application database and
+   least-privilege application user, then apply `database/schema.sql` and the
+   required seed/import process.
+2. Deploy the ML service. Configure its `DB_*` variables using the managed
+   database endpoint. Confirm `https://ml.example.com/health` returns the ML
+   health response. Prefer private networking where the platform supports it.
+3. Deploy the backend with `NODE_ENV=production`, its `DB_*` variables,
+   a unique `JWT_SECRET`, `CORS_ORIGIN=https://app.example.com`, and
+   `ML_SERVICE_URL` pointing to the deployed ML service. Confirm
+   `https://api.example.com/health` returns `{"status":"healthy"}`.
+4. Build and deploy the frontend static assets with
+   `VITE_API_URL=https://api.example.com/api`. Its origin must be included in
+   the backend `CORS_ORIGIN` value.
+
+Do not expose database credentials, `JWT_SECRET`, `GROQ_API_KEY`, or internal
+ML URLs in frontend variables. Only variables prefixed with `VITE_` are exposed
+to the built browser bundle.
+
 ## Docker deployment
 
 1. Create and complete the root `.env` file as above.
