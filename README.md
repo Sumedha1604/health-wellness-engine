@@ -199,7 +199,8 @@ to source control.
 1. Import the repository in Vercel and set the project root directory to
    `frontend`.
 2. Use Vercel's Vite defaults: build command `npm run build` and output
-   directory `dist`.
+   directory `dist`. The included `frontend/vercel.json` rewrites client-side
+   routes to `index.html`, so direct visits to authenticated React routes work.
 3. Add `VITE_API_URL=https://your-api-domain.example/api` in the Vercel
    environment settings for Production (and Preview if it has a separate API).
 4. Deploy. `VITE_API_URL` is embedded at build time, so rebuild after changing
@@ -212,7 +213,9 @@ to source control.
 2. Set `NODE_ENV=production`, `PORT`, all `DB_*` values, a unique long
    `JWT_SECRET`, `CORS_ORIGIN=https://your-frontend-domain.example`, and
    `ML_SERVICE_URL`.
-3. Use `npm ci --omit=dev` and `npm start` as the install/start commands.
+3. Use `npm ci --omit=dev` and `npm start` as the install/start commands. The
+   included `backend/Procfile` provides the same `web: npm start` command for
+   Procfile-compatible hosts.
 4. Configure the platform health check to call `GET /health`.
 
 `CORS_ORIGIN` can contain a comma-separated list of trusted frontend origins.
@@ -223,7 +226,9 @@ health checks remain supported.
 
 1. Deploy the `ml-service` directory as a Python service or Docker container.
 2. Install with `pip install -r requirements.txt` and start with
-   `python main.py` (or the provided Dockerfile).
+   `python main.py` (or the provided Dockerfile). The included
+   `ml-service/Procfile` provides the same command for Procfile-compatible
+   hosts.
 3. Set `ML_SERVICE_HOST=0.0.0.0`, `ML_SERVICE_PORT` from the platform's port
    assignment, and the required `DB_*` variables.
 4. Configure `GET /health` as the service health check and expose the service
