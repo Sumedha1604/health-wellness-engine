@@ -1,5 +1,7 @@
 """FastAPI entry point for content-based and collaborative recommendations."""
 
+from typing import Any
+
 import mysql.connector
 
 from fastapi import FastAPI, HTTPException, Query
@@ -7,6 +9,7 @@ from pydantic import BaseModel
 
 from models.content_recommender import ContentBasedRecommender
 from models.collaborative_recommender import CollaborativeRecommender
+from models.deep_recommender import DeepRecommendationModel
 from models.hybrid_recommender import HybridRecommender
 
 
@@ -19,6 +22,10 @@ class UserProfile(BaseModel):
 
     fitness_goal: str
     activity_level: str
+    weight: float | None = None
+    weight_kg: float | None = None
+    height_cm: float | None = None
+    gender: str | None = None
 
 
 class RecommendationRequest(BaseModel):
@@ -38,6 +45,12 @@ class HybridRecommendationRequest(BaseModel):
 
     user_profile: UserProfile
     user_id: int
+
+
+class DeepRecommendationRequest(BaseModel):
+    """Request body for deep category prediction with content fallback."""
+
+    user_profile: UserProfile
 
 
 @app.get("/health")
@@ -100,3 +113,50 @@ def recommend_hybrid(
         recommendations = []
 
     return {"recommendations": recommendations}
+
+
+@app.post("/recommend/deep")
+def recommend_deep(
+    request: DeepRecommendationRequest,
+    top_n: int = Query(default=5, ge=1, le=50),
+) -> dict[str, list[dict[str, Any]]]:
+    """Use a trained deep category model, or content recommendations as fallback."""
+
+    profile = request.user_profile.model_dump(exclude_none=True)
+    content_recommender = ContentBasedRecommender()
+
+    try:
+        # Content remains the safe cold-start fallback when no trained Keras
+        # model is available or real data was insufficient for training.
+        content_recommendations = content_recommender.recommend(profile, top_n=50)
+    except (FileNotFoundError, ValueError):
+        return {"recommendations": []}
+
+    prediction = DeepRecommendationModel().predict(profile)
+    if prediction is None:
+        return {
+            "recommendations": [
+                {**recommendation, "source": "content"}
+                for recommendation in content_recommendations[:top_n]
+            ]
+        }
+
+    predicted_category = prediction["workout_category"].strip().lower()
+    exercise_types = content_recommender.exercises.set_index(
+        "exercise_id"
+    )["exercise_type"].to_dict()
+    deep_recommendations = [
+        {**recommendation, "source": "deep"}
+        for recommendation in content_recommendations
+        if str(exercise_types.get(recommendation["exercise_id"], "")).lower()
+        == predicted_category
+    ][:top_n]
+
+    # The model can predict a category not represented in the user's top
+    # content candidates. Do not return an error in that situation.
+    return {
+        "recommendations": deep_recommendations or [
+            {**recommendation, "source": "content"}
+            for recommendation in content_recommendations[:top_n]
+        ]
+    }

@@ -36,6 +36,31 @@ uses content-based results without reducing their scores. If either model is
 temporarily unavailable, results from the other healthy model are returned.
 This gives the backend a single ML endpoint while preserving cold-start support.
 
+## Deep wellness prediction
+
+`DeepRecommendationModel` is a TensorFlow/Keras dense classifier that predicts
+the workout category a user is most likely to prefer. Its inputs use only fields
+available in this project: gender, fitness goal, activity level, height, weight,
+exercise-log aggregates, nutrition-log aggregates, water totals, and interaction
+counts. The schema does not contain age, so age is not modelled.
+
+Training labels are derived from each user's strongest positive interaction
+category (`COMPLETED`, `FAVORITED`, or ratings of four or five). The model uses
+two ReLU dense layers followed by a softmax category output. It trains only when
+there are enough real labelled interaction records and at least two categories;
+otherwise no model is saved and the API uses content-based recommendations.
+
+Train with real database data:
+
+```bash
+cd ml-service
+python -m training.train_deep_recommender
+```
+
+Saved Keras artifacts are written to `models/saved/` and are intentionally not
+committed. No accuracy metric is claimed until the model is evaluated on a
+separate held-out dataset.
+
 ## Communication flow
 
 ```text
@@ -87,4 +112,13 @@ Request hybrid recommendations:
 curl -X POST http://localhost:8000/recommend/hybrid \
   -H "Content-Type: application/json" \
   -d '{"user_id":1,"user_profile":{"fitness_goal":"Improve Endurance","activity_level":"Beginner"}}'
+```
+
+Request deep recommendations (falls back to content recommendations when the
+deep model has not been trained):
+
+```bash
+curl -X POST http://localhost:8000/recommend/deep \
+  -H "Content-Type: application/json" \
+  -d '{"user_profile":{"fitness_goal":"Muscle Gain","activity_level":"Beginner","weight":70}}'
 ```
