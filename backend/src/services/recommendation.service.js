@@ -6,6 +6,8 @@ const feedbackService = require("./recommendation_feedback.service");
 const ML_SERVICE_URL =
   process.env.ML_SERVICE_URL || "http://localhost:8000";
 
+// Future ML recommendations will be integrated here.
+
 
 async function generateRecommendations(userId) {
 

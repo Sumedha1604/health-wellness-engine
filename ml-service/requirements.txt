@@ -1,10 +1,7 @@
+fastapi
+uvicorn
 pandas
 numpy
 scikit-learn
 mysql-connector-python
 python-dotenv
-fastapi
-uvicorn
-pandas
-scikit-learn
-mysql-connector-python
