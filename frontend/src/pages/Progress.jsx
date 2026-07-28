@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Activity, Droplets, Flame, Target, Trophy } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Activity, CheckCircle2, Droplets, Flame, Trophy } from "lucide-react";
 import BarChart from "../components/charts/BarChart";
 import LineChart from "../components/charts/LineChart";
 import { getProgressHistory, getProgressOverview } from "../services/progress.service";
@@ -24,37 +24,41 @@ export default function Progress() {
   const [overview, setOverview] = useState(null);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const loadProgress = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const [overviewData, historyData] = await Promise.all([
+        getProgressOverview(),
+        getProgressHistory(),
+      ]);
+
+      setOverview(overviewData);
+      setHistory(Array.isArray(historyData) ? historyData : []);
+    } catch (requestError) {
+      console.error("Unable to load progress data", requestError);
+      setError("We couldn't load your progress data. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-
-    async function loadProgress() {
-      try {
-        const [overviewData, historyData] = await Promise.all([
-          getProgressOverview(),
-          getProgressHistory(),
-        ]);
-        setOverview(overviewData);
-        setHistory(historyData);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
     loadProgress();
-
-  }, []);
+  }, [loadProgress]);
 
   if (loading) {
     return <LoadingState message="Loading your progress..." />;
   }
 
-  if (!overview) {
+  if (error || !overview) {
     return <ErrorState
       title="Unable to load progress"
-      message="Please check your connection and try again."
-      onRetry={() => window.location.reload()}
+      message={error || "Please check your connection and try again."}
+      onRetry={loadProgress}
     />;
   }
 
@@ -64,42 +68,26 @@ export default function Progress() {
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/65">Wellness analytics</p>
         <h1 className="mt-2 text-4xl font-bold">Your Progress</h1>
         <p className="mt-3 max-w-2xl text-white/75">
-          Track the habits that are moving your wellness forward.
+          Your seven-day view of hydration, nutrition, workouts, and wellness goals.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-5">
         <MetricCard icon={<Activity className="h-5 w-5 text-wellness-mauve" />} label="Total workouts" value={overview.total_workouts} detail="All completed workouts" tone="bg-[#f7eaec]" />
-        <MetricCard icon={<Droplets className="h-5 w-5 text-wellness-aqua" />} label="Average water" value={`${overview.average_daily_water} ml`} detail="Average on tracked days" tone="bg-[#e1f8fd]" />
+        <MetricCard icon={<Droplets className="h-5 w-5 text-wellness-aqua" />} label="Average water" value={`${overview.average_daily_water || 0} ml`} detail={`${overview.total_water || 0} ml logged overall`} tone="bg-[#e1f8fd]" />
         <MetricCard icon={<Flame className="h-5 w-5 text-wellness-slate" />} label="Calories logged" value={overview.calories_consumed} detail="From nutrition tracking" tone="bg-wellness-cream" />
-        <MetricCard icon={<Trophy className="h-5 w-5 text-wellness-teal" />} label="Current streak" value={`${overview.current_streak} days`} detail={`${overview.goals_completed} goals completed this week`} tone="bg-wellness-mist" />
+        <MetricCard icon={<Trophy className="h-5 w-5 text-wellness-teal" />} label="Current streak" value={`${overview.current_streak || 0} days`} detail="Keep your wellness rhythm going" tone="bg-wellness-mist" />
+        <MetricCard icon={<CheckCircle2 className="h-5 w-5 text-wellness-mauve" />} label="Completed goals" value={overview.goals_completed || 0} detail="Goals reached this week" tone="bg-[#f7eaec]" />
       </div>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-        <BarChart title="Workout Progress" subtitle="Completed workouts over the last 7 days." data={history} dataKey="workouts" unit="workouts" />
-        <LineChart title="Water Intake" subtitle="Daily hydration over the last 7 days." data={history} dataKey="water_ml" color="#0FB1D2" unit="ml" />
+        <LineChart title="7-Day Water Intake" subtitle="Daily hydration over the last seven days." data={history} dataKey="water_ml" color="#0FB1D2" unit="ml" />
+        <LineChart title="Calorie Trend" subtitle="Calories logged over the last seven days." data={history} dataKey="calories" color="#A64253" unit="kcal" />
       </div>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-        <LineChart title="Nutrition Trends" subtitle="Calories logged over the last 7 days." data={history} dataKey="calories" color="#A64253" unit="kcal" />
-        <div className="wellness-card p-6 sm:p-8">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-semibold tracking-tight text-gray-900">Goal Completion</h2>
-              <p className="mt-1 text-sm text-gray-500">Today&apos;s hydration and movement progress.</p>
-            </div>
-            <Target className="h-6 w-6 text-wellness-aqua" />
-          </div>
-          <p className="mt-10 text-5xl font-bold tracking-tight text-wellness-slate">
-            {overview.goal_progress_percentage}%
-          </p>
-          <div className="mt-5 h-3 overflow-hidden rounded-full bg-wellness-mist">
-            <div className="h-full rounded-full bg-wellness-aqua transition-all duration-500" style={{ width: `${overview.goal_progress_percentage}%` }} />
-          </div>
-          <p className="mt-6 rounded-2xl bg-wellness-mist p-4 text-sm leading-6 text-wellness-slate">
-            Keep logging water and workouts to build a consistent wellness streak.
-          </p>
-        </div>
+        <LineChart title="Protein Trend" subtitle="Protein logged over the last seven days." data={history} dataKey="protein" color="#73ABA6" unit="g" />
+        <BarChart title="Workout History" subtitle="Completed workouts over the last seven days." data={history} dataKey="workouts" color="#A64253" unit="workouts" />
       </div>
     </div>
   );
