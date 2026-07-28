@@ -9,4 +9,4 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "uvicorn app:app --host ${ML_SERVICE_HOST:-0.0.0.0} --port ${ML_SERVICE_PORT:-8000}"]
+CMD ["python", "main.py"]

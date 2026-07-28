@@ -1,21 +1,18 @@
-from fastapi import FastAPI
+"""Configurable production entry point for the ML service."""
 
-from api.recommendations import router
+import os
 
-
-app = FastAPI(
-    title="Health Wellness ML Service"
-)
+import uvicorn
 
 
-app.include_router(
-    router,
-    prefix="/recommendations"
-)
+def main() -> None:
+    """Start the primary FastAPI application with environment configuration."""
+
+    host = os.getenv("ML_SERVICE_HOST", "0.0.0.0")
+    port = int(os.getenv("ML_SERVICE_PORT", "8000"))
+
+    uvicorn.run("app:app", host=host, port=port)
 
 
-@app.get("/")
-def health_check():
-    return {
-        "status": "ML service running"
-    }
+if __name__ == "__main__":
+    main()

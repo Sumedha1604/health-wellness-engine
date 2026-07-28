@@ -33,7 +33,14 @@ const corsOptions = {
   origin(origin, callback) {
     // Non-browser clients (health checks, mobile clients, and server-to-server
     // requests) do not send an Origin header.
-    if (!origin || configuredOrigins.length === 0 || configuredOrigins.includes(origin)) {
+    if (!origin || configuredOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+
+    // A missing allowlist is convenient for local development, but production
+    // deployments must explicitly name the public frontend origin.
+    if (process.env.NODE_ENV !== "production" && configuredOrigins.length === 0) {
       callback(null, true);
       return;
     }

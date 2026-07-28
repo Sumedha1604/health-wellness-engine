@@ -83,7 +83,7 @@ npm run dev
 # ML service
 cd ml-service
 python -m pip install -r requirements.txt
-uvicorn app:app --reload
+python main.py
 ```
 
 The frontend development server needs `VITE_API_URL` to point to the backend
@@ -181,9 +181,11 @@ Interactive API documentation is available from the backend at `/api-docs`.
 The recommendation APIs remain stable regardless of which model path is
 available.
 
-## Cloud deployment
+## Public deployment guide
 
-Deploy each production concern as a separate service:
+Deploy each production concern as a separate service. Use managed environment
+variables in every platform dashboard; do not upload `.env` files or add them
+to source control.
 
 | Service | Deployment target | Required configuration |
 | --- | --- | --- |
@@ -191,6 +193,52 @@ Deploy each production concern as a separate service:
 | Backend | Node.js service | Managed MySQL credentials, `JWT_SECRET`, `CORS_ORIGIN`, and reachable `ML_SERVICE_URL` |
 | ML service | Python/FastAPI service | Managed MySQL credentials and a private or public service URL reachable by the backend |
 | Database | Managed MySQL | Dedicated application user and restricted network access |
+
+### Frontend: Vercel
+
+1. Import the repository in Vercel and set the project root directory to
+   `frontend`.
+2. Use Vercel's Vite defaults: build command `npm run build` and output
+   directory `dist`.
+3. Add `VITE_API_URL=https://your-api-domain.example/api` in the Vercel
+   environment settings for Production (and Preview if it has a separate API).
+4. Deploy. `VITE_API_URL` is embedded at build time, so rebuild after changing
+   the API domain.
+
+### Backend: Node.js API service
+
+1. Deploy the `backend` directory to a Node.js host such as Render, Railway,
+   Fly.io, or your container platform.
+2. Set `NODE_ENV=production`, `PORT`, all `DB_*` values, a unique long
+   `JWT_SECRET`, `CORS_ORIGIN=https://your-frontend-domain.example`, and
+   `ML_SERVICE_URL`.
+3. Use `npm ci --omit=dev` and `npm start` as the install/start commands.
+4. Configure the platform health check to call `GET /health`.
+
+`CORS_ORIGIN` can contain a comma-separated list of trusted frontend origins.
+Production requests from unlisted browser origins are rejected; non-browser
+health checks remain supported.
+
+### ML service: FastAPI
+
+1. Deploy the `ml-service` directory as a Python service or Docker container.
+2. Install with `pip install -r requirements.txt` and start with
+   `python main.py` (or the provided Dockerfile).
+3. Set `ML_SERVICE_HOST=0.0.0.0`, `ML_SERVICE_PORT` from the platform's port
+   assignment, and the required `DB_*` variables.
+4. Configure `GET /health` as the service health check and expose the service
+   only to the backend when private networking is available.
+
+### Database: production MySQL
+
+1. Provision a managed MySQL 8-compatible database with network access limited
+   to the backend and ML service.
+2. Create a dedicated non-root application user and provide its credentials as
+   `DB_USER` and `DB_PASSWORD`.
+3. Apply `database/schema.sql` for a new database, then apply every migration
+   in `database/migrations/` for an existing database.
+4. Do not run development seed data in production. Keep
+   `SEED_DEVELOPMENT_DATA=false` for Docker-based deployments.
 
 Deploy in this order:
 
@@ -225,6 +273,8 @@ pull request.
 
 - `.env` files are ignored; only the four `.env.example` templates are tracked.
 - No API keys, database passwords, or JWT secrets are stored in source files.
+- The browser receives only values prefixed with `VITE_`; use `VITE_API_URL`
+  only for the public API URL and never for secrets or internal service URLs.
 - Production errors return generic unexpected-error messages while details are
   logged server-side.
 - Existing console output is limited to operational startup, error, and model
