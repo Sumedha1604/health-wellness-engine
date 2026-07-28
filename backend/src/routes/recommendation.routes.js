@@ -6,12 +6,17 @@ const authenticateToken = require("../middleware/auth.middleware");
 const recommendationController = require("../controllers/recommendation.controller");
 const recommendationFeedbackController =
     require("../controllers/recommendationFeedback.controller");
+const recommendationInteractionController =
+    require("../controllers/recommendationInteraction.controller");
 const validationMiddleware =
     require("../middleware/validation.middleware");
 
 const {
     createRecommendationFeedbackValidator,
 } = require("../validators/recommendationFeedback.validator");
+const {
+    createRecommendationInteractionValidator,
+} = require("../validators/recommendationInteraction.validator");
 
 /**
  * @swagger
@@ -83,6 +88,20 @@ router.get(
     "/feedback/history",
     authenticateToken,
     recommendationFeedbackController.getRecommendationFeedbackHistory
+);
+
+router.post(
+    "/interactions",
+    authenticateToken,
+    createRecommendationInteractionValidator,
+    validationMiddleware,
+    recommendationInteractionController.createRecommendationInteraction
+);
+
+router.get(
+    "/interactions",
+    authenticateToken,
+    recommendationInteractionController.getRecommendationInteractions
 );
 
 module.exports = router;
