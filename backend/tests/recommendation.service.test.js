@@ -23,7 +23,7 @@ describe("Recommendation service", () => {
         );
     });
 
-    test("uses content-based ML exercise recommendations when available", async () => {
+    test("uses hybrid ML exercise recommendations when available", async () => {
 
         db.execute
             .mockResolvedValueOnce([
@@ -74,8 +74,9 @@ describe("Recommendation service", () => {
         const result = await recommendationService.generateRecommendations(11);
 
         expect(axios.post).toHaveBeenCalledWith(
-            "http://localhost:8000/recommend",
+            "http://localhost:8000/recommend/hybrid",
             {
+                user_id: 11,
                 user_profile: {
                     fitness_goal: "Improve Endurance",
                     activity_level: "Beginner",
@@ -96,6 +97,74 @@ describe("Recommendation service", () => {
                 reason: "Matches your Improve Endurance goal and Beginner activity level.",
             },
         ]);
+    });
+
+    test("falls back to content-based ML recommendations when hybrid is unavailable", async () => {
+
+        db.execute
+            .mockResolvedValueOnce([
+                [
+                    {
+                        fitness_goal: "Improve Endurance",
+                        activity_level: "Beginner",
+                        diet_type: "Balanced",
+                    },
+                ],
+            ])
+            .mockResolvedValueOnce([[]])
+            .mockResolvedValueOnce([[]])
+            .mockResolvedValueOnce([[]])
+            .mockResolvedValueOnce([
+                [
+                    {
+                        food_id: 123,
+                        food_name: "Chicken Breast",
+                    },
+                ],
+            ])
+            .mockResolvedValueOnce([
+                [
+                    {
+                        exercise_id: 2176,
+                        title: "Slow Jog",
+                        body_part: "Quadriceps",
+                        equipment: "Body Only",
+                        difficulty_level: "Beginner",
+                    },
+                ],
+            ])
+            .mockResolvedValueOnce([[]]);
+
+        axios.post
+            .mockRejectedValueOnce(new Error("Hybrid ML service unavailable"))
+            .mockResolvedValueOnce({
+                data: {
+                    recommendations: [
+                        {
+                            exercise_id: 2176,
+                            name: "Slow Jog",
+                            score: 0.7819,
+                        },
+                    ],
+                },
+            });
+
+        const result = await recommendationService.generateRecommendations(11);
+
+        expect(axios.post).toHaveBeenNthCalledWith(
+            1,
+            "http://localhost:8000/recommend/hybrid",
+            expect.objectContaining({ user_id: 11 }),
+            expect.objectContaining({ timeout: 2000 })
+        );
+        expect(axios.post).toHaveBeenNthCalledWith(
+            2,
+            "http://localhost:8000/recommend",
+            expect.any(Object),
+            expect.objectContaining({ timeout: 2000 })
+        );
+        expect(result.recommended_exercises).toHaveLength(1);
+        expect(result.recommended_exercises[0].title).toBe("Slow Jog");
     });
 
     test("falls back to existing recommendations when ML is unavailable", async () => {

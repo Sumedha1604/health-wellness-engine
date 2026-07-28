@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from models.content_recommender import ContentBasedRecommender
 from models.collaborative_recommender import CollaborativeRecommender
+from models.hybrid_recommender import HybridRecommender
 
 
 app = FastAPI(title="Health Wellness ML Service")
@@ -29,6 +30,13 @@ class RecommendationRequest(BaseModel):
 class CollaborativeRecommendationRequest(BaseModel):
     """Request body for a user-based collaborative recommendation query."""
 
+    user_id: int
+
+
+class HybridRecommendationRequest(BaseModel):
+    """Request body for combined profile and collaborative recommendations."""
+
+    user_profile: UserProfile
     user_id: int
 
 
@@ -66,6 +74,25 @@ def recommend_collaborative(
 
     try:
         recommendations = CollaborativeRecommender().recommend(
+            request.user_id,
+            top_n=top_n,
+        )
+    except (ValueError, mysql.connector.Error):
+        recommendations = []
+
+    return {"recommendations": recommendations}
+
+
+@app.post("/recommend/hybrid")
+def recommend_hybrid(
+    request: HybridRecommendationRequest,
+    top_n: int = Query(default=5, ge=1, le=50),
+) -> dict[str, list]:
+    """Return recommendations from every ML signal currently available."""
+
+    try:
+        recommendations = HybridRecommender().recommend(
+            request.user_profile.model_dump(),
             request.user_id,
             top_n=top_n,
         )

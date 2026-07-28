@@ -21,7 +21,38 @@ function isValidMlResponse(response) {
 }
 
 
-async function getMlExerciseRecommendations(preferences, exerciseFeedback) {
+async function getHybridMlExerciseRecommendations(
+  userId,
+  preferences,
+  exerciseFeedback
+) {
+
+  const response = await axios.post(
+    `${ML_SERVICE_URL}/recommend/hybrid`,
+    {
+      user_id: userId,
+      user_profile: {
+        fitness_goal: preferences.fitness_goal,
+        activity_level: preferences.activity_level,
+        diet_type: preferences.diet_type,
+        feedback: exerciseFeedback,
+      },
+    },
+    {
+      timeout: ML_SERVICE_TIMEOUT,
+    }
+  );
+
+  if (!isValidMlResponse(response)) {
+    throw new Error("Invalid hybrid ML recommendation response");
+  }
+
+  return response.data.recommendations;
+
+}
+
+
+async function getContentMlExerciseRecommendations(preferences, exerciseFeedback) {
 
   const response = await axios.post(
     `${ML_SERVICE_URL}/recommend`,
@@ -305,7 +336,8 @@ let mlFoodRecommendations = [];
 
 try {
 
-  const mlRecommendations = await getMlExerciseRecommendations(
+  const mlRecommendations = await getHybridMlExerciseRecommendations(
+    userId,
     preferences,
     exerciseFeedback
   );
@@ -319,23 +351,42 @@ try {
 } catch (error) {
 
   console.warn(
-    "Content-based ML recommendation service unavailable. Using existing recommendation fallback."
+    "Hybrid ML recommendation service unavailable. Trying content-based ML recommendations."
   );
 
   try {
 
-    recommendedExercises = await getLegacyExerciseRecommendations(
-      userId,
+    const contentRecommendations = await getContentMlExerciseRecommendations(
       preferences,
       exerciseFeedback
     );
 
-  } catch (fallbackError) {
-
-    console.log(
-      "Exercise recommendation service unavailable"
+    recommendedExercises = await formatMlExerciseRecommendations(
+      contentRecommendations,
+      preferences
     );
 
+  } catch (contentError) {
+
+    console.warn(
+      "Content-based ML recommendation service unavailable. Using existing recommendation fallback."
+    );
+
+    try {
+
+      recommendedExercises = await getLegacyExerciseRecommendations(
+        userId,
+        preferences,
+        exerciseFeedback
+      );
+
+    } catch (fallbackError) {
+
+      console.log(
+        "Exercise recommendation service unavailable"
+      );
+
+    }
   }
 
 }

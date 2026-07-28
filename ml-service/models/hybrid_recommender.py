@@ -10,6 +10,170 @@ from models.exercise_recommender import (
 
 from collections import Counter
 
+from models.collaborative_recommender import CollaborativeRecommender
+from models.content_recommender import ContentBasedRecommender
+
+
+class HybridRecommender:
+    """Combine profile-based and behaviour-based exercise recommendations.
+
+    The two recommenders remain independent.  This class only coordinates their
+    ranked results, which lets a content result remain useful for a new user
+    while incorporating collaborative signals as interaction data becomes
+    available.
+    """
+
+    def __init__(
+        self,
+        content_recommender: ContentBasedRecommender | None = None,
+        collaborative_recommender: CollaborativeRecommender | None = None,
+        content_weight: float = 0.5,
+        collaborative_weight: float = 0.5,
+    ):
+        if content_weight < 0 or collaborative_weight < 0:
+            raise ValueError("Recommendation weights must be non-negative")
+
+        if content_weight + collaborative_weight == 0:
+            raise ValueError("At least one recommendation weight must be positive")
+
+        self.content_recommender = content_recommender or ContentBasedRecommender()
+        self.collaborative_recommender = (
+            collaborative_recommender or CollaborativeRecommender()
+        )
+        self.content_weight = content_weight
+        self.collaborative_weight = collaborative_weight
+
+    def get_content_recommendations(
+        self,
+        user_profile: dict,
+        top_n: int,
+    ) -> list[dict]:
+        """Retrieve profile-based recommendations without altering their model."""
+
+        return self.content_recommender.recommend(user_profile, top_n=top_n)
+
+    def get_collaborative_recommendations(
+        self,
+        user_id: int,
+        top_n: int,
+    ) -> list[dict]:
+        """Retrieve behaviour-based recommendations for an existing user."""
+
+        return self.collaborative_recommender.recommend(user_id, top_n=top_n)
+
+    def combine_scores(
+        self,
+        content_recommendations: list[dict],
+        collaborative_recommendations: list[dict],
+        top_n: int,
+    ) -> list[dict]:
+        """Merge recommendation scores by exercise id using weighted ranking.
+
+        A result supplied by only one healthy model keeps that model's score.
+        This is deliberate: reducing it by half would make a cold-start result
+        look artificially weak even though content filtering is the only signal
+        available for that user.
+        """
+
+        candidates: dict[int, dict] = {}
+
+        for recommendation in content_recommendations:
+            exercise_id = int(recommendation["exercise_id"])
+            candidates[exercise_id] = {
+                "exercise_id": exercise_id,
+                "name": str(recommendation["name"]),
+                "content_score": float(recommendation["score"]),
+                "collaborative_score": None,
+            }
+
+        for recommendation in collaborative_recommendations:
+            exercise_id = int(recommendation["exercise_id"])
+            candidate = candidates.setdefault(
+                exercise_id,
+                {
+                    "exercise_id": exercise_id,
+                    "name": str(recommendation["name"]),
+                    "content_score": None,
+                    "collaborative_score": None,
+                },
+            )
+            candidate["name"] = candidate["name"] or str(recommendation["name"])
+            candidate["collaborative_score"] = float(recommendation["score"])
+
+        combined = []
+        for candidate in candidates.values():
+            content_score = candidate["content_score"]
+            collaborative_score = candidate["collaborative_score"]
+
+            if content_score is not None and collaborative_score is not None:
+                score = (
+                    content_score * self.content_weight
+                    + collaborative_score * self.collaborative_weight
+                ) / (self.content_weight + self.collaborative_weight)
+                source = "hybrid"
+            elif content_score is not None:
+                score = content_score
+                source = "content"
+            else:
+                score = collaborative_score
+                source = "collaborative"
+
+            combined.append(
+                {
+                    "exercise_id": candidate["exercise_id"],
+                    "name": candidate["name"],
+                    "score": round(float(score), 4),
+                    "source": source,
+                }
+            )
+
+        return sorted(
+            combined,
+            key=lambda recommendation: recommendation["score"],
+            reverse=True,
+        )[:top_n]
+
+    def recommend(
+        self,
+        user_profile: dict,
+        user_id: int,
+        top_n: int = 5,
+    ) -> list[dict]:
+        """Return the best available recommendations from both model signals."""
+
+        if not isinstance(user_id, int) or user_id < 1:
+            raise ValueError("user_id must be a positive integer")
+
+        if not isinstance(top_n, int) or top_n < 1:
+            raise ValueError("top_n must be a positive integer")
+
+        content_recommendations = []
+        collaborative_recommendations = []
+
+        try:
+            content_recommendations = self.get_content_recommendations(
+                user_profile,
+                top_n,
+            )
+        # An unavailable dataset or database must not prevent the other model
+        # from serving its recommendations.
+        except Exception:
+            pass
+
+        try:
+            collaborative_recommendations = self.get_collaborative_recommendations(
+                user_id,
+                top_n,
+            )
+        except Exception:
+            pass
+
+        return self.combine_scores(
+            content_recommendations,
+            collaborative_recommendations,
+            top_n,
+        )
+
 
 # ==========================================================
 # Preference Candidates
