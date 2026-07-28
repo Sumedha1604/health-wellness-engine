@@ -6,7 +6,116 @@ const feedbackService = require("./recommendation_feedback.service");
 const ML_SERVICE_URL =
   process.env.ML_SERVICE_URL || "http://localhost:8000";
 
-// Future ML recommendations will be integrated here.
+const ML_SERVICE_TIMEOUT = 2000;
+
+
+function isValidMlResponse(response) {
+
+  return Array.isArray(response?.data?.recommendations)
+    && response.data.recommendations.every((recommendation) => (
+      Number.isInteger(Number(recommendation.exercise_id))
+      && typeof recommendation.name === "string"
+      && Number.isFinite(Number(recommendation.score))
+    ));
+
+}
+
+
+async function getMlExerciseRecommendations(preferences, exerciseFeedback) {
+
+  const response = await axios.post(
+    `${ML_SERVICE_URL}/recommend`,
+    {
+      user_profile: {
+        fitness_goal: preferences.fitness_goal,
+        activity_level: preferences.activity_level,
+        diet_type: preferences.diet_type,
+        feedback: exerciseFeedback,
+      },
+    },
+    {
+      timeout: ML_SERVICE_TIMEOUT,
+    }
+  );
+
+  if (!isValidMlResponse(response)) {
+    throw new Error("Invalid ML recommendation response");
+  }
+
+  return response.data.recommendations;
+
+}
+
+
+async function formatMlExerciseRecommendations(
+  mlRecommendations,
+  preferences
+) {
+
+  if (mlRecommendations.length === 0) {
+    return [];
+  }
+
+  const exerciseIds = mlRecommendations.map(
+    (recommendation) => Number(recommendation.exercise_id)
+  );
+  const placeholders = exerciseIds.map(() => "?").join(", ");
+  const [exercises] = await db.execute(
+    `
+    SELECT
+      exercise_id,
+      title,
+      body_part,
+      equipment,
+      difficulty_level
+    FROM exercises
+    WHERE exercise_id IN (${placeholders})
+    `,
+    exerciseIds
+  );
+  const exercisesById = new Map(
+    exercises.map((exercise) => [Number(exercise.exercise_id), exercise])
+  );
+
+  return mlRecommendations.map((recommendation) => {
+    const exerciseId = Number(recommendation.exercise_id);
+    const exercise = exercisesById.get(exerciseId);
+
+    return {
+      exercise_id: exerciseId,
+      title: exercise?.title || recommendation.name,
+      body_part: exercise?.body_part || "Not specified",
+      equipment: exercise?.equipment || "Not specified",
+      difficulty_level: exercise?.difficulty_level || preferences.activity_level,
+      score: Number(recommendation.score),
+      reason: `Matches your ${preferences.fitness_goal} goal and ${preferences.activity_level} activity level.`,
+    };
+  });
+
+}
+
+
+async function getLegacyExerciseRecommendations(
+  userId,
+  preferences,
+  exerciseFeedback
+) {
+
+  const response = await axios.get(
+    `${ML_SERVICE_URL}/recommendations/hybrid/${userId}`,
+    {
+      params: {
+        fitness_goal: preferences.fitness_goal,
+        activity_level: preferences.activity_level,
+        feedback: JSON.stringify(exerciseFeedback),
+      },
+      timeout: ML_SERVICE_TIMEOUT,
+    }
+  );
+
+  return Array.isArray(response.data) ? response.data : [];
+
+}
 
 
 async function generateRecommendations(userId) {
@@ -196,26 +305,38 @@ let mlFoodRecommendations = [];
 
 try {
 
-  const exerciseResponse = await axios.get(
-    `${ML_SERVICE_URL}/recommendations/hybrid/${userId}`,
-    {
-      params: {
-        fitness_goal: preferences.fitness_goal,
-        activity_level: preferences.activity_level,
-        feedback: JSON.stringify(exerciseFeedback),
-      },
-    }
+  const mlRecommendations = await getMlExerciseRecommendations(
+    preferences,
+    exerciseFeedback
   );
 
-
-  recommendedExercises = exerciseResponse.data;
+  recommendedExercises = await formatMlExerciseRecommendations(
+    mlRecommendations,
+    preferences
+  );
 
 
 } catch (error) {
 
-  console.log(
-    "Exercise recommendation service unavailable"
+  console.warn(
+    "Content-based ML recommendation service unavailable. Using existing recommendation fallback."
   );
+
+  try {
+
+    recommendedExercises = await getLegacyExerciseRecommendations(
+      userId,
+      preferences,
+      exerciseFeedback
+    );
+
+  } catch (fallbackError) {
+
+    console.log(
+      "Exercise recommendation service unavailable"
+    );
+
+  }
 
 }
 

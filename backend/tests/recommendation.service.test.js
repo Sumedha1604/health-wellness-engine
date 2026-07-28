@@ -2,7 +2,10 @@ jest.mock("../src/config/db", () => ({
     execute: jest.fn(),
 }));
 
+jest.mock("axios");
+
 const db = require("../src/config/db");
+const axios = require("axios");
 
 const recommendationService = require("../src/services/recommendation.service");
 
@@ -10,6 +13,144 @@ describe("Recommendation service", () => {
 
     beforeEach(() => {
         db.execute.mockReset();
+        axios.post.mockReset();
+        axios.get.mockReset();
+        axios.post.mockRejectedValue(
+            new Error("Content-based ML service unavailable")
+        );
+        axios.get.mockRejectedValue(
+            new Error("Legacy recommendation service unavailable")
+        );
+    });
+
+    test("uses content-based ML exercise recommendations when available", async () => {
+
+        db.execute
+            .mockResolvedValueOnce([
+                [
+                    {
+                        fitness_goal: "Improve Endurance",
+                        activity_level: "Beginner",
+                        diet_type: "Balanced",
+                    },
+                ],
+            ])
+            .mockResolvedValueOnce([[]])
+            .mockResolvedValueOnce([[]])
+            .mockResolvedValueOnce([[]])
+            .mockResolvedValueOnce([
+                [
+                    {
+                        food_id: 123,
+                        food_name: "Chicken Breast",
+                    },
+                ],
+            ])
+            .mockResolvedValueOnce([
+                [
+                    {
+                        exercise_id: 2176,
+                        title: "Slow Jog",
+                        body_part: "Quadriceps",
+                        equipment: "Body Only",
+                        difficulty_level: "Beginner",
+                    },
+                ],
+            ])
+            .mockResolvedValueOnce([[]]);
+
+        axios.post.mockResolvedValueOnce({
+            data: {
+                recommendations: [
+                    {
+                        exercise_id: 2176,
+                        name: "Slow Jog",
+                        score: 0.7819,
+                    },
+                ],
+            },
+        });
+
+        const result = await recommendationService.generateRecommendations(11);
+
+        expect(axios.post).toHaveBeenCalledWith(
+            "http://localhost:8000/recommend",
+            {
+                user_profile: {
+                    fitness_goal: "Improve Endurance",
+                    activity_level: "Beginner",
+                    diet_type: "Balanced",
+                    feedback: {},
+                },
+            },
+            expect.objectContaining({ timeout: 2000 })
+        );
+        expect(result.recommended_exercises).toEqual([
+            {
+                exercise_id: 2176,
+                title: "Slow Jog",
+                body_part: "Quadriceps",
+                equipment: "Body Only",
+                difficulty_level: "Beginner",
+                score: 0.7819,
+                reason: "Matches your Improve Endurance goal and Beginner activity level.",
+            },
+        ]);
+    });
+
+    test("falls back to existing recommendations when ML is unavailable", async () => {
+
+        const fallbackRecommendations = [
+            {
+                exercise_id: 101,
+                title: "Legacy Cardio Exercise",
+                body_part: "Quadriceps",
+                equipment: "Body Only",
+                difficulty_level: "Beginner",
+                score: 0.7,
+                reason: "Existing recommendation fallback",
+            },
+        ];
+
+        db.execute
+            .mockResolvedValueOnce([
+                [
+                    {
+                        fitness_goal: "Improve Endurance",
+                        activity_level: "Beginner",
+                        diet_type: "Balanced",
+                    },
+                ],
+            ])
+            .mockResolvedValueOnce([[]])
+            .mockResolvedValueOnce([[]])
+            .mockResolvedValueOnce([[]])
+            .mockResolvedValueOnce([
+                [
+                    {
+                        food_id: 123,
+                        food_name: "Chicken Breast",
+                    },
+                ],
+            ])
+            .mockResolvedValueOnce([[]]);
+
+        axios.post.mockResolvedValueOnce({
+            data: { recommendations: "invalid" },
+        });
+        axios.get
+            .mockResolvedValueOnce({ data: fallbackRecommendations })
+            .mockRejectedValueOnce(
+                new Error("Food recommendation service unavailable")
+            );
+
+        const result = await recommendationService.generateRecommendations(11);
+
+        expect(axios.get).toHaveBeenCalledWith(
+            "http://localhost:8000/recommendations/hybrid/11",
+            expect.objectContaining({ timeout: 2000 })
+        );
+        expect(result.recommended_exercises).toEqual(fallbackRecommendations);
     });
 
     test("generateRecommendations throws when preferences are missing", async () => {
