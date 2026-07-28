@@ -1,25 +1,67 @@
 """Reusable offline metrics for the hybrid recommendation service."""
 
 
-def precision_at_k(recommended_ids, relevant_ids, k):
+def _item_identifier(item):
+    """Return a comparable identifier from an item id or recommendation object."""
+    if isinstance(item, dict):
+        for key in ("exercise_id", "food_id", "item_id", "id"):
+            if key in item:
+                return item[key]
+        return None
+
+    return item
+
+
+def _normalise_items(items):
+    """Normalise metric inputs while accepting ids and recommendation objects."""
+    normalised_items = []
+
+    for item in items or []:
+        identifier = _item_identifier(item)
+        if identifier is not None:
+            normalised_items.append(str(identifier))
+
+    return normalised_items
+
+
+def _top_k_items(recommended_items, k):
+    """Return valid recommendation ids from the first K entries."""
+    if not isinstance(k, int) or k <= 0:
+        return []
+
+    return _normalise_items(list(recommended_items or [])[:k])
+
+
+def precision_at_k(recommended_items, actual_items, k):
     """Return the fraction of the first K recommendations that are relevant."""
-    top_k = list(recommended_ids)[:k]
+    top_k = _top_k_items(recommended_items, k)
 
     if not top_k:
         return 0.0
 
-    relevant = set(relevant_ids)
+    relevant = set(_normalise_items(actual_items))
     return len(set(top_k) & relevant) / len(top_k)
 
 
-def recall_at_k(recommended_ids, relevant_ids, k):
+def recall_at_k(recommended_items, actual_items, k):
     """Return the fraction of relevant items present in the first K results."""
-    relevant = set(relevant_ids)
+    relevant = set(_normalise_items(actual_items))
 
     if not relevant:
         return 0.0
 
-    return len(set(list(recommended_ids)[:k]) & relevant) / len(relevant)
+    return len(set(_top_k_items(recommended_items, k)) & relevant) / len(relevant)
+
+
+def f1_at_k(recommended_items, actual_items, k):
+    """Return the harmonic mean of precision and recall at K."""
+    precision = precision_at_k(recommended_items, actual_items, k)
+    recall = recall_at_k(recommended_items, actual_items, k)
+
+    if precision + recall == 0:
+        return 0.0
+
+    return 2 * precision * recall / (precision + recall)
 
 
 def diversity_score(recommendations):
@@ -74,6 +116,11 @@ def evaluate_recommendations(
             k
         ),
         "recall_at_k": recall_at_k(
+            recommended_ids,
+            relevant_ids,
+            k
+        ),
+        "f1_at_k": f1_at_k(
             recommended_ids,
             relevant_ids,
             k

@@ -61,6 +61,42 @@ Saved Keras artifacts are written to `models/saved/` and are intentionally not
 committed. No accuracy metric is claimed until the model is evaluated on a
 separate held-out dataset.
 
+## Recommendation evaluation metrics
+
+Offline evaluation compares an ordered list of recommendation results against
+each user's recorded positive interactions. The evaluator reports:
+
+- **Precision@K**: the fraction of the first K recommendations that were
+  actually interacted with.
+- **Recall@K**: the fraction of a user's actual interactions found in the
+  first K recommendations.
+- **F1@K**: the harmonic mean of Precision@K and Recall@K.
+
+Metrics return `0.0` when no recommendations or no actual interactions are
+available, so cold-start users do not cause an evaluation failure. Use an
+exported JSON file in either of these formats:
+
+```json
+[
+  {"user_id": 1, "recommendations": [{"exercise_id": 12}, {"exercise_id": 8}]}
+]
+```
+
+```json
+{"1": [12, 8]}
+```
+
+Then run the standalone evaluator with the recommendation results and the
+processed interaction export:
+
+```bash
+cd ml-service
+python evaluate_model.py \
+  --recommendations path/to/recommendation-results.json \
+  --interactions datasets/processed/interactions.csv \
+  --k 5
+```
+
 ## Communication flow
 
 ```text
