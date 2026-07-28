@@ -1,14 +1,12 @@
-"""Phase 1 FastAPI foundation for the ML recommendation service.
+"""FastAPI entry point for content-based and collaborative recommendations."""
 
-This module intentionally exposes only the health check and a placeholder
-recommendation endpoint. It is not wired into the backend recommendation flow
-yet, so existing recommendation behaviour remains unchanged.
-"""
+import mysql.connector
 
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
 
 from models.content_recommender import ContentBasedRecommender
+from models.collaborative_recommender import CollaborativeRecommender
 
 
 app = FastAPI(title="Health Wellness ML Service")
@@ -26,6 +24,12 @@ class RecommendationRequest(BaseModel):
     """Placeholder request body for the content-based recommender."""
 
     user_profile: UserProfile
+
+
+class CollaborativeRecommendationRequest(BaseModel):
+    """Request body for a user-based collaborative recommendation query."""
+
+    user_id: int
 
 
 @app.get("/health")
@@ -49,5 +53,23 @@ def recommend(
         )
     except (FileNotFoundError, ValueError) as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
+
+    return {"recommendations": recommendations}
+
+
+@app.post("/recommend/collaborative")
+def recommend_collaborative(
+    request: CollaborativeRecommendationRequest,
+    top_n: int = Query(default=5, ge=1, le=50),
+) -> dict[str, list]:
+    """Return recommendations from similar users' real interactions."""
+
+    try:
+        recommendations = CollaborativeRecommender().recommend(
+            request.user_id,
+            top_n=top_n,
+        )
+    except (ValueError, mysql.connector.Error):
+        recommendations = []
 
     return {"recommendations": recommendations}
