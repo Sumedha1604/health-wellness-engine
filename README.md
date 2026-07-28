@@ -116,16 +116,21 @@ the client.
 
 # 🐳 Running with Docker
 
-Start MySQL:
+Start the complete application stack:
 
 ```bash
-docker compose up -d
+docker compose up --build
 ```
 
-Stop containers:
+The frontend is available at `http://localhost:4173`, the backend API at
+`http://localhost:5050`, and the ML service at `http://localhost:8000`.
+Compose reads database and optional Groq configuration from your root `.env`
+file; do not commit real credentials.
+
+Stop containers while keeping the persistent database volume:
 
 ```bash
-docker compose down -v
+docker compose down
 ```
 
 ---

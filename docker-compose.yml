@@ -1,14 +1,47 @@
 services:
-  mysql:
-    image: mysql:8.4
-
-    restart: unless-stopped
-
-    env_file:
-      - .env
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:5050/api}
 
     ports:
-      - "3306:3306"
+      - "${FRONTEND_PORT:-4173}:4173"
+
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+
+    ports:
+      - "${BACKEND_PORT:-5050}:5001"
+
+    environment:
+      PORT: 5001
+      DB_HOST: database
+      DB_PORT: 3306
+      DB_USER: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      DB_NAME: ${MYSQL_DATABASE}
+      ML_SERVICE_URL: http://ml-service:8000
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GROQ_MODEL: ${GROQ_MODEL:-llama-3.3-70b-versatile}
+      GROQ_API_URL: ${GROQ_API_URL:-https://api.groq.com/openai/v1/chat/completions}
+
+    depends_on:
+      database:
+        condition: service_healthy
+      ml-service:
+        condition: service_started
+
+  database:
+    image: mysql:8.4
+    restart: unless-stopped
+
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
 
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
@@ -16,11 +49,24 @@ services:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
 
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u$$MYSQL_USER -p$$MYSQL_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
     volumes:
       - mysql_data:/var/lib/mysql
       - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
       - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
       - ./database/indexes.sql:/docker-entrypoint-initdb.d/03-indexes.sql:ro
+
+  ml-service:
+    build:
+      context: ./ml-service
+
+    ports:
+      - "${ML_SERVICE_PORT:-8000}:8000"
 
 volumes:
   mysql_data:
