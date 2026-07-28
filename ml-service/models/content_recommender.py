@@ -126,6 +126,12 @@ class ContentBasedRecommender:
                     "exercise_id": int(exercise["exercise_id"]),
                     "name": str(exercise["title"]),
                     "score": round(float(scores[index]), 4),
+                    "reason": self._recommendation_reason(
+                        exercise,
+                        fitness_goal,
+                        activity_level,
+                        user_profile,
+                    ),
                 }
             )
 
@@ -199,3 +205,40 @@ class ContentBasedRecommender:
         }
 
         return levels.get(activity_level.strip().lower(), "")
+
+    def _recommendation_reason(
+        self,
+        exercise: pd.Series,
+        fitness_goal: str,
+        activity_level: str,
+        user_profile: dict[str, Any],
+    ) -> str:
+        """Explain the profile attributes that matched this exercise."""
+        matches = []
+        goal_type = self._goal_exercise_type(fitness_goal)
+        exercise_type = str(exercise.get("exercise_type", ""))
+        difficulty = self._activity_difficulty(activity_level)
+
+        if goal_type and exercise_type.casefold() == goal_type.casefold():
+            matches.append(f"matches your {fitness_goal.strip().lower()} goal")
+
+        if difficulty and str(exercise.get("difficulty_level", "")).casefold() == (
+            difficulty.casefold()
+        ):
+            matches.append(
+                f"matches your {activity_level.strip().lower()} difficulty level"
+            )
+
+        preferred_body_part = user_profile.get("body_part")
+        if isinstance(preferred_body_part, str) and preferred_body_part.strip():
+            if str(exercise.get("body_part", "")).casefold() == (
+                preferred_body_part.strip().casefold()
+            ):
+                matches.append(
+                    f"targets your preferred {preferred_body_part.strip().lower()} area"
+                )
+
+        if matches:
+            return "Recommended because it " + " and ".join(matches) + "."
+
+        return "Recommended based on your fitness goal and activity level."

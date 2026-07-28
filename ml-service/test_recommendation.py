@@ -28,6 +28,7 @@ class ContentBasedRecommenderTests(unittest.TestCase):
         self.assertEqual(len(recommendations), 3)
         self.assertTrue(all("exercise_id" in item for item in recommendations))
         self.assertTrue(all("name" in item for item in recommendations))
+        self.assertTrue(all(item.get("reason") for item in recommendations))
         self.assertTrue(all(0 <= item["score"] <= 1 for item in recommendations))
 
         recommended_ids = [item["exercise_id"] for item in recommendations]
@@ -36,6 +37,30 @@ class ContentBasedRecommenderTests(unittest.TestCase):
             "exercise_type",
         ]
         self.assertTrue((recommended_types == "Cardio").all())
+
+    def test_explanation_reflects_profile_goal_and_difficulty(self):
+        endurance_recommendations = self.recommender.recommend(
+            {
+                "fitness_goal": "Improve Endurance",
+                "activity_level": "Beginner",
+            },
+            top_n=1,
+        )
+        muscle_recommendations = self.recommender.recommend(
+            {
+                "fitness_goal": "Muscle Gain",
+                "activity_level": "Intermediate",
+            },
+            top_n=1,
+        )
+
+        endurance_reason = endurance_recommendations[0]["reason"]
+        muscle_reason = muscle_recommendations[0]["reason"]
+        self.assertIn("improve endurance goal", endurance_reason)
+        self.assertIn("beginner difficulty level", endurance_reason)
+        self.assertIn("muscle gain goal", muscle_reason)
+        self.assertIn("intermediate difficulty level", muscle_reason)
+        self.assertNotEqual(endurance_reason, muscle_reason)
 
     def test_invalid_profile_is_handled(self):
         with self.assertRaisesRegex(ValueError, "fitness_goal"):

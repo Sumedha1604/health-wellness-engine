@@ -205,6 +205,10 @@ class CollaborativeRecommender:
                 "exercise_id": int(exercise_id),
                 "name": str(exercise_names.get(exercise_id, "Exercise")),
                 "score": round(float(score / max_score), 4),
+                "reason": (
+                    "Recommended because users with similar exercise preferences "
+                    "responded positively to it."
+                ),
             }
             for exercise_id, score in ranked_candidates
         ]

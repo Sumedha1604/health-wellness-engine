@@ -84,6 +84,8 @@ class HybridRecommender:
                 "name": str(recommendation["name"]),
                 "content_score": float(recommendation["score"]),
                 "collaborative_score": None,
+                "content_reason": recommendation.get("reason"),
+                "collaborative_reason": None,
             }
 
         for recommendation in collaborative_recommendations:
@@ -95,10 +97,13 @@ class HybridRecommender:
                     "name": str(recommendation["name"]),
                     "content_score": None,
                     "collaborative_score": None,
+                    "content_reason": None,
+                    "collaborative_reason": None,
                 },
             )
             candidate["name"] = candidate["name"] or str(recommendation["name"])
             candidate["collaborative_score"] = float(recommendation["score"])
+            candidate["collaborative_reason"] = recommendation.get("reason")
 
         combined = []
         for candidate in candidates.values():
@@ -124,6 +129,7 @@ class HybridRecommender:
                     "name": candidate["name"],
                     "score": round(float(score), 4),
                     "source": source,
+                    "reason": self._combined_reason(candidate, source),
                 }
             )
 
@@ -173,6 +179,26 @@ class HybridRecommender:
             collaborative_recommendations,
             top_n,
         )
+
+    @staticmethod
+    def _combined_reason(candidate: dict, source: str) -> str:
+        """Keep the strongest available explanation across model signals."""
+        content_reason = candidate.get("content_reason")
+        collaborative_reason = candidate.get("collaborative_reason")
+
+        if source == "hybrid" and content_reason and collaborative_reason:
+            return (
+                f"{content_reason.rstrip('.')} It is also supported by similar "
+                "user preferences."
+            )
+
+        if source == "content" and content_reason:
+            return content_reason
+
+        if source == "collaborative" and collaborative_reason:
+            return collaborative_reason
+
+        return "Recommended using the available fitness profile and behaviour signals."
 
 
 # ==========================================================

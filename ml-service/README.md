@@ -36,6 +36,17 @@ uses content-based results without reducing their scores. If either model is
 temporarily unavailable, results from the other healthy model are returned.
 This gives the backend a single ML endpoint while preserving cold-start support.
 
+## Explainable recommendations
+
+Exercise recommendations include a `reason` alongside their score. Content
+recommendations explain matching fitness goals, activity-based difficulty, and
+an optional preferred body part. Collaborative recommendations identify the
+similar-user preference signal. Hybrid recommendations preserve the matching
+profile explanation and add the collaborative signal when both models contribute.
+
+Food similarity recommendations also return a nutrition-profile reason. Reasons
+are explanatory metadata only and do not change ranking scores or API routes.
+
 ## Deep wellness prediction
 
 `DeepRecommendationModel` is a TensorFlow/Keras dense classifier that predicts

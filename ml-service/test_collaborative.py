@@ -67,6 +67,7 @@ class CollaborativeRecommenderTests(unittest.TestCase):
         self.assertEqual(recommendations[0]["exercise_id"], 20)
         self.assertEqual(recommendations[0]["name"], "Exercise Two")
         self.assertGreater(recommendations[0]["score"], 0)
+        self.assertIn("similar exercise preferences", recommendations[0]["reason"])
 
     def test_returns_empty_for_unknown_user(self):
         self.assertEqual(self.recommender.recommend(999), [])
