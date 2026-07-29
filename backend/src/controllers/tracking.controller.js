@@ -2,6 +2,15 @@ const trackingService = require("../services/tracking.service");
 const asyncHandler = require("../utils/asyncHandler");
 const { success } = require("../utils/response");
 
+function disableTrackingCache(req, res) {
+
+    res.set("Cache-Control", "no-store");
+
+    delete req.headers["if-none-match"];
+    delete req.headers["if-modified-since"];
+
+}
+
 const logExercise = asyncHandler(async (req, res) => {
 
     const exerciseLog = await trackingService.logExercise(
@@ -25,6 +34,7 @@ const getTodayExerciseLogs = asyncHandler(async (req, res) => {
             req.user.user_id
         );
 
+    disableTrackingCache(req, res);
     success(res, exerciseLogs);
 
 });
@@ -51,6 +61,7 @@ const getTodayWater = asyncHandler(async (req, res) => {
         req.user.user_id
     );
 
+    disableTrackingCache(req, res);
     success(res, water);
 
 });
@@ -78,6 +89,7 @@ const getTodayNutritionLogs = asyncHandler(async (req, res) => {
             req.user.user_id
         );
 
+    disableTrackingCache(req, res);
     success(res, nutritionLogs);
 
 });

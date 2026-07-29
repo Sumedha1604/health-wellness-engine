@@ -31,6 +31,7 @@ describe("Tracking API", () => {
             .set("Authorization", `Bearer ${token}`);
 
         expect(response.statusCode).toBe(200);
+        expect(response.headers["cache-control"]).toBe("no-store");
         expect(response.body.data).toEqual({
             consumed: 0,
             goal: 2500,
@@ -99,6 +100,7 @@ describe("Tracking API", () => {
             .set("Authorization", `Bearer ${token}`);
 
         expect(response.statusCode).toBe(200);
+        expect(response.headers["cache-control"]).toBe("no-store");
         expect(response.body.success).toBe(true);
         expect(response.body.data).toEqual({
             consumed: 1500,
@@ -177,6 +179,7 @@ describe("Tracking API", () => {
             .set("Authorization", `Bearer ${token}`);
 
         expect(response.statusCode).toBe(200);
+        expect(response.headers["cache-control"]).toBe("no-store");
         expect(response.body.success).toBe(true);
         expect(Array.isArray(response.body.data)).toBe(true);
         expect(response.body.data).toHaveLength(1);
@@ -227,6 +230,7 @@ describe("Tracking API", () => {
             .set("Authorization", `Bearer ${token}`);
 
         expect(response.statusCode).toBe(200);
+        expect(response.headers["cache-control"]).toBe("no-store");
         expect(response.body.success).toBe(true);
         expect(Array.isArray(response.body.data)).toBe(true);
         expect(response.body.data).toHaveLength(1);
@@ -234,6 +238,59 @@ describe("Tracking API", () => {
             food_id: foodId,
             quantity: "1.50",
         });
+
+    });
+
+    test("GET /api/tracking/nutrition/today should include today's meal plan nutrition", async () => {
+
+        const { token } = await createAuthenticatedUser();
+        const foodId = await getFoodId(token);
+        const today = new Date().toISOString().slice(0, 10);
+
+        const createMealResponse = await request(app)
+            .post("/api/meal-plans")
+            .set("Authorization", `Bearer ${token}`)
+            .send({
+                food_id: foodId,
+                meal_type: "Lunch",
+                meal_date: today,
+                quantity: 2,
+            });
+
+        expect(createMealResponse.statusCode).toBe(201);
+
+        const response = await request(app)
+            .get("/api/tracking/nutrition/today")
+            .set("Authorization", `Bearer ${token}`);
+
+        expect(response.statusCode).toBe(200);
+        expect(response.headers["cache-control"]).toBe("no-store");
+        expect(response.body.data).toHaveLength(1);
+        expect(response.body.data[0]).toMatchObject({
+            food_id: foodId,
+            quantity: "2.00",
+            source: "meal_plan",
+        });
+        expect(Number(response.body.data[0].caloric_value)).toBeGreaterThan(0);
+
+    });
+
+    test("GET /api/tracking/nutrition/today should not return a cached response", async () => {
+
+        const { token } = await createAuthenticatedUser();
+
+        const initialResponse = await request(app)
+            .get("/api/tracking/nutrition/today")
+            .set("Authorization", `Bearer ${token}`);
+
+        const response = await request(app)
+            .get("/api/tracking/nutrition/today")
+            .set("Authorization", `Bearer ${token}`)
+            .set("If-None-Match", initialResponse.headers.etag);
+
+        expect(response.statusCode).toBe(200);
+        expect(response.headers["cache-control"]).toBe("no-store");
+        expect(response.body.data).toEqual([]);
 
     });
 

@@ -130,9 +130,9 @@ function NutritionSummary({ summary, history }) {
     <section className="wellness-card p-6 sm:p-8">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="wellness-eyebrow">Fuel overview</p>
+          <p className="wellness-eyebrow">Nutrition distribution</p>
           <h2 className="mt-1 text-xl font-semibold tracking-tight text-wellness-slate">
-            Nutrition summary
+            Macronutrient breakdown
           </h2>
           <p className="mt-1 text-sm text-[#6b8582]">
             Today&apos;s macro snapshot from your meal plan and nutrition logs.
@@ -274,7 +274,7 @@ export default function DashboardAnalytics({ overview, history, summary, analyti
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <LineChart
-          title="Progress trends"
+          title="Calorie summary"
           subtitle="Calories logged across your most recent seven days."
           data={safeHistory}
           dataKey="calories"

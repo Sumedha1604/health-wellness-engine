@@ -141,16 +141,37 @@ async function getTodayNutritionLogs(userId) {
             f.caloric_value,
             f.protein,
             f.carbohydrates,
-            f.fat
+            f.fat,
+            'nutrition_log' AS source
         FROM nutrition_logs nl
         INNER JOIN foods f
             ON nl.food_id = f.food_id
         WHERE
             nl.user_id = ?
             AND DATE(nl.logged_at) = CURDATE()
-        ORDER BY nl.logged_at DESC
+
+        UNION ALL
+
+        SELECT
+            mp.meal_plan_id AS id,
+            mp.food_id,
+            mp.quantity,
+            CAST(mp.meal_date AS DATETIME) AS logged_at,
+            f.food_name,
+            f.caloric_value,
+            f.protein,
+            f.carbohydrates,
+            f.fat,
+            'meal_plan' AS source
+        FROM meal_plans mp
+        INNER JOIN foods f
+            ON mp.food_id = f.food_id
+        WHERE
+            mp.user_id = ?
+            AND mp.meal_date = CURDATE()
+        ORDER BY logged_at DESC, id DESC
         `,
-        [userId]
+        [userId, userId]
     );
 
     return rows;

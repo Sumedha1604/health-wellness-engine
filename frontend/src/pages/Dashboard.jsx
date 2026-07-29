@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import DashboardHeader from "../components/dashboard/DashboardHeader";
 import DashboardStats from "../components/dashboard/DashboardStats";
 import WaterIntake from "../components/dashboard/WaterIntake";
 import ExerciseHistory from "../components/dashboard/ExerciseHistory";
-import NutritionTracking from "../components/dashboard/NutritionTracking";
 import AIWellnessSummary from "../components/dashboard/AIWellnessSummary";
 import DashboardAnalytics from "../components/dashboard/DashboardAnalytics";
 import RecentMeals from "../components/charts/RecentMeals";
@@ -27,6 +26,7 @@ import {
   getProgressHistory,
   getProgressOverview,
 } from "../services/progress.service";
+import { NUTRITION_UPDATED_EVENT } from "../services/tracking.service";
 
 
 export default function Dashboard() {
@@ -48,64 +48,69 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
 
 
-  useEffect(() => {
+  const loadDashboard = useCallback(async () => {
 
-    async function loadDashboard() {
+    try {
 
-      try {
+      const dashboardData = await getDashboard();
 
-        const dashboardData = await getDashboard();
+      const todayData = await getTodaySummary();
 
-        const todayData = await getTodaySummary();
+      const recommendationData = await getRecommendations();
 
-        const recommendationData = await getRecommendations();
+      const wellnessData = await getWellnessSummary();
 
-        const wellnessData = await getWellnessSummary();
-
-        const analyticsResults = await Promise.allSettled([
-          getProgressOverview(),
-          getProgressHistory(),
-          getRecommendationAnalytics(),
-        ]);
+      const analyticsResults = await Promise.allSettled([
+        getProgressOverview(),
+        getProgressHistory(),
+        getRecommendationAnalytics(),
+      ]);
 
 
-        setDashboard(dashboardData);
+      setDashboard(dashboardData);
 
-        setSummary(todayData);
+      setSummary(todayData);
 
-        setRecommendations(recommendationData);
+      setRecommendations(recommendationData);
 
-        setWellnessSummary(wellnessData);
+      setWellnessSummary(wellnessData);
 
-        if (analyticsResults[0].status === "fulfilled") {
-          setProgressOverview(analyticsResults[0].value);
-        }
-
-        if (analyticsResults[1].status === "fulfilled") {
-          setProgressHistory(analyticsResults[1].value);
-        }
-
-        if (analyticsResults[2].status === "fulfilled") {
-          setRecommendationAnalytics(analyticsResults[2].value);
-        }
-
-
-      } catch (error) {
-
-        console.error(error);
-
-      } finally {
-
-        setLoading(false);
-
+      if (analyticsResults[0].status === "fulfilled") {
+        setProgressOverview(analyticsResults[0].value);
       }
+
+      if (analyticsResults[1].status === "fulfilled") {
+        setProgressHistory(analyticsResults[1].value);
+      }
+
+      if (analyticsResults[2].status === "fulfilled") {
+        setRecommendationAnalytics(analyticsResults[2].value);
+      }
+
+    } catch (error) {
+
+      console.error(error);
+
+    } finally {
+
+      setLoading(false);
 
     }
 
+  }, []);
+
+
+  useEffect(() => {
 
     loadDashboard();
 
-  }, []);
+    window.addEventListener(NUTRITION_UPDATED_EVENT, loadDashboard);
+
+    return () => {
+      window.removeEventListener(NUTRITION_UPDATED_EVENT, loadDashboard);
+    };
+
+  }, [loadDashboard]);
 
 
 
@@ -154,9 +159,6 @@ export default function Dashboard() {
         <ExerciseHistory />
 
       </div>
-
-
-      <NutritionTracking />
 
 
       <AIWellnessSummary summary={wellnessSummary} />

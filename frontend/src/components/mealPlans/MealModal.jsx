@@ -9,6 +9,7 @@ import {
   createMealPlan,
   updateMealPlan,
 } from "../../services/mealPlan.service";
+import { NUTRITION_UPDATED_EVENT } from "../../services/tracking.service";
 
 function getDefaultForm() {
   return {
@@ -109,6 +110,8 @@ export default function MealModal({
 
       setForm(getDefaultForm());
       setSelectedFood(null);
+
+      window.dispatchEvent(new Event(NUTRITION_UPDATED_EVENT));
 
       onClose();
     } catch (error) {

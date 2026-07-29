@@ -1,6 +1,7 @@
 import api from "./api";
 
 export const EXERCISE_LOGGED_EVENT = "exercise-logged";
+export const NUTRITION_UPDATED_EVENT = "nutrition-updated";
 
 export async function logExercise(
   exerciseId,
