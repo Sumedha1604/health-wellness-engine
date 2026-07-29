@@ -83,6 +83,28 @@ each user's recorded positive interactions. The evaluator reports:
   first K recommendations.
 - **F1@K**: the harmonic mean of Precision@K and Recall@K.
 
+Run the existing collaborative recommendation pipeline against the labelled,
+held-out interactions in `data/test_interactions.csv`:
+
+```bash
+cd ml-service
+python evaluation/evaluate_recommendations.py
+```
+
+The default cutoff is 5. Use a different cutoff or dataset with:
+
+```bash
+python evaluation/evaluate_recommendations.py \
+  --data data/test_interactions.csv \
+  --k 10
+```
+
+The evaluation CSV must contain `user_id`, `item_id`, `item_type`, and a binary
+`interaction` label (`1` for positive and `0` for negative). The script removes
+each user's positive test items from that user's training history before calling
+the existing recommendation pipeline, then prints macro-averaged Precision@K,
+Recall@K, and F1@K.
+
 Metrics return `0.0` when no recommendations or no actual interactions are
 available, so cold-start users do not cause an evaluation failure. Use an
 exported JSON file in either of these formats:
