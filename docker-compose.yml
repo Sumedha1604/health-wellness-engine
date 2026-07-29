@@ -27,7 +27,7 @@ services:
       DB_PASSWORD: ${MYSQL_PASSWORD}
       DB_NAME: ${MYSQL_DATABASE}
       JWT_SECRET: ${JWT_SECRET}
-      ML_SERVICE_URL: ${ML_SERVICE_URL:-http://ml-service:8000}
+      ML_SERVICE_URL: http://ml-service:8000
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:4173}
       GROQ_API_KEY: ${GROQ_API_KEY:-}
       GROQ_MODEL: ${GROQ_MODEL:-llama-3.3-70b-versatile}
@@ -39,7 +39,7 @@ services:
       dev-seed:
         condition: service_completed_successfully
       ml-service:
-        condition: service_started
+        condition: service_healthy
 
   mysql:
     image: mysql:8.4
@@ -106,6 +106,12 @@ services:
       DB_USER: ${MYSQL_USER}
       DB_PASSWORD: ${MYSQL_PASSWORD}
       DB_NAME: ${MYSQL_DATABASE}
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
     depends_on:
       mysql:

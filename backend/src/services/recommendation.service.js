@@ -9,6 +9,18 @@ const ML_SERVICE_URL =
 const ML_SERVICE_TIMEOUT = 2000;
 
 
+function logMlServiceFailure(label, url, error) {
+
+  console.warn(`${label} ML service request failed.`, {
+    url,
+    status: error.response?.status || null,
+    response: error.response?.data || null,
+    message: error.message,
+  });
+
+}
+
+
 function isValidMlResponse(response) {
 
   return Array.isArray(response?.data?.recommendations)
@@ -132,19 +144,21 @@ async function getLegacyExerciseRecommendations(
   exerciseFeedback
 ) {
 
-  const response = await axios.get(
-    `${ML_SERVICE_URL}/recommendations/hybrid/${userId}`,
+  const response = await axios.post(
+    `${ML_SERVICE_URL}/recommend/collaborative`,
     {
-      params: {
-        fitness_goal: preferences.fitness_goal,
-        activity_level: preferences.activity_level,
-        feedback: JSON.stringify(exerciseFeedback),
-      },
+      user_id: userId,
+    },
+    {
       timeout: ML_SERVICE_TIMEOUT,
     }
   );
 
-  return Array.isArray(response.data) ? response.data : [];
+  if (!isValidMlResponse(response)) {
+    throw new Error("Invalid collaborative ML recommendation response");
+  }
+
+  return response.data.recommendations;
 
 }
 
@@ -350,8 +364,10 @@ try {
 
 } catch (error) {
 
-  console.warn(
-    "Hybrid ML recommendation service unavailable. Trying content-based ML recommendations."
+  logMlServiceFailure(
+    "Hybrid exercise recommendation",
+    `${ML_SERVICE_URL}/recommend/hybrid`,
+    error
   );
 
   try {
@@ -368,22 +384,31 @@ try {
 
   } catch (contentError) {
 
-    console.warn(
-      "Content-based ML recommendation service unavailable. Using existing recommendation fallback."
+    logMlServiceFailure(
+      "Content-based exercise recommendation",
+      `${ML_SERVICE_URL}/recommend`,
+      contentError
     );
 
     try {
 
-      recommendedExercises = await getLegacyExerciseRecommendations(
+      const collaborativeRecommendations = await getLegacyExerciseRecommendations(
         userId,
         preferences,
         exerciseFeedback
       );
 
+      recommendedExercises = await formatMlExerciseRecommendations(
+        collaborativeRecommendations,
+        preferences
+      );
+
     } catch (fallbackError) {
 
-      console.log(
-        "Exercise recommendation service unavailable"
+      logMlServiceFailure(
+        "Collaborative exercise recommendation",
+        `${ML_SERVICE_URL}/recommend/collaborative`,
+        fallbackError
       );
 
     }
@@ -393,10 +418,9 @@ try {
 
 
 
-try {
-
 let foodId = null;
 
+try {
 
 const foodIdQuery = await db.execute(
   `
@@ -434,8 +458,10 @@ mlFoodRecommendations = foodResponse.data;
 
 } catch (error) {
 
-  console.log(
-    "Food recommendation service unavailable"
+  logMlServiceFailure(
+    "Food recommendation",
+    `${ML_SERVICE_URL}/recommendations/food/${foodId}`,
+    error
   );
 
 }

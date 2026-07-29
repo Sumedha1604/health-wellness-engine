@@ -167,17 +167,13 @@ describe("Recommendation service", () => {
         expect(result.recommended_exercises[0].title).toBe("Slow Jog");
     });
 
-    test("falls back to existing recommendations when ML is unavailable", async () => {
+    test("falls back to collaborative ML recommendations when hybrid and content calls fail", async () => {
 
         const fallbackRecommendations = [
             {
                 exercise_id: 101,
-                title: "Legacy Cardio Exercise",
-                body_part: "Quadriceps",
-                equipment: "Body Only",
-                difficulty_level: "Beginner",
+                name: "Legacy Cardio Exercise",
                 score: 0.7,
-                reason: "Existing recommendation fallback",
             },
         ];
 
@@ -202,24 +198,48 @@ describe("Recommendation service", () => {
                     },
                 ],
             ])
-            .mockResolvedValueOnce([[]]);
+            .mockResolvedValueOnce([
+                [
+                    {
+                        exercise_id: 101,
+                        title: "Legacy Cardio Exercise",
+                        body_part: "Quadriceps",
+                        equipment: "Body Only",
+                        difficulty_level: "Beginner",
+                    },
+                ],
+            ]);
 
-        axios.post.mockResolvedValueOnce({
-            data: { recommendations: "invalid" },
-        });
-        axios.get
-            .mockResolvedValueOnce({ data: fallbackRecommendations })
+        axios.post
+            .mockResolvedValueOnce({
+                data: { recommendations: "invalid" },
+            })
             .mockRejectedValueOnce(
-                new Error("Food recommendation service unavailable")
-            );
+                new Error("Content-based ML service unavailable")
+            )
+            .mockResolvedValueOnce({
+                data: { recommendations: fallbackRecommendations },
+            });
 
         const result = await recommendationService.generateRecommendations(11);
 
-        expect(axios.get).toHaveBeenCalledWith(
-            "http://localhost:8000/recommendations/hybrid/11",
+        expect(axios.post).toHaveBeenNthCalledWith(
+            3,
+            "http://localhost:8000/recommend/collaborative",
+            { user_id: 11 },
             expect.objectContaining({ timeout: 2000 })
         );
-        expect(result.recommended_exercises).toEqual(fallbackRecommendations);
+        expect(result.recommended_exercises).toEqual([
+            {
+                exercise_id: 101,
+                title: "Legacy Cardio Exercise",
+                body_part: "Quadriceps",
+                equipment: "Body Only",
+                difficulty_level: "Beginner",
+                score: 0.7,
+                reason: "Matches your Improve Endurance goal and Beginner activity level.",
+            },
+        ]);
     });
 
     test("generateRecommendations throws when preferences are missing", async () => {

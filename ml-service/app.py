@@ -2,6 +2,7 @@
 
 from pathlib import Path
 from typing import Any
+import json
 
 import mysql.connector
 from dotenv import load_dotenv
@@ -13,6 +14,7 @@ from models.content_recommender import ContentBasedRecommender
 from models.collaborative_recommender import CollaborativeRecommender
 from models.deep_recommender import DeepRecommendationModel
 from models.hybrid_recommender import HybridRecommender
+from models.food_recommender import recommend_foods
 
 
 SERVICE_ROOT = Path(__file__).resolve().parent
@@ -165,3 +167,26 @@ def recommend_deep(
             for recommendation in content_recommendations[:top_n]
         ]
     }
+
+
+@app.get("/recommendations/food/{food_id}")
+def recommend_foods_for_user(
+    food_id: int,
+    feedback: str | None = None,
+    limit: int = Query(default=5, ge=1, le=50),
+) -> list[dict[str, Any]]:
+    """Return existing food-model recommendations for the selected food."""
+
+    try:
+        feedback_scores = json.loads(feedback) if feedback else {}
+    except json.JSONDecodeError as error:
+        raise HTTPException(status_code=422, detail="Invalid feedback payload") from error
+
+    try:
+        return recommend_foods(
+            food_id,
+            limit=limit,
+            feedback_scores=feedback_scores,
+        )
+    except (FileNotFoundError, ValueError, KeyError) as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
