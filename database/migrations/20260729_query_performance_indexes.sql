@@ -1,4 +1,5 @@
--- Performance indexes applied to new databases after schema creation.
+-- Indexes selected from production query shapes. MySQL already indexes foreign
+-- key columns, so those indexes are not duplicated here.
 ALTER TABLE meal_plans
     ADD INDEX idx_meal_plans_user_date_id (user_id, meal_date, meal_plan_id);
 
