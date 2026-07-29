@@ -72,6 +72,9 @@ export default function RecommendedFoods({
 
           const isObject = typeof food !== "string";
 
+          const hasNutritionDetails =
+            isObject && food.caloric_value != null;
+
 
           const name = isObject
             ? food.food_name || "Recommended Food"
@@ -192,7 +195,7 @@ export default function RecommendedFoods({
 
 
 
-              {isObject && (
+              {hasNutritionDetails && (
 
                 <div className="mt-5 grid grid-cols-2 gap-3">
 
@@ -316,7 +319,7 @@ export default function RecommendedFoods({
 
               <div className="mt-5 rounded-2xl bg-wellness-mist p-4">
                 <p className="text-xs font-bold uppercase tracking-[0.14em] text-wellness-teal">
-                  Why this match
+                  Why this was recommended
                 </p>
                 <p className="mt-1 text-sm leading-6 text-wellness-slate">
                   {isObject && food.reason

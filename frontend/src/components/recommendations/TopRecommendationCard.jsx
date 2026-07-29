@@ -69,7 +69,7 @@ export default function TopRecommendationCard({
           />
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-wellness-teal">
-              Why it stands out
+              Why this was recommended
             </p>
             <p className="mt-1 text-sm leading-6 text-wellness-slate">
               {isObject && recommendation.reason

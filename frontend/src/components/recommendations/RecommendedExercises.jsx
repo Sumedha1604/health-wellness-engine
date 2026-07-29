@@ -226,7 +226,7 @@ export default function RecommendedExercises({
 
                   <div className="mt-5 rounded-2xl bg-wellness-mist p-4">
                     <p className="text-xs font-bold uppercase tracking-[0.14em] text-wellness-teal">
-                      Why this match
+                      Why this was recommended
                     </p>
                     <p className="mt-1 text-sm leading-6 text-wellness-slate">
                       {exercise.reason || "Selected to support your current wellness preferences."}

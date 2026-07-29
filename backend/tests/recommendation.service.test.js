@@ -66,6 +66,7 @@ describe("Recommendation service", () => {
                         exercise_id: 2176,
                         name: "Slow Jog",
                         score: 0.7819,
+                        reason: "Recommended because it matches endurance training and beginner workouts.",
                     },
                 ],
             },
@@ -94,7 +95,7 @@ describe("Recommendation service", () => {
                 equipment: "Body Only",
                 difficulty_level: "Beginner",
                 score: 0.7819,
-                reason: "Matches your Improve Endurance goal and Beginner activity level.",
+                reason: "Recommended because it matches endurance training and beginner workouts.",
             },
         ]);
     });
@@ -237,7 +238,7 @@ describe("Recommendation service", () => {
                 equipment: "Body Only",
                 difficulty_level: "Beginner",
                 score: 0.7,
-                reason: "Matches your Improve Endurance goal and Beginner activity level.",
+                reason: "Recommended because it matches your Improve Endurance goal and Beginner activity level.",
             },
         ]);
     });
@@ -293,17 +294,21 @@ describe("Recommendation service", () => {
 
         expect(result.fitness_goal).toBe("Weight Loss");
         expect(result.summary.calorie_target).toBe(1800);
-        expect(result.top_recommendation).toEqual({
+        expect(result.top_recommendation).toMatchObject({
             food_id: 123,
             food_name: "Chicken Breast",
+            reason: expect.any(String),
         });
         expect(result.ai_tip).toContain("protein intake is low");
-        expect(result.recommended_foods).toEqual([
+        expect(result.recommended_foods.map((food) => food.food_name)).toEqual([
             "Chicken Breast",
             "Eggs",
             "Greek Yogurt",
             "Salmon",
         ]);
+        expect(result.recommended_foods.every(
+            (food) => typeof food.reason === "string" && food.reason.length > 0
+        )).toBe(true);
         expect(result.nutrition_score).toBe(50);
 
     });
@@ -348,17 +353,21 @@ describe("Recommendation service", () => {
         expect(result.fitness_goal).toBe("Maintenance");
         expect(result.summary.calorie_target).toBe(2200);
         expect(result.summary.calories).toBe(600);
-        expect(result.top_recommendation).toEqual({
+        expect(result.top_recommendation).toMatchObject({
             food_id: 456,
             food_name: "Brown Rice",
+            reason: expect.any(String),
         });
         expect(result.ai_tip).toContain("calorie target");
-        expect(result.recommended_foods).toEqual([
+        expect(result.recommended_foods.map((food) => food.food_name)).toEqual([
             "Brown Rice",
             "Oats",
             "Banana",
             "Peanut Butter",
         ]);
+        expect(result.recommended_foods.every(
+            (food) => typeof food.reason === "string" && food.reason.length > 0
+        )).toBe(true);
 
     });
 

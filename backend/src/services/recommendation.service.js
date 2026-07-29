@@ -131,7 +131,10 @@ async function formatMlExerciseRecommendations(
       equipment: exercise?.equipment || "Not specified",
       difficulty_level: exercise?.difficulty_level || preferences.activity_level,
       score: Number(recommendation.score),
-      reason: `Matches your ${preferences.fitness_goal} goal and ${preferences.activity_level} activity level.`,
+      reason: recommendation.reason || (
+        `Recommended because it matches your ${preferences.fitness_goal} goal ` +
+        `and ${preferences.activity_level} activity level.`
+      ),
     };
   });
 
@@ -340,6 +343,9 @@ async function generateRecommendations(userId) {
   topRecommendation = {
     food_id: topRecommendationFood?.food_id,
     food_name: topRecommendationFood?.food_name || recommendedFoods[0],
+    reason: totalProtein < 80
+      ? "Recommended because it supports your protein target and diet preference."
+      : "Recommended because it supports your daily nutrition needs and diet preference.",
   };
 
 
@@ -517,7 +523,10 @@ mlFoodRecommendations = foodResponse.data;
     recommended_foods:
     mlFoodRecommendations.length > 0
       ? mlFoodRecommendations
-      : recommendedFoods,
+      : recommendedFoods.map((food_name) => ({
+        food_name,
+        reason: "Recommended because it fits your current nutrition needs and diet preference.",
+      })),
 
 
     recommended_exercises:
