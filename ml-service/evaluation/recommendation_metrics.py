@@ -1,5 +1,7 @@
 """Reusable offline metrics for the hybrid recommendation service."""
 
+import math
+
 
 def _item_identifier(item):
     """Return a comparable identifier from an item id or recommendation object."""
@@ -64,6 +66,23 @@ def f1_at_k(recommended_items, actual_items, k):
     return 2 * precision * recall / (precision + recall)
 
 
+def ndcg_at_k(recommended_items, actual_items, k):
+    """Return binary normalized discounted cumulative gain at K."""
+    relevant = set(_normalise_items(actual_items))
+    top_k = _top_k_items(recommended_items, k)
+
+    if not relevant or not top_k:
+        return 0.0
+
+    dcg = sum(
+        (1.0 if item_id in relevant else 0.0) / math.log2(rank + 2)
+        for rank, item_id in enumerate(top_k)
+    )
+    ideal_length = min(k, len(relevant))
+    ideal_dcg = sum(1.0 / math.log2(rank + 2) for rank in range(ideal_length))
+    return dcg / ideal_dcg if ideal_dcg else 0.0
+
+
 def diversity_score(recommendations):
     """Measure body-part and equipment variety on a 0-to-1 scale."""
     if not recommendations:
@@ -121,6 +140,11 @@ def evaluate_recommendations(
             k
         ),
         "f1_at_k": f1_at_k(
+            recommended_ids,
+            relevant_ids,
+            k
+        ),
+        "ndcg_at_k": ndcg_at_k(
             recommended_ids,
             relevant_ids,
             k

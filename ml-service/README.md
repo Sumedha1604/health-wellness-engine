@@ -47,6 +47,13 @@ profile explanation and add the collaborative signal when both models contribute
 Food similarity recommendations also return a nutrition-profile reason. Reasons
 are explanatory metadata only and do not change ranking scores or API routes.
 
+Food ranking uses robustly normalized calories, protein, carbohydrates, and fat.
+Legacy seed-food requests rank by macro similarity; callers that provide a user
+profile additionally receive ranking by fitness goal, diet type, calorie target,
+protein target, nutrition similarity, and feedback. All signals are normalized
+before their configurable weighted combination, while response fields and API
+routes remain unchanged.
+
 ## Deep wellness prediction
 
 `DeepRecommendationModel` is a TensorFlow/Keras dense classifier that predicts
@@ -82,12 +89,15 @@ each user's recorded positive interactions. The evaluator reports:
 - **Recall@K**: the fraction of a user's actual interactions found in the
   first K recommendations.
 - **F1@K**: the harmonic mean of Precision@K and Recall@K.
+- **NDCG@K**: ranking quality that gives more credit when relevant items appear
+  near the top of the recommendation list.
 
-Run the existing collaborative recommendation pipeline against the labelled,
-held-out interactions in `data/test_interactions.csv`:
+Generate the reproducible synthetic benchmark from the processed exercise and
+food catalogues, then evaluate the existing recommendation pipelines:
 
 ```bash
 cd ml-service
+python evaluation/generate_test_data.py
 python evaluation/evaluate_recommendations.py
 ```
 
@@ -99,11 +109,24 @@ python evaluation/evaluate_recommendations.py \
   --k 10
 ```
 
-The evaluation CSV must contain `user_id`, `item_id`, `item_type`, and a binary
-`interaction` label (`1` for positive and `0` for negative). The script removes
-each user's positive test items from that user's training history before calling
-the existing recommendation pipeline, then prints macro-averaged Precision@K,
-Recall@K, and F1@K.
+The generator creates deterministic synthetic users covering weight loss,
+muscle gain, endurance, and general fitness, with varied activity levels, body
+parts, equipment, and diet preferences. Positive exercise labels independently match the
+profile's goal, activity level, and exercise attributes; positive food labels
+match diet-specific nutrition rules. Low-scoring, unrelated catalogue items are
+labelled negative. The CSV contains `user_id`, `item_id`, `item_type`, and a
+binary `interaction` label (`1` for positive and `0` for negative).
+
+Evaluation uses the existing hybrid pipeline's cold-start content behaviour for
+exercise users and the existing food-similarity pipeline for foods. Metrics are
+macro-averaged across user/item-type cohorts so exercise and food scenarios have
+equal weight. Synthetic labels are generated from explicit relevance rules, not
+by copying the recommenders' output.
+
+Hybrid ranking normalizes content and collaborative scores separately before
+combining them. Constructor weights are configurable for content similarity,
+collaborative similarity, goal match, activity match, difficulty match, and diet
+match; unavailable signals do not dilute the remaining evidence.
 
 Metrics return `0.0` when no recommendations or no actual interactions are
 available, so cold-start users do not cause an evaluation failure. Use an

@@ -116,7 +116,16 @@ class ContentBasedRecommender:
         profile_vector = self.encoder.transform(profile_features) * self.feature_weights
         scores = cosine_similarity(profile_vector, self.exercise_vectors)[0]
 
-        ranked_indexes = np.argsort(scores)[::-1][:top_n]
+        # Use exercise id as a stable tie-breaker. NumPy's reversed argsort
+        # otherwise favours whichever equally relevant row happens to occur
+        # latest in the catalogue, making ranking quality data-order dependent.
+        ranked_indexes = sorted(
+            range(len(scores)),
+            key=lambda index: (
+                -float(scores[index]),
+                int(self.exercises.iloc[index]["exercise_id"]),
+            ),
+        )[:top_n]
         recommendations = []
 
         for index in ranked_indexes:

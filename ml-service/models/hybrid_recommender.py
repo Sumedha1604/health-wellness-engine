@@ -10,6 +10,8 @@ from models.exercise_recommender import (
 
 from collections import Counter
 
+import pandas as pd
+
 from models.collaborative_recommender import CollaborativeRecommender
 from models.content_recommender import ContentBasedRecommender
 
@@ -29,12 +31,27 @@ class HybridRecommender:
         collaborative_recommender: CollaborativeRecommender | None = None,
         content_weight: float = 0.5,
         collaborative_weight: float = 0.5,
+        goal_weight: float = 0.8,
+        activity_weight: float = 0.3,
+        difficulty_weight: float = 0.4,
+        diet_weight: float = 0.2,
+        candidate_pool_multiplier: int = 5,
     ):
-        if content_weight < 0 or collaborative_weight < 0:
+        weights = (
+            content_weight,
+            collaborative_weight,
+            goal_weight,
+            activity_weight,
+            difficulty_weight,
+            diet_weight,
+        )
+        if any(weight < 0 for weight in weights):
             raise ValueError("Recommendation weights must be non-negative")
 
-        if content_weight + collaborative_weight == 0:
+        if sum(weights) == 0:
             raise ValueError("At least one recommendation weight must be positive")
+        if not isinstance(candidate_pool_multiplier, int) or candidate_pool_multiplier < 1:
+            raise ValueError("candidate_pool_multiplier must be a positive integer")
 
         self.content_recommender = content_recommender or ContentBasedRecommender()
         self.collaborative_recommender = (
@@ -42,6 +59,11 @@ class HybridRecommender:
         )
         self.content_weight = content_weight
         self.collaborative_weight = collaborative_weight
+        self.goal_weight = goal_weight
+        self.activity_weight = activity_weight
+        self.difficulty_weight = difficulty_weight
+        self.diet_weight = diet_weight
+        self.candidate_pool_multiplier = candidate_pool_multiplier
 
     def get_content_recommendations(
         self,
@@ -66,6 +88,7 @@ class HybridRecommender:
         content_recommendations: list[dict],
         collaborative_recommendations: list[dict],
         top_n: int,
+        user_profile: dict | None = None,
     ) -> list[dict]:
         """Merge recommendation scores by exercise id using weighted ranking.
 
@@ -76,13 +99,16 @@ class HybridRecommender:
         """
 
         candidates: dict[int, dict] = {}
+        content_scores = self._normalise_scores(content_recommendations)
+        collaborative_scores = self._normalise_scores(collaborative_recommendations)
+        exercise_features = self._exercise_features()
 
         for recommendation in content_recommendations:
             exercise_id = int(recommendation["exercise_id"])
             candidates[exercise_id] = {
                 "exercise_id": exercise_id,
                 "name": str(recommendation["name"]),
-                "content_score": float(recommendation["score"]),
+                "content_score": content_scores[exercise_id],
                 "collaborative_score": None,
                 "content_reason": recommendation.get("reason"),
                 "collaborative_reason": None,
@@ -102,7 +128,7 @@ class HybridRecommender:
                 },
             )
             candidate["name"] = candidate["name"] or str(recommendation["name"])
-            candidate["collaborative_score"] = float(recommendation["score"])
+            candidate["collaborative_score"] = collaborative_scores[exercise_id]
             candidate["collaborative_reason"] = recommendation.get("reason")
 
         combined = []
@@ -110,17 +136,33 @@ class HybridRecommender:
             content_score = candidate["content_score"]
             collaborative_score = candidate["collaborative_score"]
 
+            weighted_signals = []
+            if content_score is not None:
+                weighted_signals.append((content_score, self.content_weight))
+            if collaborative_score is not None:
+                weighted_signals.append(
+                    (collaborative_score, self.collaborative_weight)
+                )
+
+            features = exercise_features.get(candidate["exercise_id"])
+            if user_profile and features:
+                weighted_signals.extend(
+                    self._relevance_signals(features, user_profile)
+                )
+
+            available_weight = sum(weight for _, weight in weighted_signals if weight)
+            score = (
+                sum(value * weight for value, weight in weighted_signals)
+                / available_weight
+                if available_weight
+                else 0.0
+            )
+
             if content_score is not None and collaborative_score is not None:
-                score = (
-                    content_score * self.content_weight
-                    + collaborative_score * self.collaborative_weight
-                ) / (self.content_weight + self.collaborative_weight)
                 source = "hybrid"
             elif content_score is not None:
-                score = content_score
                 source = "content"
             else:
-                score = collaborative_score
                 source = "collaborative"
 
             combined.append(
@@ -135,9 +177,72 @@ class HybridRecommender:
 
         return sorted(
             combined,
-            key=lambda recommendation: recommendation["score"],
-            reverse=True,
+            key=lambda recommendation: (
+                -recommendation["score"], recommendation["exercise_id"]
+            ),
         )[:top_n]
+
+    @staticmethod
+    def _normalise_scores(recommendations: list[dict]) -> dict[int, float]:
+        """Min-max normalise one model without comparing unlike score scales."""
+        if not recommendations:
+            return {}
+
+        raw_scores = [float(item["score"]) for item in recommendations]
+        minimum, maximum = min(raw_scores), max(raw_scores)
+        if maximum == minimum:
+            return {
+                int(item["exercise_id"]): 1.0 if maximum > 0 else 0.0
+                for item in recommendations
+            }
+
+        return {
+            int(item["exercise_id"]): (float(item["score"]) - minimum)
+            / (maximum - minimum)
+            for item in recommendations
+        }
+
+    def _exercise_features(self) -> dict[int, dict]:
+        exercises = getattr(self.content_recommender, "exercises", None)
+        if not isinstance(exercises, pd.DataFrame) or exercises.empty:
+            return {}
+        return exercises.set_index("exercise_id").to_dict("index")
+
+    def _relevance_signals(self, exercise: dict, profile: dict) -> list[tuple]:
+        goal_type = ContentBasedRecommender._goal_exercise_type(
+            str(profile.get("fitness_goal", ""))
+        )
+        expected_difficulty = ContentBasedRecommender._activity_difficulty(
+            str(profile.get("activity_level", ""))
+        )
+        actual_difficulty = str(exercise.get("difficulty_level", ""))
+        signals = []
+
+        if goal_type:
+            signals.append(
+                (float(str(exercise.get("exercise_type", "")) == goal_type), self.goal_weight)
+            )
+        if expected_difficulty:
+            exact_match = float(actual_difficulty == expected_difficulty)
+            signals.append((exact_match, self.activity_weight))
+            difficulty_order = {"Beginner": 0, "Intermediate": 1, "Expert": 2}
+            distance = abs(
+                difficulty_order.get(actual_difficulty, 3)
+                - difficulty_order.get(expected_difficulty, 3)
+            )
+            signals.append((max(0.0, 1.0 - 0.5 * distance), self.difficulty_weight))
+
+        # Diet relevance is included when a future exercise catalogue exposes
+        # compatible diet metadata; unavailable signals do not dilute scoring.
+        diet_preference = profile.get("diet_preference")
+        if diet_preference and "diet_preference" in exercise:
+            signals.append(
+                (
+                    float(str(exercise["diet_preference"]) == str(diet_preference)),
+                    self.diet_weight,
+                )
+            )
+        return signals
 
     def recommend(
         self,
@@ -155,11 +260,12 @@ class HybridRecommender:
 
         content_recommendations = []
         collaborative_recommendations = []
+        candidate_pool_size = top_n * self.candidate_pool_multiplier
 
         try:
             content_recommendations = self.get_content_recommendations(
                 user_profile,
-                top_n,
+                candidate_pool_size,
             )
         # An unavailable dataset or database must not prevent the other model
         # from serving its recommendations.
@@ -169,7 +275,7 @@ class HybridRecommender:
         try:
             collaborative_recommendations = self.get_collaborative_recommendations(
                 user_id,
-                top_n,
+                candidate_pool_size,
             )
         except Exception:
             pass
@@ -178,6 +284,7 @@ class HybridRecommender:
             content_recommendations,
             collaborative_recommendations,
             top_n,
+            user_profile,
         )
 
     @staticmethod

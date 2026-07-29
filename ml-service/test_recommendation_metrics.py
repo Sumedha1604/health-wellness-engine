@@ -3,6 +3,7 @@ import unittest
 from evaluation.recommendation_metrics import (
     diversity_score,
     evaluate_recommendations,
+    ndcg_at_k,
     precision_at_k,
     recall_at_k,
     user_satisfaction_score
@@ -31,6 +32,13 @@ class RecommendationMetricsTests(unittest.TestCase):
             1 / 3
         )
 
+    def test_ndcg_rewards_relevant_items_near_the_top(self):
+        self.assertGreater(
+            ndcg_at_k([1, 2, 3], {1, 3}, 3),
+            ndcg_at_k([2, 3, 1], {1, 3}, 3),
+        )
+        self.assertEqual(ndcg_at_k([], {1}, 5), 0.0)
+
     def test_diversity_considers_body_parts_and_equipment(self):
         self.assertEqual(diversity_score(self.recommendations), 0.833)
 
@@ -49,6 +57,7 @@ class RecommendationMetricsTests(unittest.TestCase):
 
         self.assertEqual(report["precision_at_k"], 0.5)
         self.assertEqual(report["recall_at_k"], 0.5)
+        self.assertIn("ndcg_at_k", report)
         self.assertIn("diversity_score", report)
         self.assertEqual(report["user_satisfaction_score"], 0.5)
 

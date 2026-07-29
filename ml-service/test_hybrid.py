@@ -36,7 +36,7 @@ class HybridRecommenderTests(unittest.TestCase):
         recommendations = recommender.recommend(self.profile, user_id=1)
 
         self.assertEqual(recommendations[0]["exercise_id"], 1)
-        self.assertEqual(recommendations[0]["score"], 0.9)
+        self.assertEqual(recommendations[0]["score"], 1.0)
         self.assertEqual(recommendations[0]["source"], "content")
         self.assertTrue(recommendations[0]["reason"])
 
@@ -55,7 +55,7 @@ class HybridRecommenderTests(unittest.TestCase):
         self.assertEqual(len(recommendations), 1)
         self.assertEqual(recommendations[0]["exercise_id"], 1)
         self.assertEqual(recommendations[0]["name"], "Slow Jog")
-        self.assertEqual(recommendations[0]["score"], 0.9)
+        self.assertEqual(recommendations[0]["score"], 1.0)
         self.assertEqual(recommendations[0]["source"], "hybrid")
         self.assertTrue(recommendations[0]["reason"])
 
@@ -77,9 +77,24 @@ class HybridRecommenderTests(unittest.TestCase):
         )
 
         self.assertEqual([item["exercise_id"] for item in recommendations], [1, 2])
-        self.assertEqual(recommendations[0]["score"], 0.9)
+        self.assertEqual(recommendations[0]["score"], 1.0)
         self.assertEqual(recommendations[1]["source"], "content")
         self.assertTrue(all(item["reason"] for item in recommendations))
+
+    def test_relevance_weights_are_configurable(self):
+        recommender = HybridRecommender(
+            content_recommender=StaticRecommender(),
+            collaborative_recommender=StaticRecommender(),
+            content_weight=0.4,
+            collaborative_weight=0.3,
+            goal_weight=1.2,
+            activity_weight=0.5,
+            difficulty_weight=0.6,
+            diet_weight=0.1,
+        )
+
+        self.assertEqual(recommender.goal_weight, 1.2)
+        self.assertEqual(recommender.difficulty_weight, 0.6)
 
     def test_model_failure_returns_available_recommendations(self):
         recommender = HybridRecommender(
