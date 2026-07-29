@@ -4,13 +4,32 @@ This service provides content-based, collaborative, and hybrid exercise
 recommendations while the backend keeps its existing recommendation system
 available as a fallback.
 
+## Recommendation architecture overview
+
+```text
+Frontend → Backend API → ML Service → MySQL
+              │               │
+              │               ├─ Content-based ranking
+              │               ├─ Collaborative ranking
+              │               └─ Hybrid score combination
+              └────────────────── Application data and fallback responses
+```
+
+The frontend never calls the ML service or database directly. The authenticated
+backend assembles a user profile and requests recommendations from the FastAPI
+ML service. Content ranking reads the exercise and food catalogues;
+collaborative ranking reads persisted recommendation interactions from MySQL.
+The backend validates and formats model results and retains its existing
+fallback path when the ML service is unavailable or returns no usable result.
+
 ## Content-based recommendations
 
 `ContentBasedRecommender` one-hot encodes exercise type, body part, equipment,
 and difficulty level (plus target muscles when a future dataset provides them).
-It builds a user-profile vector from fitness goal and activity level, then uses
-cosine similarity to rank exercises. Later phases may add additional signals
-and model evaluation.
+It maps fitness goal, activity level, and optional body-part/equipment
+preferences into the same feature space, calculates cosine similarity, and
+ranks the closest exercises. This path does not require interaction history, so
+it provides deterministic cold-start recommendations for a new user.
 
 ## Collaborative recommendations
 
@@ -28,8 +47,9 @@ an empty list rather than generated or fake recommendations.
 ## Hybrid recommendations
 
 `HybridRecommender` combines the independent content-based and collaborative
-rankings by exercise id. When both models recommend the same exercise, its final
-score is calculated as `content_score * 0.5 + collaborative_score * 0.5`.
+rankings by exercise id. It first min-max normalizes each model's scores. When
+both models recommend the same exercise, its final score is calculated as
+`content_score * 0.5 + collaborative_score * 0.5`.
 
 For a new user or a user without usable interaction data, the hybrid pipeline
 uses content-based results without reducing their scores. If either model is
@@ -152,6 +172,42 @@ python evaluate_model.py \
   --interactions datasets/processed/interactions.csv \
   --k 5
 ```
+
+## Evaluation methodology
+
+The reproducible offline evaluation uses `data/test_interactions.csv`, generated
+from the processed exercise and food catalogues with a fixed set of 24 synthetic
+profiles. Each profile contributes ten relevant and ten non-relevant exercise
+labels plus ten relevant and ten non-relevant food labels. Relevance rules are
+based on profile goals, activity level, body part, equipment, diet, calories,
+protein, and macronutrients; they do not copy the recommender's output.
+
+For every user/item-type cohort, the evaluator requests five ranked items,
+compares them with the ten relevant labels, and calculates Precision@5,
+Recall@5, F1@5, and binary NDCG@5. The final figures are macro-averages over 48
+cohorts, giving every user and item type equal weight. Exercise evaluation uses
+the hybrid pipeline in its cold-start content mode because synthetic users have
+no database interaction history. Food evaluation uses the food similarity
+pipeline. These values measure the checked-in deterministic benchmark and
+should not be interpreted as online user satisfaction or production accuracy.
+
+## Model Performance
+
+Measured with `python evaluation/evaluate_recommendations.py` at `K=5`:
+
+| Measurement | Result |
+| --- | ---: |
+| Dataset size | 960 labelled rows |
+| Users evaluated | 24 |
+| User/item cohorts | 48 |
+| Precision@5 | 0.8667 |
+| Recall@5 | 0.4333 |
+| F1@5 | 0.5778 |
+| NDCG@5 | 0.8647 |
+
+The dataset contains 480 positive and 480 negative labels. Because each cohort
+has ten relevant items but evaluation returns at most five, Recall@5 is bounded
+by 0.5 for this benchmark.
 
 ## ML training workflow
 

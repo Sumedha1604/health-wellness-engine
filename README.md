@@ -20,25 +20,17 @@ a Python recommendation service to provide personalized exercise guidance.
 ## Architecture
 
 ```text
-Frontend (React static site)
-        │
-        │ VITE_API_URL
-        ▼
-Backend API (Node.js / Express)
-        │
-        ├──────────────────────────┐
-        ▼                          ▼
-MySQL database                ML Service (FastAPI)
-                                      │
-                                      ▼
-                         Recommendation Engine
-                 (content, collaborative, hybrid, deep)
+Frontend (React) → Backend API (Express) → ML Service (FastAPI) → MySQL
+                         │                       │
+                         └──────→ MySQL ←────────┘
 ```
 
 The frontend communicates only with the backend API. The backend owns
 authentication, application data, and optional Groq AI access. The ML service
-is a separate dependency used by the backend and should be reachable only from
-trusted backend infrastructure where possible.
+is a separate dependency used by the backend; it reads exercise catalogues and
+recommendation interactions from MySQL for model ranking. Both services should
+reach MySQL over private infrastructure, and the ML service should be callable
+only by trusted backend infrastructure where possible.
 
 ## Tech stack
 
@@ -180,6 +172,30 @@ Interactive API documentation is available from the backend at `/api-docs`.
 
 The recommendation APIs remain stable regardless of which model path is
 available.
+
+## Database benchmark summary
+
+The MySQL query benchmark reports the median of 40 executions after five
+warm-up runs. The “before” phase suppresses the selected performance indexes;
+the “after” phase uses them. Results from the checked-in benchmark report are:
+
+| Query | Before | After | Latency improvement |
+| --- | ---: | ---: | ---: |
+| Dashboard data | 0.339 ms | 0.214 ms | 36.77% |
+| Food search | 0.943 ms | 0.597 ms | 36.66% |
+| Exercise search | 0.997 ms | 0.232 ms | 76.70% |
+| Recommendation retrieval | 0.272 ms | 0.205 ms | 24.61% |
+| Tracking history | 0.201 ms | 0.171 ms | 14.63% |
+
+Run the benchmark against a configured MySQL database with:
+
+```bash
+cd backend
+npm run benchmark:queries
+```
+
+Absolute timings depend on hardware, database size, and cache state. The full
+measured output is stored in `backend/benchmarks/database_performance_report.md`.
 
 ## Public deployment guide
 
