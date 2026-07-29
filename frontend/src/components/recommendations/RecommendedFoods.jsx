@@ -85,12 +85,16 @@ export default function RecommendedFoods({
             foodIcons[name] || UtensilsCrossed;
 
 
-          const score = isObject
-            ? Math.min(100, Math.max(0, Math.round((food.similarity_score || 0) * 100)))
+          const rawScore = isObject
+            ? food.score ?? food.similarity_score ?? food.confidence
+            : null;
+
+          const score = typeof rawScore === "number"
+            ? Math.min(100, Math.max(0, Math.round(rawScore <= 1 ? rawScore * 100 : rawScore)))
             : null;
 
           const foodId = isObject
-            ? food.food_id
+            ? food.food_id ?? food.id
             : null;
 
           const category = isObject
@@ -180,9 +184,19 @@ export default function RecommendedFoods({
 
 
 
-              <h3 className="mt-5 text-xl font-semibold text-wellness-slate">
-                {name}
-              </h3>
+              <div className="mt-5 flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-wellness-teal">
+                    Food recommendation
+                  </p>
+                  <h3 className="mt-1 text-xl font-semibold text-wellness-slate">
+                    {name}
+                  </h3>
+                </div>
+                <span className="rounded-full border border-wellness-teal/15 bg-wellness-mist px-3 py-1 text-xs font-semibold text-wellness-teal">
+                  Food
+                </span>
+              </div>
 
               <div className="mt-3 flex flex-wrap gap-2">
                 <span className="rounded-full bg-wellness-mist px-3 py-1 text-xs font-semibold text-wellness-teal">

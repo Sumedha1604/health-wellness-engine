@@ -58,11 +58,19 @@ export default function RecommendedExercises({
             {exercises.map((exercise) => {
 
               const score = Math.round(
-                (exercise.score || 0) * 100
+                Math.min(
+                  100,
+                  Math.max(
+                    0,
+                    (exercise.score ?? exercise.similarity_score ?? exercise.confidence ?? 0) <= 1
+                      ? (exercise.score ?? exercise.similarity_score ?? exercise.confidence ?? 0) * 100
+                      : (exercise.score ?? exercise.similarity_score ?? exercise.confidence ?? 0)
+                  )
+                )
               );
 
               const recommendationId =
-                `exercise-${exercise.exercise_id}`;
+                `exercise-${exercise.exercise_id ?? exercise.id}`;
 
 
               return (
@@ -116,9 +124,19 @@ export default function RecommendedExercises({
                   </div>
 
 
-                  <h3 className="mt-5 text-xl font-semibold tracking-tight text-wellness-slate">
-                    {exercise.title}
-                  </h3>
+                  <div className="mt-5 flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-[0.14em] text-wellness-teal">
+                        Exercise recommendation
+                      </p>
+                      <h3 className="mt-1 text-xl font-semibold tracking-tight text-wellness-slate">
+                        {exercise.title}
+                      </h3>
+                    </div>
+                    <span className="rounded-full border border-wellness-aqua/20 bg-[#e1f8fd] px-3 py-1 text-xs font-semibold text-wellness-aqua">
+                      Exercise
+                    </span>
+                  </div>
 
 
                   <div className="mt-4 flex flex-wrap gap-2">
@@ -190,9 +208,7 @@ export default function RecommendedExercises({
 
                     <div className="flex items-center gap-2">
                       <Activity size={16}/>
-                      <span>
-                        Recommendation confidence: {score}%
-                      </span>
+                      <span>AI confidence: {score}%</span>
                     </div>
 
 
@@ -236,8 +252,9 @@ export default function RecommendedExercises({
 
                   <button
                     onClick={() => {
-                      onView?.(exercise.exercise_id);
-                      navigate(`/exercises?exercise_id=${exercise.exercise_id}`);
+                      const exerciseId = exercise.exercise_id ?? exercise.id;
+                      onView?.(exerciseId);
+                      navigate(`/exercises?exercise_id=${exerciseId}`);
                     }}
                     className="
                       mt-6
@@ -262,7 +279,7 @@ export default function RecommendedExercises({
                       onClick={() =>
                         onFeedback?.(
                           "exercise",
-                          exercise.exercise_id,
+                          exercise.exercise_id ?? exercise.id,
                           "like"
                         )
                       }
@@ -285,7 +302,7 @@ export default function RecommendedExercises({
                       onClick={() =>
                         onFeedback?.(
                           "exercise",
-                          exercise.exercise_id,
+                          exercise.exercise_id ?? exercise.id,
                           "dislike"
                         )
                       }

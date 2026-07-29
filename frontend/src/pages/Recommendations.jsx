@@ -226,6 +226,8 @@ export default function Recommendations() {
             <TopRecommendationCard
               recommendation={recommendations.top_recommendation}
               onAddToMealPlan={handleAddToMealPlan}
+              feedback={feedback}
+              onFeedback={handleFeedback}
             />
 
             <div

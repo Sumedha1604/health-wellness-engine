@@ -1,17 +1,30 @@
 import {
   Star,
   UtensilsCrossed,
+  ThumbsDown,
+  ThumbsUp,
 } from "lucide-react";
 
 export default function TopRecommendationCard({
   recommendation,
   onAddToMealPlan,
+  feedback = {},
+  onFeedback,
 }) {
   const isObject = recommendation && typeof recommendation !== "string";
 
   const displayName = isObject
     ? recommendation.food_name || "Recommended Food"
     : recommendation;
+
+  const foodId = isObject ? recommendation.food_id ?? recommendation.id : null;
+  const recommendationId = `food-${foodId}`;
+  const rawScore = isObject
+    ? recommendation.score ?? recommendation.similarity_score ?? recommendation.confidence
+    : null;
+  const score = typeof rawScore === "number"
+    ? Math.min(100, Math.max(0, Math.round(rawScore <= 1 ? rawScore * 100 : rawScore)))
+    : null;
 
   function handleAddClick() {
     if (!onAddToMealPlan || !recommendation) {
@@ -56,7 +69,7 @@ export default function TopRecommendationCard({
             className="text-wellness-aqua fill-wellness-aqua"
             />
             <span className="font-semibold">
-              Personalized
+              Personalized food recommendation
             </span>
           </div>
         </div>
@@ -92,6 +105,17 @@ export default function TopRecommendationCard({
           </div>
         </div>
       )}
+      {score !== null && (
+        <div className="mt-4">
+          <div className="mb-2 flex items-center justify-between text-xs font-semibold text-[#6b8582]">
+            <span>Recommendation confidence</span>
+            <span className="text-wellness-teal">{score}%</span>
+          </div>
+          <div className="h-2 rounded-full bg-[#eaf1f0]">
+            <div className="h-2 rounded-full bg-wellness-teal" style={{ width: `${score}%` }} />
+          </div>
+        </div>
+      )}
       <button
         onClick={handleAddClick}
         className="
@@ -108,6 +132,33 @@ export default function TopRecommendationCard({
       >
         Add to Meal Plan
       </button>
+
+      <div className="mt-4 flex items-center justify-center gap-3">
+        <button
+          type="button"
+          disabled={!foodId}
+          aria-pressed={feedback[recommendationId] === "like"}
+          onClick={() => onFeedback?.("food", foodId, "like")}
+          className={feedback[recommendationId] === "like"
+            ? "flex items-center gap-1.5 rounded-full bg-wellness-mist px-3 py-2 text-sm font-medium text-wellness-teal transition disabled:cursor-not-allowed disabled:opacity-50"
+            : "flex items-center gap-1.5 rounded-full bg-white px-3 py-2 text-sm font-medium text-[#6b8582] ring-1 ring-wellness-teal/15 transition hover:bg-wellness-mist hover:text-wellness-teal disabled:cursor-not-allowed disabled:opacity-50"}
+        >
+          <ThumbsUp size={16} />
+          Like
+        </button>
+        <button
+          type="button"
+          disabled={!foodId}
+          aria-pressed={feedback[recommendationId] === "dislike"}
+          onClick={() => onFeedback?.("food", foodId, "dislike")}
+          className={feedback[recommendationId] === "dislike"
+            ? "flex items-center gap-1.5 rounded-full bg-[#f7eaec] px-3 py-2 text-sm font-medium text-wellness-mauve transition disabled:cursor-not-allowed disabled:opacity-50"
+            : "flex items-center gap-1.5 rounded-full bg-white px-3 py-2 text-sm font-medium text-[#6b8582] ring-1 ring-wellness-mauve/15 transition hover:bg-[#f7eaec] hover:text-wellness-mauve disabled:cursor-not-allowed disabled:opacity-50"}
+        >
+          <ThumbsDown size={16} />
+          Dislike
+        </button>
+      </div>
 
     </div>
   );
